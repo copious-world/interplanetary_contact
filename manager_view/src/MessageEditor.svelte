@@ -37,6 +37,7 @@
 	async function start_composing() {
 		let b_or_p =  ( business ) ? "business" : "profile"
 		let srver = location.host
+		srver = srver.replace('5111','6111')
 		let prot = location.protocol  // prot for (prot)ocol
 		let data_stem = 'contact_form'
 		let sp = '//'
@@ -48,7 +49,7 @@
 
 		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data)
 		if ( search_result ) {
-			let data = search_result.data;
+			let data = search_result;
 			if ( data ) {
 				//
 				let html = data.html
@@ -83,7 +84,7 @@
 	</div>
 	{/if}
 	<span class="large-text-label" >Compose message here:</span> <button class="medium_button" on:click={start_composing}>begin compositions</button>
-	<div id="blg-window-full-text-outgo"  class="full-display" >
+	<div id="blg-window-full-text-outgo"  class="full-display-bottom" >
 		{@html contact_page}
 	</div>
 	<div id="blg-window-full-text-outgo-script" class="is-nothing" ></div>
@@ -124,6 +125,16 @@
 		padding: 6px 4px 6px 4px;
 		overflow-y: scroll;
 		height: 100px;
+		border-bottom: solid 1px rgb(88, 4, 88);
+	}
+
+	.full-display-bottom {
+		background-color: rgba(255, 255, 255, 0.9);
+		color: rgb(73, 1, 1);
+		border-top: solid 2px rgb(88, 4, 88);
+		padding: 6px 4px 6px 4px;
+		overflow-y: scroll;
+		height: calc(80vh - 260px);
 		border-bottom: solid 1px rgb(88, 4, 88);
 	}
 

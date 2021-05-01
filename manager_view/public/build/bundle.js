@@ -7599,7 +7599,7 @@ var app = (function () {
 
     const file$1 = "src/MessageEditor.svelte";
 
-    // (79:1) {#if has_previous }
+    // (80:1) {#if has_previous }
     function create_if_block$1(ctx) {
     	let span;
     	let t1;
@@ -7611,11 +7611,11 @@ var app = (function () {
     			span.textContent = "Previous Message:";
     			t1 = space();
     			div = element("div");
-    			attr_dev(span, "class", "large-text-label svelte-1oewsu6");
-    			add_location(span, file$1, 79, 1, 2112);
+    			attr_dev(span, "class", "large-text-label svelte-19fvcgl");
+    			add_location(span, file$1, 80, 1, 2146);
     			attr_dev(div, "id", "blg-window-full-text-outgo");
-    			attr_dev(div, "class", "full-display svelte-1oewsu6");
-    			add_location(div, file$1, 80, 1, 2170);
+    			attr_dev(div, "class", "full-display svelte-19fvcgl");
+    			add_location(div, file$1, 81, 1, 2204);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7636,7 +7636,7 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(79:1) {#if has_previous }",
+    		source: "(80:1) {#if has_previous }",
     		ctx
     	});
 
@@ -7729,34 +7729,34 @@ var app = (function () {
     			t26 = space();
     			input = element("input");
     			set_style(span0, "background-color", "yellowgreen");
-    			attr_dev(span0, "class", "svelte-1oewsu6");
-    			add_location(span0, file$1, 67, 2, 1700);
-    			attr_dev(span1, "class", "message_indicator svelte-1oewsu6");
-    			add_location(span1, file$1, 68, 2, 1767);
-    			attr_dev(span2, "class", "name svelte-1oewsu6");
-    			add_location(span2, file$1, 70, 3, 1839);
-    			attr_dev(span3, "class", "about_name svelte-1oewsu6");
-    			add_location(span3, file$1, 71, 3, 1876);
-    			add_location(div0, file$1, 69, 2, 1830);
-    			attr_dev(div1, "class", "cool-stuff svelte-1oewsu6");
-    			add_location(div1, file$1, 73, 2, 1949);
+    			attr_dev(span0, "class", "svelte-19fvcgl");
+    			add_location(span0, file$1, 68, 2, 1734);
+    			attr_dev(span1, "class", "message_indicator svelte-19fvcgl");
+    			add_location(span1, file$1, 69, 2, 1801);
+    			attr_dev(span2, "class", "name svelte-19fvcgl");
+    			add_location(span2, file$1, 71, 3, 1873);
+    			attr_dev(span3, "class", "about_name svelte-19fvcgl");
+    			add_location(span3, file$1, 72, 3, 1910);
+    			add_location(div0, file$1, 70, 2, 1864);
+    			attr_dev(div1, "class", "cool-stuff svelte-19fvcgl");
+    			add_location(div1, file$1, 74, 2, 1983);
     			set_style(div2, "padding", "6px");
-    			add_location(div2, file$1, 66, 1, 1670);
-    			attr_dev(span4, "class", "large-text-label svelte-1oewsu6");
-    			add_location(span4, file$1, 84, 1, 2272);
-    			attr_dev(button, "class", "medium_button svelte-1oewsu6");
-    			add_location(button, file$1, 84, 62, 2333);
+    			add_location(div2, file$1, 67, 1, 1704);
+    			attr_dev(span4, "class", "large-text-label svelte-19fvcgl");
+    			add_location(span4, file$1, 85, 1, 2306);
+    			attr_dev(button, "class", "medium_button svelte-19fvcgl");
+    			add_location(button, file$1, 85, 62, 2367);
     			attr_dev(div3, "id", "blg-window-full-text-outgo");
-    			attr_dev(div3, "class", "full-display svelte-1oewsu6");
-    			add_location(div3, file$1, 85, 1, 2419);
+    			attr_dev(div3, "class", "full-display-bottom svelte-19fvcgl");
+    			add_location(div3, file$1, 86, 1, 2453);
     			attr_dev(div4, "id", "blg-window-full-text-outgo-script");
-    			attr_dev(div4, "class", "is-nothing svelte-1oewsu6");
-    			add_location(div4, file$1, 88, 1, 2512);
+    			attr_dev(div4, "class", "is-nothing svelte-19fvcgl");
+    			add_location(div4, file$1, 89, 1, 2553);
     			attr_dev(input, "type", "hidden");
     			attr_dev(input, "id", "pub-key-outgo");
-    			add_location(input, file$1, 89, 1, 2584);
-    			attr_dev(div5, "class", "blg-el-wrapper-full svelte-1oewsu6");
-    			add_location(div5, file$1, 65, 0, 1634);
+    			add_location(input, file$1, 90, 1, 2625);
+    			attr_dev(div5, "class", "blg-el-wrapper-full svelte-19fvcgl");
+    			add_location(div5, file$1, 66, 0, 1668);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7875,6 +7875,7 @@ var app = (function () {
     	async function start_composing() {
     		let b_or_p = business ? "business" : "profile";
     		let srver = location.host;
+    		srver = srver.replace("5111", "6111");
     		let prot = location.protocol; // prot for (prot)ocol
     		let data_stem = "contact_form";
     		let sp = "//";
@@ -7888,7 +7889,7 @@ var app = (function () {
     		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data);
 
     		if (search_result) {
-    			let data = search_result.data;
+    			let data = search_result;
 
     			if (data) {
     				//
@@ -8095,33 +8096,40 @@ var app = (function () {
 
     /* src/App.svelte generated by Svelte v3.37.0 */
 
-    const { console: console_1 } = globals;
+    const { Object: Object_1, console: console_1 } = globals;
     const file = "src/App.svelte";
+
+    function get_each_context_3(ctx, list, i) {
+    	const child_ctx = ctx.slice();
+    	child_ctx[58] = list[i];
+    	child_ctx[4] = i;
+    	return child_ctx;
+    }
 
     function get_each_context_2(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[50] = list[i];
-    	child_ctx[4] = i;
+    	child_ctx[55] = list[i];
+    	child_ctx[27] = i;
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[47] = list[i];
-    	child_ctx[24] = i;
+    	child_ctx[55] = list[i];
+    	child_ctx[26] = i;
     	return child_ctx;
     }
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[47] = list[i];
-    	child_ctx[23] = i;
+    	child_ctx[53] = list[i];
+    	child_ctx[5] = i;
     	return child_ctx;
     }
 
-    // (350:2) <Label>
+    // (410:2) <Label>
     function create_default_slot_4(ctx) {
-    	let t_value = /*tab*/ ctx[52] + "";
+    	let t_value = /*tab*/ ctx[60] + "";
     	let t;
 
     	const block = {
@@ -8132,7 +8140,7 @@ var app = (function () {
     			insert_dev(target, t, anchor);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[1] & /*tab*/ 2097152 && t_value !== (t_value = /*tab*/ ctx[52] + "")) set_data_dev(t, t_value);
+    			if (dirty[1] & /*tab*/ 536870912 && t_value !== (t_value = /*tab*/ ctx[60] + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(t);
@@ -8143,14 +8151,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_4.name,
     		type: "slot",
-    		source: "(350:2) <Label>",
+    		source: "(410:2) <Label>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (349:3) <Tab {tab}>
+    // (409:3) <Tab {tab}>
     function create_default_slot_3(ctx) {
     	let label;
     	let current;
@@ -8174,7 +8182,7 @@ var app = (function () {
     		p: function update(ctx, dirty) {
     			const label_changes = {};
 
-    			if (dirty[1] & /*$$scope, tab*/ 6291456) {
+    			if (dirty[1] & /*$$scope, tab*/ 1610612736) {
     				label_changes.$$scope = { dirty, ctx };
     			}
 
@@ -8198,21 +8206,21 @@ var app = (function () {
     		block,
     		id: create_default_slot_3.name,
     		type: "slot",
-    		source: "(349:3) <Tab {tab}>",
+    		source: "(409:3) <Tab {tab}>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (347:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>
+    // (407:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>
     function create_default_slot_2(ctx) {
     	let tab;
     	let current;
 
     	tab = new Tab({
     			props: {
-    				tab: /*tab*/ ctx[52],
+    				tab: /*tab*/ ctx[60],
     				$$slots: { default: [create_default_slot_3] },
     				$$scope: { ctx }
     			},
@@ -8229,9 +8237,9 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const tab_changes = {};
-    			if (dirty[1] & /*tab*/ 2097152) tab_changes.tab = /*tab*/ ctx[52];
+    			if (dirty[1] & /*tab*/ 536870912) tab_changes.tab = /*tab*/ ctx[60];
 
-    			if (dirty[1] & /*$$scope, tab*/ 6291456) {
+    			if (dirty[1] & /*$$scope, tab*/ 1610612736) {
     				tab_changes.$$scope = { dirty, ctx };
     			}
 
@@ -8255,14 +8263,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_2.name,
     		type: "slot",
-    		source: "(347:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>",
+    		source: "(407:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (489:36) 
+    // (571:36) 
     function create_if_block_9(ctx) {
     	let div;
     	let t0;
@@ -8312,29 +8320,29 @@ var app = (function () {
     			t10 = text("\n\tNow about getting unsoliceted mail or blog feeds from organizations. For these you get a separate number. Messages being sent through a messaging service will use\n\tan API link to send messages to the agreed upon topic (the topic you tell the organization that they can bug you about.) You can use your topic dashbaord to \n\tselect the latest news from organization you care about. \n\t");
     			br8 = element("br");
     			t11 = text("\n\tMessages from contacts will show up in your mail stream (promail). Find links to that on your management dashboard (also generated by when you sign up.)\n\tTo help you find your information when you go back to your browser, the information you enter on signing up will be stored in your broswer's database (indexedDb).\n\tIf you switch browsers, you can always enter your information again, and click \"restore\". You will also find an option to remove your information from your browser.");
-    			attr_dev(br0, "class", "svelte-1m8ei9d");
-    			add_location(br0, file, 492, 1, 14659);
-    			attr_dev(br1, "class", "svelte-1m8ei9d");
-    			add_location(br1, file, 495, 1, 14860);
-    			attr_dev(br2, "class", "svelte-1m8ei9d");
-    			add_location(br2, file, 499, 1, 15216);
-    			attr_dev(br3, "class", "svelte-1m8ei9d");
-    			add_location(br3, file, 503, 1, 15648);
+    			attr_dev(br0, "class", "svelte-gncbva");
+    			add_location(br0, file, 574, 1, 16601);
+    			attr_dev(br1, "class", "svelte-gncbva");
+    			add_location(br1, file, 577, 1, 16802);
+    			attr_dev(br2, "class", "svelte-gncbva");
+    			add_location(br2, file, 581, 1, 17158);
+    			attr_dev(br3, "class", "svelte-gncbva");
+    			add_location(br3, file, 585, 1, 17590);
     			set_style(span, "font-weight", "bold");
-    			attr_dev(span, "class", "svelte-1m8ei9d");
-    			add_location(span, file, 504, 1, 15654);
-    			attr_dev(br4, "class", "svelte-1m8ei9d");
-    			add_location(br4, file, 507, 1, 16061);
-    			attr_dev(br5, "class", "svelte-1m8ei9d");
-    			add_location(br5, file, 510, 1, 16352);
-    			attr_dev(br6, "class", "svelte-1m8ei9d");
-    			add_location(br6, file, 513, 1, 16533);
-    			attr_dev(br7, "class", "svelte-1m8ei9d");
-    			add_location(br7, file, 515, 1, 16653);
-    			attr_dev(br8, "class", "svelte-1m8ei9d");
-    			add_location(br8, file, 519, 1, 17041);
-    			attr_dev(div, "class", "team_message svelte-1m8ei9d");
-    			add_location(div, file, 489, 1, 14462);
+    			attr_dev(span, "class", "svelte-gncbva");
+    			add_location(span, file, 586, 1, 17596);
+    			attr_dev(br4, "class", "svelte-gncbva");
+    			add_location(br4, file, 589, 1, 18003);
+    			attr_dev(br5, "class", "svelte-gncbva");
+    			add_location(br5, file, 592, 1, 18294);
+    			attr_dev(br6, "class", "svelte-gncbva");
+    			add_location(br6, file, 595, 1, 18475);
+    			attr_dev(br7, "class", "svelte-gncbva");
+    			add_location(br7, file, 597, 1, 18595);
+    			attr_dev(br8, "class", "svelte-gncbva");
+    			add_location(br8, file, 601, 1, 18983);
+    			attr_dev(div, "class", "team_message svelte-gncbva");
+    			add_location(div, file, 571, 1, 16404);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -8370,14 +8378,14 @@ var app = (function () {
     		block,
     		id: create_if_block_9.name,
     		type: "if",
-    		source: "(489:36) ",
+    		source: "(571:36) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (437:35) 
+    // (519:35) 
     function create_if_block_5(ctx) {
     	let div8;
     	let div1;
@@ -8430,16 +8438,16 @@ var app = (function () {
     	let button3;
     	let mounted;
     	let dispose;
-    	let each_value_2 = /*filteredIndviduals*/ ctx[2];
-    	validate_each_argument(each_value_2);
+    	let each_value_3 = /*filteredIndviduals*/ ctx[2];
+    	validate_each_argument(each_value_3);
     	let each_blocks = [];
 
-    	for (let i = 0; i < each_value_2.length; i += 1) {
-    		each_blocks[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
+    	for (let i = 0; i < each_value_3.length; i += 1) {
+    		each_blocks[i] = create_each_block_3(get_each_context_3(ctx, each_value_3, i));
     	}
 
     	function select_block_type_3(ctx, dirty) {
-    		if (/*c_business*/ ctx[16]) return create_if_block_8;
+    		if (/*c_business*/ ctx[17]) return create_if_block_8;
     		return create_else_block_4;
     	}
 
@@ -8447,7 +8455,7 @@ var app = (function () {
     	let if_block0 = current_block_type(ctx);
 
     	function select_block_type_4(ctx, dirty) {
-    		if (/*c_business*/ ctx[16]) return create_if_block_7;
+    		if (/*c_business*/ ctx[17]) return create_if_block_7;
     		return create_else_block_3;
     	}
 
@@ -8455,7 +8463,7 @@ var app = (function () {
     	let if_block1 = current_block_type_1(ctx);
 
     	function select_block_type_5(ctx, dirty) {
-    		if (/*c_business*/ ctx[16]) return create_if_block_6;
+    		if (/*c_business*/ ctx[17]) return create_if_block_6;
     		return create_else_block_2;
     	}
 
@@ -8515,7 +8523,7 @@ var app = (function () {
     			span = element("span");
     			span.textContent = "Compose a new message for:";
     			t20 = space();
-    			t21 = text(/*c_name*/ ctx[12]);
+    			t21 = text(/*c_name*/ ctx[13]);
     			t22 = space();
     			br2 = element("br");
     			br3 = element("br");
@@ -8523,73 +8531,73 @@ var app = (function () {
     			button3 = element("button");
     			button3.textContent = "compose";
     			attr_dev(input0, "placeholder", "filter prefix");
-    			attr_dev(input0, "class", "svelte-1m8ei9d");
-    			add_location(input0, file, 439, 3, 12227);
+    			attr_dev(input0, "class", "svelte-gncbva");
+    			add_location(input0, file, 521, 3, 14169);
     			attr_dev(select, "size", 5);
-    			attr_dev(select, "class", "svelte-1m8ei9d");
-    			if (/*i*/ ctx[4] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[34].call(select));
-    			add_location(select, file, 440, 3, 12286);
-    			button0.disabled = button0_disabled_value = !/*c_name*/ ctx[12];
-    			attr_dev(button0, "class", "svelte-1m8ei9d");
-    			add_location(button0, file, 446, 4, 12471);
-    			button1.disabled = button1_disabled_value = !/*c_name*/ ctx[12] || !/*selected*/ ctx[3];
-    			attr_dev(button1, "class", "svelte-1m8ei9d");
-    			add_location(button1, file, 447, 4, 12540);
+    			attr_dev(select, "class", "svelte-gncbva");
+    			if (/*i*/ ctx[4] === void 0) add_render_callback(() => /*select_change_handler_1*/ ctx[38].call(select));
+    			add_location(select, file, 522, 3, 14228);
+    			button0.disabled = button0_disabled_value = !/*c_name*/ ctx[13];
+    			attr_dev(button0, "class", "svelte-gncbva");
+    			add_location(button0, file, 528, 4, 14413);
+    			button1.disabled = button1_disabled_value = !/*c_name*/ ctx[13] || !/*selected*/ ctx[3];
+    			attr_dev(button1, "class", "svelte-gncbva");
+    			add_location(button1, file, 529, 4, 14482);
     			button2.disabled = button2_disabled_value = !/*selected*/ ctx[3];
-    			attr_dev(button2, "class", "svelte-1m8ei9d");
-    			add_location(button2, file, 448, 4, 12628);
-    			attr_dev(div0, "class", "buttons svelte-1m8ei9d");
-    			add_location(div0, file, 445, 3, 12445);
-    			attr_dev(div1, "class", "item svelte-1m8ei9d");
-    			add_location(div1, file, 438, 2, 12204);
-    			attr_dev(br0, "class", "svelte-1m8ei9d");
-    			add_location(br0, file, 452, 3, 12788);
+    			attr_dev(button2, "class", "svelte-gncbva");
+    			add_location(button2, file, 530, 4, 14570);
+    			attr_dev(div0, "class", "buttons svelte-gncbva");
+    			add_location(div0, file, 527, 3, 14387);
+    			attr_dev(div1, "class", "item svelte-gncbva");
+    			add_location(div1, file, 520, 2, 14146);
+    			attr_dev(br0, "class", "svelte-gncbva");
+    			add_location(br0, file, 534, 3, 14730);
     			attr_dev(label0, "for", "name");
     			set_style(label0, "display", "inline");
-    			attr_dev(label0, "class", "svelte-1m8ei9d");
-    			add_location(label0, file, 454, 4, 12825);
+    			attr_dev(label0, "class", "svelte-gncbva");
+    			add_location(label0, file, 536, 4, 14767);
     			attr_dev(input1, "id", "name");
     			attr_dev(input1, "placeholder", "Name");
     			set_style(input1, "display", "inline");
-    			attr_dev(input1, "class", "svelte-1m8ei9d");
-    			add_location(input1, file, 455, 4, 12885);
+    			attr_dev(input1, "class", "svelte-gncbva");
+    			add_location(input1, file, 537, 4, 14827);
     			attr_dev(input2, "type", "checkbox");
     			set_style(input2, "display", "inline");
-    			attr_dev(input2, "class", "svelte-1m8ei9d");
-    			add_location(input2, file, 456, 4, 12969);
-    			attr_dev(div2, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div2, file, 453, 3, 12796);
-    			attr_dev(div3, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div3, file, 463, 3, 13150);
-    			attr_dev(div4, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div4, file, 470, 3, 13542);
+    			attr_dev(input2, "class", "svelte-gncbva");
+    			add_location(input2, file, 538, 4, 14911);
+    			attr_dev(div2, "class", "inner_div svelte-gncbva");
+    			add_location(div2, file, 535, 3, 14738);
+    			attr_dev(div3, "class", "inner_div svelte-gncbva");
+    			add_location(div3, file, 545, 3, 15092);
+    			attr_dev(div4, "class", "inner_div svelte-gncbva");
+    			add_location(div4, file, 552, 3, 15484);
     			attr_dev(label1, "for", "self-text");
-    			attr_dev(label1, "class", "svelte-1m8ei9d");
-    			add_location(label1, file, 478, 3, 13989);
-    			attr_dev(br1, "class", "svelte-1m8ei9d");
-    			add_location(br1, file, 478, 50, 14036);
+    			attr_dev(label1, "class", "svelte-gncbva");
+    			add_location(label1, file, 560, 3, 15931);
+    			attr_dev(br1, "class", "svelte-gncbva");
+    			add_location(br1, file, 560, 50, 15978);
     			attr_dev(textarea, "id", "self-text");
     			attr_dev(textarea, "placeholder", "Copy info given to you by your new contact");
-    			attr_dev(textarea, "class", "svelte-1m8ei9d");
-    			add_location(textarea, file, 479, 3, 14044);
-    			attr_dev(div5, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div5, file, 477, 3, 13961);
-    			attr_dev(div6, "class", "item svelte-1m8ei9d");
+    			attr_dev(textarea, "class", "svelte-gncbva");
+    			add_location(textarea, file, 561, 3, 15986);
+    			attr_dev(div5, "class", "inner_div svelte-gncbva");
+    			add_location(div5, file, 559, 3, 15903);
+    			attr_dev(div6, "class", "item svelte-gncbva");
     			set_style(div6, "border-top", "darkslategrey solid 2px");
-    			add_location(div6, file, 451, 2, 12722);
-    			attr_dev(span, "class", "top_instructions svelte-1m8ei9d");
-    			add_location(span, file, 483, 3, 14250);
-    			attr_dev(br2, "class", "svelte-1m8ei9d");
-    			add_location(br2, file, 484, 3, 14328);
-    			attr_dev(br3, "class", "svelte-1m8ei9d");
-    			add_location(br3, file, 484, 7, 14332);
-    			attr_dev(button3, "class", "long_button svelte-1m8ei9d");
-    			add_location(button3, file, 485, 3, 14340);
-    			attr_dev(div7, "class", "item svelte-1m8ei9d");
+    			add_location(div6, file, 533, 2, 14664);
+    			attr_dev(span, "class", "top_instructions svelte-gncbva");
+    			add_location(span, file, 565, 3, 16192);
+    			attr_dev(br2, "class", "svelte-gncbva");
+    			add_location(br2, file, 566, 3, 16270);
+    			attr_dev(br3, "class", "svelte-gncbva");
+    			add_location(br3, file, 566, 7, 16274);
+    			attr_dev(button3, "class", "long_button svelte-gncbva");
+    			add_location(button3, file, 567, 3, 16282);
+    			attr_dev(div7, "class", "item svelte-gncbva");
     			set_style(div7, "border-top", "darkslategrey solid 2px");
-    			add_location(div7, file, 482, 2, 14182);
-    			attr_dev(div8, "class", "items svelte-1m8ei9d");
-    			add_location(div8, file, 437, 1, 12182);
+    			add_location(div7, file, 564, 2, 16124);
+    			attr_dev(div8, "class", "items svelte-gncbva");
+    			add_location(div8, file, 519, 1, 14124);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div8, anchor);
@@ -8622,10 +8630,10 @@ var app = (function () {
     			append_dev(div2, label0);
     			append_dev(div2, t10);
     			append_dev(div2, input1);
-    			set_input_value(input1, /*c_name*/ ctx[12]);
+    			set_input_value(input1, /*c_name*/ ctx[13]);
     			append_dev(div2, t11);
     			append_dev(div2, input2);
-    			input2.checked = /*c_business*/ ctx[16];
+    			input2.checked = /*c_business*/ ctx[17];
     			append_dev(div2, t12);
     			if_block0.m(div2, null);
     			append_dev(div6, t13);
@@ -8640,7 +8648,7 @@ var app = (function () {
     			append_dev(div5, br1);
     			append_dev(div5, t17);
     			append_dev(div5, textarea);
-    			set_input_value(textarea, /*c_cool_public_info*/ ctx[15]);
+    			set_input_value(textarea, /*c_cool_public_info*/ ctx[16]);
     			append_dev(div8, t18);
     			append_dev(div8, div7);
     			append_dev(div7, span);
@@ -8654,14 +8662,14 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "input", /*input0_input_handler_1*/ ctx[33]),
-    					listen_dev(select, "change", /*select_change_handler*/ ctx[34]),
-    					listen_dev(button0, "click", /*add_contact*/ ctx[19], false, false, false),
-    					listen_dev(button1, "click", /*update_concact*/ ctx[20], false, false, false),
-    					listen_dev(button2, "click", /*remove_contact*/ ctx[21], false, false, false),
-    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[35]),
-    					listen_dev(input2, "change", /*input2_change_handler*/ ctx[36]),
-    					listen_dev(textarea, "input", /*textarea_input_handler_1*/ ctx[41]),
+    					listen_dev(input0, "input", /*input0_input_handler_1*/ ctx[37]),
+    					listen_dev(select, "change", /*select_change_handler_1*/ ctx[38]),
+    					listen_dev(button0, "click", /*add_contact*/ ctx[22], false, false, false),
+    					listen_dev(button1, "click", /*update_concact*/ ctx[23], false, false, false),
+    					listen_dev(button2, "click", /*remove_contact*/ ctx[24], false, false, false),
+    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[39]),
+    					listen_dev(input2, "change", /*input2_change_handler*/ ctx[40]),
+    					listen_dev(textarea, "input", /*textarea_input_handler_1*/ ctx[45]),
     					listen_dev(button3, "click", pop_editor, false, false, false)
     				];
 
@@ -8674,17 +8682,17 @@ var app = (function () {
     			}
 
     			if (dirty[0] & /*filteredIndviduals*/ 4) {
-    				each_value_2 = /*filteredIndviduals*/ ctx[2];
-    				validate_each_argument(each_value_2);
+    				each_value_3 = /*filteredIndviduals*/ ctx[2];
+    				validate_each_argument(each_value_3);
     				let i;
 
-    				for (i = 0; i < each_value_2.length; i += 1) {
-    					const child_ctx = get_each_context_2(ctx, each_value_2, i);
+    				for (i = 0; i < each_value_3.length; i += 1) {
+    					const child_ctx = get_each_context_3(ctx, each_value_3, i);
 
     					if (each_blocks[i]) {
     						each_blocks[i].p(child_ctx, dirty);
     					} else {
-    						each_blocks[i] = create_each_block_2(child_ctx);
+    						each_blocks[i] = create_each_block_3(child_ctx);
     						each_blocks[i].c();
     						each_blocks[i].m(select, null);
     					}
@@ -8694,18 +8702,18 @@ var app = (function () {
     					each_blocks[i].d(1);
     				}
 
-    				each_blocks.length = each_value_2.length;
+    				each_blocks.length = each_value_3.length;
     			}
 
     			if (dirty[0] & /*i*/ 16) {
     				select_option(select, /*i*/ ctx[4]);
     			}
 
-    			if (dirty[0] & /*c_name*/ 4096 && button0_disabled_value !== (button0_disabled_value = !/*c_name*/ ctx[12])) {
+    			if (dirty[0] & /*c_name*/ 8192 && button0_disabled_value !== (button0_disabled_value = !/*c_name*/ ctx[13])) {
     				prop_dev(button0, "disabled", button0_disabled_value);
     			}
 
-    			if (dirty[0] & /*c_name, selected*/ 4104 && button1_disabled_value !== (button1_disabled_value = !/*c_name*/ ctx[12] || !/*selected*/ ctx[3])) {
+    			if (dirty[0] & /*c_name, selected*/ 8200 && button1_disabled_value !== (button1_disabled_value = !/*c_name*/ ctx[13] || !/*selected*/ ctx[3])) {
     				prop_dev(button1, "disabled", button1_disabled_value);
     			}
 
@@ -8713,12 +8721,12 @@ var app = (function () {
     				prop_dev(button2, "disabled", button2_disabled_value);
     			}
 
-    			if (dirty[0] & /*c_name*/ 4096 && input1.value !== /*c_name*/ ctx[12]) {
-    				set_input_value(input1, /*c_name*/ ctx[12]);
+    			if (dirty[0] & /*c_name*/ 8192 && input1.value !== /*c_name*/ ctx[13]) {
+    				set_input_value(input1, /*c_name*/ ctx[13]);
     			}
 
-    			if (dirty[0] & /*c_business*/ 65536) {
-    				input2.checked = /*c_business*/ ctx[16];
+    			if (dirty[0] & /*c_business*/ 131072) {
+    				input2.checked = /*c_business*/ ctx[17];
     			}
 
     			if (current_block_type !== (current_block_type = select_block_type_3(ctx))) {
@@ -8755,11 +8763,11 @@ var app = (function () {
     				}
     			}
 
-    			if (dirty[0] & /*c_cool_public_info*/ 32768) {
-    				set_input_value(textarea, /*c_cool_public_info*/ ctx[15]);
+    			if (dirty[0] & /*c_cool_public_info*/ 65536) {
+    				set_input_value(textarea, /*c_cool_public_info*/ ctx[16]);
     			}
 
-    			if (dirty[0] & /*c_name*/ 4096) set_data_dev(t21, /*c_name*/ ctx[12]);
+    			if (dirty[0] & /*c_name*/ 8192) set_data_dev(t21, /*c_name*/ ctx[13]);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(div8);
@@ -8776,14 +8784,14 @@ var app = (function () {
     		block,
     		id: create_if_block_5.name,
     		type: "if",
-    		source: "(437:35) ",
+    		source: "(519:35) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (417:39) 
+    // (499:39) 
     function create_if_block_4(ctx) {
     	let div0;
     	let t1;
@@ -8796,12 +8804,12 @@ var app = (function () {
     	let th1;
     	let th2;
     	let t5;
-    	let each_value_1 = /*inbound_solicitation_messages*/ ctx[6];
-    	validate_each_argument(each_value_1);
+    	let each_value_2 = /*inbound_solicitation_messages*/ ctx[7];
+    	validate_each_argument(each_value_2);
     	let each_blocks = [];
 
-    	for (let i = 0; i < each_value_1.length; i += 1) {
-    		each_blocks[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
+    	for (let i = 0; i < each_value_2.length; i += 1) {
+    		each_blocks[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
     	}
 
     	const block = {
@@ -8826,29 +8834,29 @@ var app = (function () {
     				each_blocks[i].c();
     			}
 
-    			attr_dev(div0, "class", "svelte-1m8ei9d");
-    			add_location(div0, file, 417, 2, 11428);
+    			attr_dev(div0, "class", "svelte-gncbva");
+    			add_location(div0, file, 499, 2, 13370);
     			set_style(th0, "width", "20%");
-    			attr_dev(th0, "class", "svelte-1m8ei9d");
-    			add_location(th0, file, 423, 7, 11562);
+    			attr_dev(th0, "class", "svelte-gncbva");
+    			add_location(th0, file, 505, 7, 13504);
     			set_style(th1, "width", "30%");
-    			attr_dev(th1, "class", "svelte-1m8ei9d");
-    			add_location(th1, file, 423, 38, 11593);
+    			attr_dev(th1, "class", "svelte-gncbva");
+    			add_location(th1, file, 505, 38, 13535);
     			set_style(th2, "width", "60%");
     			set_style(th2, "text-align", "left");
-    			attr_dev(th2, "class", "svelte-1m8ei9d");
-    			add_location(th2, file, 423, 71, 11626);
-    			attr_dev(tr, "class", "svelte-1m8ei9d");
-    			add_location(tr, file, 422, 6, 11550);
-    			attr_dev(thead, "class", "svelte-1m8ei9d");
-    			add_location(thead, file, 421, 5, 11536);
+    			attr_dev(th2, "class", "svelte-gncbva");
+    			add_location(th2, file, 505, 71, 13568);
+    			attr_dev(tr, "class", "svelte-gncbva");
+    			add_location(tr, file, 504, 6, 13492);
+    			attr_dev(thead, "class", "svelte-gncbva");
+    			add_location(thead, file, 503, 5, 13478);
     			set_style(table, "width", "100%");
-    			attr_dev(table, "class", "svelte-1m8ei9d");
-    			add_location(table, file, 420, 4, 11504);
-    			attr_dev(div1, "class", "tableFixHead svelte-1m8ei9d");
-    			add_location(div1, file, 419, 3, 11472);
-    			attr_dev(div2, "class", "svelte-1m8ei9d");
-    			add_location(div2, file, 418, 2, 11463);
+    			attr_dev(table, "class", "svelte-gncbva");
+    			add_location(table, file, 502, 4, 13446);
+    			attr_dev(div1, "class", "tableFixHead svelte-gncbva");
+    			add_location(div1, file, 501, 3, 13414);
+    			attr_dev(div2, "class", "svelte-gncbva");
+    			add_location(div2, file, 500, 2, 13405);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
@@ -8868,8 +8876,136 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*full_message, inbound_solicitation_messages*/ 4194368) {
-    				each_value_1 = /*inbound_solicitation_messages*/ ctx[6];
+    			if (dirty[0] & /*full_message, inbound_solicitation_messages*/ 33554560) {
+    				each_value_2 = /*inbound_solicitation_messages*/ ctx[7];
+    				validate_each_argument(each_value_2);
+    				let i;
+
+    				for (i = 0; i < each_value_2.length; i += 1) {
+    					const child_ctx = get_each_context_2(ctx, each_value_2, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block_2(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(table, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value_2.length;
+    			}
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(div0);
+    			if (detaching) detach_dev(t1);
+    			if (detaching) detach_dev(div2);
+    			destroy_each(each_blocks, detaching);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_if_block_4.name,
+    		type: "if",
+    		source: "(499:39) ",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (479:35) 
+    function create_if_block_3(ctx) {
+    	let div0;
+    	let t1;
+    	let div2;
+    	let div1;
+    	let table;
+    	let thead;
+    	let tr;
+    	let th0;
+    	let th1;
+    	let th2;
+    	let t5;
+    	let each_value_1 = /*inbound_contact_messages*/ ctx[8];
+    	validate_each_argument(each_value_1);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value_1.length; i += 1) {
+    		each_blocks[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
+    	}
+
+    	const block = {
+    		c: function create() {
+    			div0 = element("div");
+    			div0.textContent = "Your Message History";
+    			t1 = space();
+    			div2 = element("div");
+    			div1 = element("div");
+    			table = element("table");
+    			thead = element("thead");
+    			tr = element("tr");
+    			th0 = element("th");
+    			th0.textContent = "Date";
+    			th1 = element("th");
+    			th1.textContent = "Sender";
+    			th2 = element("th");
+    			th2.textContent = "Subject";
+    			t5 = space();
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(div0, "class", "svelte-gncbva");
+    			add_location(div0, file, 479, 2, 12615);
+    			set_style(th0, "width", "20%");
+    			attr_dev(th0, "class", "svelte-gncbva");
+    			add_location(th0, file, 485, 7, 12748);
+    			set_style(th1, "width", "30%");
+    			attr_dev(th1, "class", "svelte-gncbva");
+    			add_location(th1, file, 485, 38, 12779);
+    			set_style(th2, "width", "60%");
+    			set_style(th2, "text-align", "left");
+    			attr_dev(th2, "class", "svelte-gncbva");
+    			add_location(th2, file, 485, 71, 12812);
+    			attr_dev(tr, "class", "svelte-gncbva");
+    			add_location(tr, file, 484, 6, 12736);
+    			attr_dev(thead, "class", "svelte-gncbva");
+    			add_location(thead, file, 483, 5, 12722);
+    			set_style(table, "width", "100%");
+    			attr_dev(table, "class", "svelte-gncbva");
+    			add_location(table, file, 482, 4, 12690);
+    			attr_dev(div1, "class", "tableFixHead svelte-gncbva");
+    			add_location(div1, file, 481, 3, 12658);
+    			attr_dev(div2, "class", "svelte-gncbva");
+    			add_location(div2, file, 480, 2, 12649);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, div0, anchor);
+    			insert_dev(target, t1, anchor);
+    			insert_dev(target, div2, anchor);
+    			append_dev(div2, div1);
+    			append_dev(div1, table);
+    			append_dev(table, thead);
+    			append_dev(thead, tr);
+    			append_dev(tr, th0);
+    			append_dev(tr, th1);
+    			append_dev(tr, th2);
+    			append_dev(table, t5);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(table, null);
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*full_message, inbound_contact_messages*/ 33554688) {
+    				each_value_1 = /*inbound_contact_messages*/ ctx[8];
     				validate_each_argument(each_value_1);
     				let i;
 
@@ -8902,145 +9038,18 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_if_block_4.name,
-    		type: "if",
-    		source: "(417:39) ",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (397:35) 
-    function create_if_block_3(ctx) {
-    	let div0;
-    	let t1;
-    	let div2;
-    	let div1;
-    	let table;
-    	let thead;
-    	let tr;
-    	let th0;
-    	let th1;
-    	let th2;
-    	let t5;
-    	let each_value = /*inbound_contact_messages*/ ctx[7];
-    	validate_each_argument(each_value);
-    	let each_blocks = [];
-
-    	for (let i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
-    	}
-
-    	const block = {
-    		c: function create() {
-    			div0 = element("div");
-    			div0.textContent = "Your Message History";
-    			t1 = space();
-    			div2 = element("div");
-    			div1 = element("div");
-    			table = element("table");
-    			thead = element("thead");
-    			tr = element("tr");
-    			th0 = element("th");
-    			th0.textContent = "Date";
-    			th1 = element("th");
-    			th1.textContent = "Sender";
-    			th2 = element("th");
-    			th2.textContent = "Subject";
-    			t5 = space();
-
-    			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].c();
-    			}
-
-    			attr_dev(div0, "class", "svelte-1m8ei9d");
-    			add_location(div0, file, 397, 2, 10673);
-    			set_style(th0, "width", "20%");
-    			attr_dev(th0, "class", "svelte-1m8ei9d");
-    			add_location(th0, file, 403, 7, 10806);
-    			set_style(th1, "width", "30%");
-    			attr_dev(th1, "class", "svelte-1m8ei9d");
-    			add_location(th1, file, 403, 38, 10837);
-    			set_style(th2, "width", "60%");
-    			set_style(th2, "text-align", "left");
-    			attr_dev(th2, "class", "svelte-1m8ei9d");
-    			add_location(th2, file, 403, 71, 10870);
-    			attr_dev(tr, "class", "svelte-1m8ei9d");
-    			add_location(tr, file, 402, 6, 10794);
-    			attr_dev(thead, "class", "svelte-1m8ei9d");
-    			add_location(thead, file, 401, 5, 10780);
-    			set_style(table, "width", "100%");
-    			attr_dev(table, "class", "svelte-1m8ei9d");
-    			add_location(table, file, 400, 4, 10748);
-    			attr_dev(div1, "class", "tableFixHead svelte-1m8ei9d");
-    			add_location(div1, file, 399, 3, 10716);
-    			attr_dev(div2, "class", "svelte-1m8ei9d");
-    			add_location(div2, file, 398, 2, 10707);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, div0, anchor);
-    			insert_dev(target, t1, anchor);
-    			insert_dev(target, div2, anchor);
-    			append_dev(div2, div1);
-    			append_dev(div1, table);
-    			append_dev(table, thead);
-    			append_dev(thead, tr);
-    			append_dev(tr, th0);
-    			append_dev(tr, th1);
-    			append_dev(tr, th2);
-    			append_dev(table, t5);
-
-    			for (let i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(table, null);
-    			}
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*full_message, inbound_contact_messages*/ 4194432) {
-    				each_value = /*inbound_contact_messages*/ ctx[7];
-    				validate_each_argument(each_value);
-    				let i;
-
-    				for (i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context(ctx, each_value, i);
-
-    					if (each_blocks[i]) {
-    						each_blocks[i].p(child_ctx, dirty);
-    					} else {
-    						each_blocks[i] = create_each_block(child_ctx);
-    						each_blocks[i].c();
-    						each_blocks[i].m(table, null);
-    					}
-    				}
-
-    				for (; i < each_blocks.length; i += 1) {
-    					each_blocks[i].d(1);
-    				}
-
-    				each_blocks.length = each_value.length;
-    			}
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div0);
-    			if (detaching) detach_dev(t1);
-    			if (detaching) detach_dev(div2);
-    			destroy_each(each_blocks, detaching);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
     		id: create_if_block_3.name,
     		type: "if",
-    		source: "(397:35) ",
+    		source: "(479:35) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (354:1) {#if (active === 'Signup')}
+    // (414:1) {#if (active === 'Signup')}
     function create_if_block(ctx) {
+    	let div13;
     	let div6;
     	let br0;
     	let t0;
@@ -9072,11 +9081,21 @@ var app = (function () {
     	let t16;
     	let t17;
     	let button;
+    	let t19;
+    	let div12;
+    	let div7;
+    	let t21;
+    	let div11;
+    	let div8;
+    	let t23;
+    	let div10;
+    	let div9;
+    	let select;
     	let mounted;
     	let dispose;
 
     	function select_block_type_1(ctx, dirty) {
-    		if (/*business*/ ctx[11]) return create_if_block_2;
+    		if (/*business*/ ctx[12]) return create_if_block_2;
     		return create_else_block_1;
     	}
 
@@ -9084,15 +9103,23 @@ var app = (function () {
     	let if_block0 = current_block_type(ctx);
 
     	function select_block_type_2(ctx, dirty) {
-    		if (/*business*/ ctx[11]) return create_if_block_1;
+    		if (/*business*/ ctx[12]) return create_if_block_1;
     		return create_else_block;
     	}
 
     	let current_block_type_1 = select_block_type_2(ctx);
     	let if_block1 = current_block_type_1(ctx);
+    	let each_value = /*contact_form_links*/ ctx[20];
+    	validate_each_argument(each_value);
+    	let each_blocks = [];
+
+    	for (let i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
 
     	const block = {
     		c: function create() {
+    			div13 = element("div");
     			div6 = element("div");
     			br0 = element("br");
     			t0 = space();
@@ -9125,63 +9152,99 @@ var app = (function () {
     			textarea = element("textarea");
     			t13 = space();
     			div5 = element("div");
-    			t14 = text("Enter your information above. It will be used to make an identifier to be used in your contact page.\n\t\t\tThe information should be unique. For example, I know that my name is shared by at least three other people on the planet,\n\t\t\tall of whom were born in the same year. But, they are from differts or countries.\n\t\t\tThe information that you enter may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail \n\t\t\tfrom groups you choose to select. You may make selections at a later time. \n\t\t\t");
+    			t14 = text("Enter your information above. It will be used to make an identifier to be used in your contact page.\n\t\t\t\tThe information should be unique. For example, I know that my name is shared by at least three other people on the planet,\n\t\t\t\tall of whom were born in the same year. But, they are from differts or countries.\n\t\t\t\tThe information that you enter may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail \n\t\t\t\tfrom groups you choose to select. You may make selections at a later time. \n\t\t\t\t");
     			span1 = element("span");
     			span1.textContent = "Note:";
-    			t16 = text(" no information will be sent to any organization as a result of signing up.\n\t\t\tAll information and your personalized assets, including your contact page will be stored in the Interplanetary File System, and will be \n\t\t\taccessible from there through any service you wish to use to access it.");
+    			t16 = text(" no information will be sent to any organization as a result of signing up.\n\t\t\t\tAll information and your personalized assets, including your contact page will be stored in the Interplanetary File System, and will be \n\t\t\t\taccessible from there through any service you wish to use to access it.");
     			t17 = space();
     			button = element("button");
     			button.textContent = "Create my contact page.";
-    			attr_dev(br0, "class", "svelte-1m8ei9d");
-    			add_location(br0, file, 355, 2, 8184);
-    			attr_dev(div0, "class", "top_instructions svelte-1m8ei9d");
-    			add_location(div0, file, 356, 2, 8191);
-    			attr_dev(br1, "class", "svelte-1m8ei9d");
-    			add_location(br1, file, 359, 2, 8333);
+    			t19 = space();
+    			div12 = element("div");
+    			div7 = element("div");
+    			div7.textContent = "drop a picture here";
+    			t21 = space();
+    			div11 = element("div");
+    			div8 = element("div");
+    			div8.textContent = "Select a contact from";
+    			t23 = space();
+    			div10 = element("div");
+    			div9 = element("div");
+    			select = element("select");
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+
+    			attr_dev(br0, "class", "svelte-gncbva");
+    			add_location(br0, file, 416, 3, 9676);
+    			attr_dev(div0, "class", "top_instructions svelte-gncbva");
+    			add_location(div0, file, 417, 3, 9684);
+    			attr_dev(br1, "class", "svelte-gncbva");
+    			add_location(br1, file, 420, 3, 9829);
     			attr_dev(label0, "for", "name");
     			set_style(label0, "display", "inline");
-    			attr_dev(label0, "class", "svelte-1m8ei9d");
-    			add_location(label0, file, 361, 3, 8368);
+    			attr_dev(label0, "class", "svelte-gncbva");
+    			add_location(label0, file, 422, 4, 9866);
     			attr_dev(input0, "id", "name");
     			attr_dev(input0, "placeholder", "Name");
     			set_style(input0, "display", "inline");
-    			attr_dev(input0, "class", "svelte-1m8ei9d");
-    			add_location(input0, file, 362, 3, 8427);
+    			attr_dev(input0, "class", "svelte-gncbva");
+    			add_location(input0, file, 423, 4, 9926);
     			attr_dev(input1, "type", "checkbox");
     			set_style(input1, "display", "inline");
-    			attr_dev(input1, "class", "svelte-1m8ei9d");
-    			add_location(input1, file, 363, 3, 8508);
-    			attr_dev(span0, "class", "svelte-1m8ei9d");
-    			add_location(span0, file, 363, 75, 8580);
-    			attr_dev(div1, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div1, file, 360, 2, 8340);
-    			attr_dev(div2, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div2, file, 365, 2, 8626);
-    			attr_dev(div3, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div3, file, 372, 2, 9005);
+    			attr_dev(input1, "class", "svelte-gncbva");
+    			add_location(input1, file, 424, 4, 10008);
+    			attr_dev(span0, "class", "svelte-gncbva");
+    			add_location(span0, file, 424, 76, 10080);
+    			attr_dev(div1, "class", "inner_div svelte-gncbva");
+    			add_location(div1, file, 421, 3, 9837);
+    			attr_dev(div2, "class", "inner_div svelte-gncbva");
+    			add_location(div2, file, 426, 3, 10128);
+    			attr_dev(div3, "class", "inner_div svelte-gncbva");
+    			add_location(div3, file, 433, 3, 10514);
     			attr_dev(label1, "for", "self-text");
-    			attr_dev(label1, "class", "svelte-1m8ei9d");
-    			add_location(label1, file, 380, 2, 9438);
-    			attr_dev(br2, "class", "svelte-1m8ei9d");
-    			add_location(br2, file, 380, 49, 9485);
+    			attr_dev(label1, "class", "svelte-gncbva");
+    			add_location(label1, file, 441, 3, 10955);
+    			attr_dev(br2, "class", "svelte-gncbva");
+    			add_location(br2, file, 441, 50, 11002);
     			attr_dev(textarea, "id", "self-text");
     			attr_dev(textarea, "placeholder", "Something you would say to anyone about yourself");
-    			attr_dev(textarea, "class", "svelte-1m8ei9d");
-    			add_location(textarea, file, 381, 2, 9492);
-    			attr_dev(div4, "class", "inner_div svelte-1m8ei9d");
-    			add_location(div4, file, 379, 2, 9411);
+    			attr_dev(textarea, "class", "svelte-gncbva");
+    			add_location(textarea, file, 442, 3, 11010);
+    			attr_dev(div4, "class", "inner_div svelte-gncbva");
+    			add_location(div4, file, 440, 3, 10927);
     			set_style(span1, "color", "blue");
-    			attr_dev(span1, "class", "svelte-1m8ei9d");
-    			add_location(span1, file, 390, 3, 10203);
-    			attr_dev(div5, "class", "nice_message svelte-1m8ei9d");
-    			add_location(div5, file, 384, 2, 9625);
-    			attr_dev(button, "class", "long_button svelte-1m8ei9d");
-    			add_location(button, file, 394, 2, 10543);
-    			attr_dev(div6, "class", "signerupper svelte-1m8ei9d");
-    			add_location(div6, file, 354, 1, 8156);
+    			attr_dev(span1, "class", "svelte-gncbva");
+    			add_location(span1, file, 451, 4, 11730);
+    			attr_dev(div5, "class", "nice_message svelte-gncbva");
+    			add_location(div5, file, 445, 3, 11146);
+    			attr_dev(button, "class", "long_button svelte-gncbva");
+    			add_location(button, file, 455, 3, 12074);
+    			attr_dev(div6, "class", "signerupper svelte-gncbva");
+    			add_location(div6, file, 415, 2, 9647);
+    			attr_dev(div7, "class", "svelte-gncbva");
+    			add_location(div7, file, 458, 3, 12198);
+    			attr_dev(div8, "class", "svelte-gncbva");
+    			add_location(div8, file, 462, 4, 12251);
+    			attr_dev(select, "size", 10);
+    			attr_dev(select, "class", "svelte-gncbva");
+    			if (/*form_index*/ ctx[5] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[36].call(select));
+    			add_location(select, file, 466, 6, 12334);
+    			attr_dev(div9, "class", "tableFixHead svelte-gncbva");
+    			add_location(div9, file, 464, 5, 12299);
+    			attr_dev(div10, "class", "svelte-gncbva");
+    			add_location(div10, file, 463, 4, 12288);
+    			attr_dev(div11, "class", "svelte-gncbva");
+    			add_location(div11, file, 461, 3, 12241);
+    			attr_dev(div12, "class", "signerupper svelte-gncbva");
+    			add_location(div12, file, 457, 2, 12169);
+    			attr_dev(div13, "class", "signup-grid-container svelte-gncbva");
+    			add_location(div13, file, 414, 1, 9609);
     		},
     		m: function mount(target, anchor) {
-    			insert_dev(target, div6, anchor);
+    			insert_dev(target, div13, anchor);
+    			append_dev(div13, div6);
     			append_dev(div6, br0);
     			append_dev(div6, t0);
     			append_dev(div6, div0);
@@ -9195,7 +9258,7 @@ var app = (function () {
     			set_input_value(input0, /*name*/ ctx[1]);
     			append_dev(div1, t6);
     			append_dev(div1, input1);
-    			input1.checked = /*business*/ ctx[11];
+    			input1.checked = /*business*/ ctx[12];
     			append_dev(div1, span0);
     			append_dev(div6, t8);
     			append_dev(div6, div2);
@@ -9209,7 +9272,7 @@ var app = (function () {
     			append_dev(div4, br2);
     			append_dev(div4, t12);
     			append_dev(div4, textarea);
-    			set_input_value(textarea, /*cool_public_info*/ ctx[10]);
+    			set_input_value(textarea, /*cool_public_info*/ ctx[11]);
     			append_dev(div6, t13);
     			append_dev(div6, div5);
     			append_dev(div5, t14);
@@ -9217,13 +9280,30 @@ var app = (function () {
     			append_dev(div5, t16);
     			append_dev(div6, t17);
     			append_dev(div6, button);
+    			append_dev(div13, t19);
+    			append_dev(div13, div12);
+    			append_dev(div12, div7);
+    			append_dev(div12, t21);
+    			append_dev(div12, div11);
+    			append_dev(div11, div8);
+    			append_dev(div11, t23);
+    			append_dev(div11, div10);
+    			append_dev(div10, div9);
+    			append_dev(div9, select);
+
+    			for (let i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(select, null);
+    			}
+
+    			select_option(select, /*form_index*/ ctx[5]);
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[26]),
-    					listen_dev(input1, "change", /*input1_change_handler*/ ctx[27]),
-    					listen_dev(textarea, "input", /*textarea_input_handler*/ ctx[32]),
-    					listen_dev(button, "click", add_profile, false, false, false)
+    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[29]),
+    					listen_dev(input1, "change", /*input1_change_handler*/ ctx[30]),
+    					listen_dev(textarea, "input", /*textarea_input_handler*/ ctx[35]),
+    					listen_dev(button, "click", /*add_profile*/ ctx[21], false, false, false),
+    					listen_dev(select, "change", /*select_change_handler*/ ctx[36])
     				];
 
     				mounted = true;
@@ -9234,8 +9314,8 @@ var app = (function () {
     				set_input_value(input0, /*name*/ ctx[1]);
     			}
 
-    			if (dirty[0] & /*business*/ 2048) {
-    				input1.checked = /*business*/ ctx[11];
+    			if (dirty[0] & /*business*/ 4096) {
+    				input1.checked = /*business*/ ctx[12];
     			}
 
     			if (current_block_type === (current_block_type = select_block_type_1(ctx)) && if_block0) {
@@ -9262,14 +9342,43 @@ var app = (function () {
     				}
     			}
 
-    			if (dirty[0] & /*cool_public_info*/ 1024) {
-    				set_input_value(textarea, /*cool_public_info*/ ctx[10]);
+    			if (dirty[0] & /*cool_public_info*/ 2048) {
+    				set_input_value(textarea, /*cool_public_info*/ ctx[11]);
+    			}
+
+    			if (dirty[0] & /*contact_form_links*/ 1048576) {
+    				each_value = /*contact_form_links*/ ctx[20];
+    				validate_each_argument(each_value);
+    				let i;
+
+    				for (i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(child_ctx, dirty);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(select, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+
+    				each_blocks.length = each_value.length;
+    			}
+
+    			if (dirty[0] & /*form_index*/ 32) {
+    				select_option(select, /*form_index*/ ctx[5]);
     			}
     		},
     		d: function destroy(detaching) {
-    			if (detaching) detach_dev(div6);
+    			if (detaching) detach_dev(div13);
     			if_block0.d();
     			if_block1.d();
+    			destroy_each(each_blocks, detaching);
     			mounted = false;
     			run_all(dispose);
     		}
@@ -9279,17 +9388,17 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(354:1) {#if (active === 'Signup')}",
+    		source: "(414:1) {#if (active === 'Signup')}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (442:4) {#each filteredIndviduals as individual, i}
-    function create_each_block_2(ctx) {
+    // (524:4) {#each filteredIndviduals as individual, i}
+    function create_each_block_3(ctx) {
     	let option;
-    	let t_value = /*individual*/ ctx[50].name + "";
+    	let t_value = /*individual*/ ctx[58].name + "";
     	let t;
 
     	const block = {
@@ -9298,15 +9407,15 @@ var app = (function () {
     			t = text(t_value);
     			option.__value = /*i*/ ctx[4];
     			option.value = option.__value;
-    			attr_dev(option, "class", "svelte-1m8ei9d");
-    			add_location(option, file, 442, 5, 12372);
+    			attr_dev(option, "class", "svelte-gncbva");
+    			add_location(option, file, 524, 5, 14314);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
     			append_dev(option, t);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*filteredIndviduals*/ 4 && t_value !== (t_value = /*individual*/ ctx[50].name + "")) set_data_dev(t, t_value);
+    			if (dirty[0] & /*filteredIndviduals*/ 4 && t_value !== (t_value = /*individual*/ ctx[58].name + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(option);
@@ -9315,16 +9424,16 @@ var app = (function () {
 
     	dispatch_dev("SvelteRegisterBlock", {
     		block,
-    		id: create_each_block_2.name,
+    		id: create_each_block_3.name,
     		type: "each",
-    		source: "(442:4) {#each filteredIndviduals as individual, i}",
+    		source: "(524:4) {#each filteredIndviduals as individual, i}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (460:4) {:else}
+    // (542:4) {:else}
     function create_else_block_4(ctx) {
     	let span;
 
@@ -9332,8 +9441,8 @@ var app = (function () {
     		c: function create() {
     			span = element("span");
     			span.textContent = "Person";
-    			attr_dev(span, "class", "svelte-1m8ei9d");
-    			add_location(span, file, 460, 4, 13107);
+    			attr_dev(span, "class", "svelte-gncbva");
+    			add_location(span, file, 542, 4, 15049);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -9347,14 +9456,14 @@ var app = (function () {
     		block,
     		id: create_else_block_4.name,
     		type: "else",
-    		source: "(460:4) {:else}",
+    		source: "(542:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (458:4) {#if c_business }
+    // (540:4) {#if c_business }
     function create_if_block_8(ctx) {
     	let span;
 
@@ -9362,8 +9471,8 @@ var app = (function () {
     		c: function create() {
     			span = element("span");
     			span.textContent = "Business";
-    			attr_dev(span, "class", "svelte-1m8ei9d");
-    			add_location(span, file, 458, 4, 13069);
+    			attr_dev(span, "class", "svelte-gncbva");
+    			add_location(span, file, 540, 4, 15011);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -9377,14 +9486,14 @@ var app = (function () {
     		block,
     		id: create_if_block_8.name,
     		type: "if",
-    		source: "(458:4) {#if c_business }",
+    		source: "(540:4) {#if c_business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (467:4) {:else}
+    // (549:4) {:else}
     function create_else_block_3(ctx) {
     	let label;
     	let input;
@@ -9398,27 +9507,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 467, 4, 13377);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 549, 4, 15319);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Date of Birth");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 467, 58, 13431);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 549, 58, 15373);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*c_DOB*/ ctx[13]);
+    			set_input_value(input, /*c_DOB*/ ctx[14]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_5*/ ctx[38]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_5*/ ctx[42]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*c_DOB*/ 8192 && input.value !== /*c_DOB*/ ctx[13]) {
-    				set_input_value(input, /*c_DOB*/ ctx[13]);
+    			if (dirty[0] & /*c_DOB*/ 16384 && input.value !== /*c_DOB*/ ctx[14]) {
+    				set_input_value(input, /*c_DOB*/ ctx[14]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -9433,14 +9542,14 @@ var app = (function () {
     		block,
     		id: create_else_block_3.name,
     		type: "else",
-    		source: "(467:4) {:else}",
+    		source: "(549:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (465:4) {#if c_business }
+    // (547:4) {#if c_business }
     function create_if_block_7(ctx) {
     	let label;
     	let input;
@@ -9454,27 +9563,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 465, 4, 13201);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 547, 4, 15143);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Year of Inception");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 465, 72, 13269);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 547, 72, 15211);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*c_DOB*/ ctx[13]);
+    			set_input_value(input, /*c_DOB*/ ctx[14]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_4*/ ctx[37]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_4*/ ctx[41]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*c_DOB*/ 8192 && input.value !== /*c_DOB*/ ctx[13]) {
-    				set_input_value(input, /*c_DOB*/ ctx[13]);
+    			if (dirty[0] & /*c_DOB*/ 16384 && input.value !== /*c_DOB*/ ctx[14]) {
+    				set_input_value(input, /*c_DOB*/ ctx[14]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -9489,14 +9598,14 @@ var app = (function () {
     		block,
     		id: create_if_block_7.name,
     		type: "if",
-    		source: "(465:4) {#if c_business }",
+    		source: "(547:4) {#if c_business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (474:4) {:else}
+    // (556:4) {:else}
     function create_else_block_2(ctx) {
     	let label;
     	let input;
@@ -9510,27 +9619,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 474, 4, 13770);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 556, 4, 15712);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Place of Origin");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 474, 70, 13836);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 556, 70, 15778);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*c_place_of_origin*/ ctx[14]);
+    			set_input_value(input, /*c_place_of_origin*/ ctx[15]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_7*/ ctx[40]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_7*/ ctx[44]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*c_place_of_origin*/ 16384 && input.value !== /*c_place_of_origin*/ ctx[14]) {
-    				set_input_value(input, /*c_place_of_origin*/ ctx[14]);
+    			if (dirty[0] & /*c_place_of_origin*/ 32768 && input.value !== /*c_place_of_origin*/ ctx[15]) {
+    				set_input_value(input, /*c_place_of_origin*/ ctx[15]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -9545,14 +9654,14 @@ var app = (function () {
     		block,
     		id: create_else_block_2.name,
     		type: "else",
-    		source: "(474:4) {:else}",
+    		source: "(556:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (472:4) {#if c_business }
+    // (554:4) {#if c_business }
     function create_if_block_6(ctx) {
     	let label;
     	let input;
@@ -9566,27 +9675,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 472, 4, 13593);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 554, 4, 15535);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Main Office");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 472, 67, 13656);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 554, 67, 15598);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*c_place_of_origin*/ ctx[14]);
+    			set_input_value(input, /*c_place_of_origin*/ ctx[15]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_6*/ ctx[39]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_6*/ ctx[43]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*c_place_of_origin*/ 16384 && input.value !== /*c_place_of_origin*/ ctx[14]) {
-    				set_input_value(input, /*c_place_of_origin*/ ctx[14]);
+    			if (dirty[0] & /*c_place_of_origin*/ 32768 && input.value !== /*c_place_of_origin*/ ctx[15]) {
+    				set_input_value(input, /*c_place_of_origin*/ ctx[15]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -9601,26 +9710,26 @@ var app = (function () {
     		block,
     		id: create_if_block_6.name,
     		type: "if",
-    		source: "(472:4) {#if c_business }",
+    		source: "(554:4) {#if c_business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (427:4) {#each inbound_solicitation_messages as a_message, i_i }
-    function create_each_block_1(ctx) {
+    // (509:4) {#each inbound_solicitation_messages as a_message, i_i }
+    function create_each_block_2(ctx) {
     	let tr;
     	let td0;
-    	let t0_value = /*a_message*/ ctx[47].date + "";
+    	let t0_value = /*a_message*/ ctx[55].date + "";
     	let t0;
     	let t1;
     	let td1;
-    	let t2_value = /*a_message*/ ctx[47].name + "";
+    	let t2_value = /*a_message*/ ctx[55].name + "";
     	let t2;
     	let t3;
     	let td2;
-    	let t4_value = /*a_message*/ ctx[47].subject + "";
+    	let t4_value = /*a_message*/ ctx[55].subject + "";
     	let t4;
     	let t5;
     	let mounted;
@@ -9638,19 +9747,19 @@ var app = (function () {
     			td2 = element("td");
     			t4 = text(t4_value);
     			t5 = space();
-    			attr_dev(td0, "class", "date svelte-1m8ei9d");
+    			attr_dev(td0, "class", "date svelte-gncbva");
     			set_style(td0, "width", "20%");
     			set_style(td0, "text-align", "center");
-    			add_location(td0, file, 428, 6, 11879);
-    			attr_dev(td1, "class", "sender svelte-1m8ei9d");
+    			add_location(td0, file, 510, 6, 13821);
+    			attr_dev(td1, "class", "sender svelte-gncbva");
     			set_style(td1, "width", "30%");
-    			add_location(td1, file, 429, 6, 11961);
-    			attr_dev(td2, "class", "subject svelte-1m8ei9d");
+    			add_location(td1, file, 511, 6, 13903);
+    			attr_dev(td2, "class", "subject svelte-gncbva");
     			set_style(td2, "width", "60%");
-    			add_location(td2, file, 430, 6, 12027);
-    			attr_dev(tr, "id", "m_intro_" + /*i_i*/ ctx[24]);
-    			attr_dev(tr, "class", "element-poster svelte-1m8ei9d");
-    			add_location(tr, file, 427, 5, 11771);
+    			add_location(td2, file, 512, 6, 13969);
+    			attr_dev(tr, "id", "m_intro_" + /*i_i*/ ctx[27]);
+    			attr_dev(tr, "class", "element-poster svelte-gncbva");
+    			add_location(tr, file, 509, 5, 13713);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, tr, anchor);
@@ -9666,7 +9775,7 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(tr, "click", /*full_message*/ ctx[22], false, false, false),
+    					listen_dev(tr, "click", /*full_message*/ ctx[25], false, false, false),
     					listen_dev(tr, "mouseover", show_subject, false, false, false)
     				];
 
@@ -9674,9 +9783,97 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*inbound_solicitation_messages*/ 64 && t0_value !== (t0_value = /*a_message*/ ctx[47].date + "")) set_data_dev(t0, t0_value);
-    			if (dirty[0] & /*inbound_solicitation_messages*/ 64 && t2_value !== (t2_value = /*a_message*/ ctx[47].name + "")) set_data_dev(t2, t2_value);
-    			if (dirty[0] & /*inbound_solicitation_messages*/ 64 && t4_value !== (t4_value = /*a_message*/ ctx[47].subject + "")) set_data_dev(t4, t4_value);
+    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t0_value !== (t0_value = /*a_message*/ ctx[55].date + "")) set_data_dev(t0, t0_value);
+    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t2_value !== (t2_value = /*a_message*/ ctx[55].name + "")) set_data_dev(t2, t2_value);
+    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t4_value !== (t4_value = /*a_message*/ ctx[55].subject + "")) set_data_dev(t4, t4_value);
+    		},
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(tr);
+    			mounted = false;
+    			run_all(dispose);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block_2.name,
+    		type: "each",
+    		source: "(509:4) {#each inbound_solicitation_messages as a_message, i_i }",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (489:4) {#each inbound_contact_messages as a_message, c_i }
+    function create_each_block_1(ctx) {
+    	let tr;
+    	let td0;
+    	let t0_value = /*a_message*/ ctx[55].date + "";
+    	let t0;
+    	let t1;
+    	let td1;
+    	let t2_value = /*a_message*/ ctx[55].name + "";
+    	let t2;
+    	let t3;
+    	let td2;
+    	let t4_value = /*a_message*/ ctx[55].subject + "";
+    	let t4;
+    	let t5;
+    	let mounted;
+    	let dispose;
+
+    	const block = {
+    		c: function create() {
+    			tr = element("tr");
+    			td0 = element("td");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			td1 = element("td");
+    			t2 = text(t2_value);
+    			t3 = space();
+    			td2 = element("td");
+    			t4 = text(t4_value);
+    			t5 = space();
+    			attr_dev(td0, "class", "date svelte-gncbva");
+    			set_style(td0, "width", "20%");
+    			set_style(td0, "text-align", "center");
+    			add_location(td0, file, 490, 6, 13062);
+    			attr_dev(td1, "class", "sender svelte-gncbva");
+    			set_style(td1, "width", "30%");
+    			add_location(td1, file, 491, 6, 13144);
+    			attr_dev(td2, "class", "subject svelte-gncbva");
+    			set_style(td2, "width", "60%");
+    			add_location(td2, file, 492, 6, 13210);
+    			attr_dev(tr, "id", "m_contact_" + /*c_i*/ ctx[26]);
+    			attr_dev(tr, "class", "element-poster svelte-gncbva");
+    			add_location(tr, file, 489, 5, 12952);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, tr, anchor);
+    			append_dev(tr, td0);
+    			append_dev(td0, t0);
+    			append_dev(tr, t1);
+    			append_dev(tr, td1);
+    			append_dev(td1, t2);
+    			append_dev(tr, t3);
+    			append_dev(tr, td2);
+    			append_dev(td2, t4);
+    			append_dev(tr, t5);
+
+    			if (!mounted) {
+    				dispose = [
+    					listen_dev(tr, "click", /*full_message*/ ctx[25], false, false, false),
+    					listen_dev(tr, "mouseover", show_subject, false, false, false)
+    				];
+
+    				mounted = true;
+    			}
+    		},
+    		p: function update(ctx, dirty) {
+    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t0_value !== (t0_value = /*a_message*/ ctx[55].date + "")) set_data_dev(t0, t0_value);
+    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t2_value !== (t2_value = /*a_message*/ ctx[55].name + "")) set_data_dev(t2, t2_value);
+    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t4_value !== (t4_value = /*a_message*/ ctx[55].subject + "")) set_data_dev(t4, t4_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(tr);
@@ -9689,102 +9886,14 @@ var app = (function () {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(427:4) {#each inbound_solicitation_messages as a_message, i_i }",
+    		source: "(489:4) {#each inbound_contact_messages as a_message, c_i }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (407:4) {#each inbound_contact_messages as a_message, c_i }
-    function create_each_block(ctx) {
-    	let tr;
-    	let td0;
-    	let t0_value = /*a_message*/ ctx[47].date + "";
-    	let t0;
-    	let t1;
-    	let td1;
-    	let t2_value = /*a_message*/ ctx[47].name + "";
-    	let t2;
-    	let t3;
-    	let td2;
-    	let t4_value = /*a_message*/ ctx[47].subject + "";
-    	let t4;
-    	let t5;
-    	let mounted;
-    	let dispose;
-
-    	const block = {
-    		c: function create() {
-    			tr = element("tr");
-    			td0 = element("td");
-    			t0 = text(t0_value);
-    			t1 = space();
-    			td1 = element("td");
-    			t2 = text(t2_value);
-    			t3 = space();
-    			td2 = element("td");
-    			t4 = text(t4_value);
-    			t5 = space();
-    			attr_dev(td0, "class", "date svelte-1m8ei9d");
-    			set_style(td0, "width", "20%");
-    			set_style(td0, "text-align", "center");
-    			add_location(td0, file, 408, 6, 11120);
-    			attr_dev(td1, "class", "sender svelte-1m8ei9d");
-    			set_style(td1, "width", "30%");
-    			add_location(td1, file, 409, 6, 11202);
-    			attr_dev(td2, "class", "subject svelte-1m8ei9d");
-    			set_style(td2, "width", "60%");
-    			add_location(td2, file, 410, 6, 11268);
-    			attr_dev(tr, "id", "m_contact_" + /*c_i*/ ctx[23]);
-    			attr_dev(tr, "class", "element-poster svelte-1m8ei9d");
-    			add_location(tr, file, 407, 5, 11010);
-    		},
-    		m: function mount(target, anchor) {
-    			insert_dev(target, tr, anchor);
-    			append_dev(tr, td0);
-    			append_dev(td0, t0);
-    			append_dev(tr, t1);
-    			append_dev(tr, td1);
-    			append_dev(td1, t2);
-    			append_dev(tr, t3);
-    			append_dev(tr, td2);
-    			append_dev(td2, t4);
-    			append_dev(tr, t5);
-
-    			if (!mounted) {
-    				dispose = [
-    					listen_dev(tr, "click", /*full_message*/ ctx[22], false, false, false),
-    					listen_dev(tr, "mouseover", show_subject, false, false, false)
-    				];
-
-    				mounted = true;
-    			}
-    		},
-    		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*inbound_contact_messages*/ 128 && t0_value !== (t0_value = /*a_message*/ ctx[47].date + "")) set_data_dev(t0, t0_value);
-    			if (dirty[0] & /*inbound_contact_messages*/ 128 && t2_value !== (t2_value = /*a_message*/ ctx[47].name + "")) set_data_dev(t2, t2_value);
-    			if (dirty[0] & /*inbound_contact_messages*/ 128 && t4_value !== (t4_value = /*a_message*/ ctx[47].subject + "")) set_data_dev(t4, t4_value);
-    		},
-    		d: function destroy(detaching) {
-    			if (detaching) detach_dev(tr);
-    			mounted = false;
-    			run_all(dispose);
-    		}
-    	};
-
-    	dispatch_dev("SvelteRegisterBlock", {
-    		block,
-    		id: create_each_block.name,
-    		type: "each",
-    		source: "(407:4) {#each inbound_contact_messages as a_message, c_i }",
-    		ctx
-    	});
-
-    	return block;
-    }
-
-    // (369:3) {:else}
+    // (430:4) {:else}
     function create_else_block_1(ctx) {
     	let label;
     	let input;
@@ -9798,27 +9907,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 369, 3, 8845);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 430, 4, 10351);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Date of Birth");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 369, 57, 8899);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 430, 58, 10405);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*DOB*/ ctx[8]);
+    			set_input_value(input, /*DOB*/ ctx[9]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_1*/ ctx[29]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_1*/ ctx[32]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*DOB*/ 256 && input.value !== /*DOB*/ ctx[8]) {
-    				set_input_value(input, /*DOB*/ ctx[8]);
+    			if (dirty[0] & /*DOB*/ 512 && input.value !== /*DOB*/ ctx[9]) {
+    				set_input_value(input, /*DOB*/ ctx[9]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -9833,14 +9942,14 @@ var app = (function () {
     		block,
     		id: create_else_block_1.name,
     		type: "else",
-    		source: "(369:3) {:else}",
+    		source: "(430:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (367:3) {#if business }
+    // (428:4) {#if business }
     function create_if_block_2(ctx) {
     	let label;
     	let input;
@@ -9854,27 +9963,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 367, 3, 8673);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 428, 4, 10177);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Year of Inception");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 367, 71, 8741);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 428, 72, 10245);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*DOB*/ ctx[8]);
+    			set_input_value(input, /*DOB*/ ctx[9]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler*/ ctx[28]);
+    				dispose = listen_dev(input, "input", /*input_input_handler*/ ctx[31]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*DOB*/ 256 && input.value !== /*DOB*/ ctx[8]) {
-    				set_input_value(input, /*DOB*/ ctx[8]);
+    			if (dirty[0] & /*DOB*/ 512 && input.value !== /*DOB*/ ctx[9]) {
+    				set_input_value(input, /*DOB*/ ctx[9]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -9889,14 +9998,14 @@ var app = (function () {
     		block,
     		id: create_if_block_2.name,
     		type: "if",
-    		source: "(367:3) {#if business }",
+    		source: "(428:4) {#if business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (376:3) {:else}
+    // (437:4) {:else}
     function create_else_block(ctx) {
     	let label;
     	let input;
@@ -9910,27 +10019,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 376, 3, 9225);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 437, 4, 10738);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Place of Origin");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 376, 69, 9291);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 437, 70, 10804);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*place_of_origin*/ ctx[9]);
+    			set_input_value(input, /*place_of_origin*/ ctx[10]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_3*/ ctx[31]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_3*/ ctx[34]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*place_of_origin*/ 512 && input.value !== /*place_of_origin*/ ctx[9]) {
-    				set_input_value(input, /*place_of_origin*/ ctx[9]);
+    			if (dirty[0] & /*place_of_origin*/ 1024 && input.value !== /*place_of_origin*/ ctx[10]) {
+    				set_input_value(input, /*place_of_origin*/ ctx[10]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -9945,14 +10054,14 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(376:3) {:else}",
+    		source: "(437:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (374:3) {#if business }
+    // (435:4) {#if business }
     function create_if_block_1(ctx) {
     	let label;
     	let input;
@@ -9966,27 +10075,27 @@ var app = (function () {
     			input = element("input");
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
-    			attr_dev(label, "class", "svelte-1m8ei9d");
-    			add_location(label, file, 374, 3, 9052);
+    			attr_dev(label, "class", "svelte-gncbva");
+    			add_location(label, file, 435, 4, 10563);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Main Office");
     			set_style(input, "display", "inline");
-    			attr_dev(input, "class", "svelte-1m8ei9d");
-    			add_location(input, file, 374, 66, 9115);
+    			attr_dev(input, "class", "svelte-gncbva");
+    			add_location(input, file, 435, 67, 10626);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
     			insert_dev(target, input, anchor);
-    			set_input_value(input, /*place_of_origin*/ ctx[9]);
+    			set_input_value(input, /*place_of_origin*/ ctx[10]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_2*/ ctx[30]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_2*/ ctx[33]);
     				mounted = true;
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*place_of_origin*/ 512 && input.value !== /*place_of_origin*/ ctx[9]) {
-    				set_input_value(input, /*place_of_origin*/ ctx[9]);
+    			if (dirty[0] & /*place_of_origin*/ 1024 && input.value !== /*place_of_origin*/ ctx[10]) {
+    				set_input_value(input, /*place_of_origin*/ ctx[10]);
     			}
     		},
     		d: function destroy(detaching) {
@@ -10001,18 +10110,54 @@ var app = (function () {
     		block,
     		id: create_if_block_1.name,
     		type: "if",
-    		source: "(374:3) {#if business }",
+    		source: "(435:4) {#if business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (528:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>
+    // (468:7) {#each contact_form_links as form_link, form_index}
+    function create_each_block(ctx) {
+    	let option;
+    	let t_value = /*form_link*/ ctx[53] + "";
+    	let t;
+
+    	const block = {
+    		c: function create() {
+    			option = element("option");
+    			t = text(t_value);
+    			option.__value = /*form_index*/ ctx[5];
+    			option.value = option.__value;
+    			attr_dev(option, "class", "svelte-gncbva");
+    			add_location(option, file, 468, 8, 12444);
+    		},
+    		m: function mount(target, anchor) {
+    			insert_dev(target, option, anchor);
+    			append_dev(option, t);
+    		},
+    		p: noop,
+    		d: function destroy(detaching) {
+    			if (detaching) detach_dev(option);
+    		}
+    	};
+
+    	dispatch_dev("SvelteRegisterBlock", {
+    		block,
+    		id: create_each_block.name,
+    		type: "each",
+    		source: "(468:7) {#each contact_form_links as form_link, form_index}",
+    		ctx
+    	});
+
+    	return block;
+    }
+
+    // (610:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>
     function create_default_slot_1(ctx) {
     	let messagedisplay;
     	let current;
-    	const messagedisplay_spread_levels = [/*message_selected*/ ctx[17]];
+    	const messagedisplay_spread_levels = [/*message_selected*/ ctx[18]];
     	let messagedisplay_props = {};
 
     	for (let i = 0; i < messagedisplay_spread_levels.length; i += 1) {
@@ -10033,8 +10178,8 @@ var app = (function () {
     			current = true;
     		},
     		p: function update(ctx, dirty) {
-    			const messagedisplay_changes = (dirty[0] & /*message_selected*/ 131072)
-    			? get_spread_update(messagedisplay_spread_levels, [get_spread_object(/*message_selected*/ ctx[17])])
+    			const messagedisplay_changes = (dirty[0] & /*message_selected*/ 262144)
+    			? get_spread_update(messagedisplay_spread_levels, [get_spread_object(/*message_selected*/ ctx[18])])
     			: {};
 
     			messagedisplay.$set(messagedisplay_changes);
@@ -10057,14 +10202,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_1.name,
     		type: "slot",
-    		source: "(528:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>",
+    		source: "(610:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (532:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
+    // (614:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
     function create_default_slot(ctx) {
     	let messageeditor;
     	let current;
@@ -10113,7 +10258,7 @@ var app = (function () {
     		block,
     		id: create_default_slot.name,
     		type: "slot",
-    		source: "(532:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>",
+    		source: "(614:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>",
     		ctx
     	});
 
@@ -10134,7 +10279,7 @@ var app = (function () {
     	let current;
 
     	function tabbar_active_binding(value) {
-    		/*tabbar_active_binding*/ ctx[25](value);
+    		/*tabbar_active_binding*/ ctx[28](value);
     	}
 
     	let tabbar_props = {
@@ -10142,26 +10287,26 @@ var app = (function () {
     		$$slots: {
     			default: [
     				create_default_slot_2,
-    				({ tab }) => ({ 52: tab }),
-    				({ tab }) => [0, tab ? 2097152 : 0]
+    				({ tab }) => ({ 60: tab }),
+    				({ tab }) => [0, tab ? 536870912 : 0]
     			]
     		},
     		$$scope: { ctx }
     	};
 
-    	if (/*active*/ ctx[5] !== void 0) {
-    		tabbar_props.active = /*active*/ ctx[5];
+    	if (/*active*/ ctx[6] !== void 0) {
+    		tabbar_props.active = /*active*/ ctx[6];
     	}
 
     	tabbar = new TabBar({ props: tabbar_props, $$inline: true });
     	binding_callbacks.push(() => bind(tabbar, "active", tabbar_active_binding));
 
     	function select_block_type(ctx, dirty) {
-    		if (/*active*/ ctx[5] === "Signup") return create_if_block;
-    		if (/*active*/ ctx[5] === "Messages") return create_if_block_3;
-    		if (/*active*/ ctx[5] === "Introductions") return create_if_block_4;
-    		if (/*active*/ ctx[5] === "Contacts") return create_if_block_5;
-    		if (/*active*/ ctx[5] === "About Us") return create_if_block_9;
+    		if (/*active*/ ctx[6] === "Signup") return create_if_block;
+    		if (/*active*/ ctx[6] === "Messages") return create_if_block_3;
+    		if (/*active*/ ctx[6] === "Introductions") return create_if_block_4;
+    		if (/*active*/ ctx[6] === "Contacts") return create_if_block_5;
+    		if (/*active*/ ctx[6] === "About Us") return create_if_block_9;
     	}
 
     	let current_block_type = select_block_type(ctx);
@@ -10169,8 +10314,8 @@ var app = (function () {
 
     	floatwindow0 = new FloatWindow({
     			props: {
-    				title: /*message_selected*/ ctx[17].name,
-    				scale_size: /*window_scale*/ ctx[18],
+    				title: /*message_selected*/ ctx[18].name,
+    				scale_size: /*window_scale*/ ctx[19],
     				index: 0,
     				use_smoke: false,
     				$$slots: { default: [create_default_slot_1] },
@@ -10182,7 +10327,7 @@ var app = (function () {
     	floatwindow1 = new FloatWindow({
     			props: {
     				title: /*selected*/ ctx[3].name,
-    				scale_size: /*window_scale*/ ctx[18],
+    				scale_size: /*window_scale*/ ctx[19],
     				index: 1,
     				use_smoke: false,
     				$$slots: { default: [create_default_slot] },
@@ -10203,10 +10348,10 @@ var app = (function () {
     			create_component(floatwindow0.$$.fragment);
     			t3 = space();
     			create_component(floatwindow1.$$.fragment);
-    			attr_dev(br, "class", "svelte-1m8ei9d");
-    			add_location(br, file, 352, 2, 8121);
-    			attr_dev(div, "class", "svelte-1m8ei9d");
-    			add_location(div, file, 342, 0, 7832);
+    			attr_dev(br, "class", "svelte-gncbva");
+    			add_location(br, file, 412, 2, 9574);
+    			attr_dev(div, "class", "svelte-gncbva");
+    			add_location(div, file, 402, 0, 9285);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -10227,13 +10372,13 @@ var app = (function () {
     		p: function update(ctx, dirty) {
     			const tabbar_changes = {};
 
-    			if (dirty[1] & /*$$scope, tab*/ 6291456) {
+    			if (dirty[1] & /*$$scope, tab*/ 1610612736) {
     				tabbar_changes.$$scope = { dirty, ctx };
     			}
 
-    			if (!updating_active && dirty[0] & /*active*/ 32) {
+    			if (!updating_active && dirty[0] & /*active*/ 64) {
     				updating_active = true;
-    				tabbar_changes.active = /*active*/ ctx[5];
+    				tabbar_changes.active = /*active*/ ctx[6];
     				add_flush_callback(() => updating_active = false);
     			}
 
@@ -10252,19 +10397,19 @@ var app = (function () {
     			}
 
     			const floatwindow0_changes = {};
-    			if (dirty[0] & /*message_selected*/ 131072) floatwindow0_changes.title = /*message_selected*/ ctx[17].name;
-    			if (dirty[0] & /*window_scale*/ 262144) floatwindow0_changes.scale_size = /*window_scale*/ ctx[18];
+    			if (dirty[0] & /*message_selected*/ 262144) floatwindow0_changes.title = /*message_selected*/ ctx[18].name;
+    			if (dirty[0] & /*window_scale*/ 524288) floatwindow0_changes.scale_size = /*window_scale*/ ctx[19];
 
-    			if (dirty[0] & /*message_selected*/ 131072 | dirty[1] & /*$$scope*/ 4194304) {
+    			if (dirty[0] & /*message_selected*/ 262144 | dirty[1] & /*$$scope*/ 1073741824) {
     				floatwindow0_changes.$$scope = { dirty, ctx };
     			}
 
     			floatwindow0.$set(floatwindow0_changes);
     			const floatwindow1_changes = {};
     			if (dirty[0] & /*selected*/ 8) floatwindow1_changes.title = /*selected*/ ctx[3].name;
-    			if (dirty[0] & /*window_scale*/ 262144) floatwindow1_changes.scale_size = /*window_scale*/ ctx[18];
+    			if (dirty[0] & /*window_scale*/ 524288) floatwindow1_changes.scale_size = /*window_scale*/ ctx[19];
 
-    			if (dirty[0] & /*selected*/ 8 | dirty[1] & /*$$scope*/ 4194304) {
+    			if (dirty[0] & /*selected*/ 8 | dirty[1] & /*$$scope*/ 1073741824) {
     				floatwindow1_changes.$$scope = { dirty, ctx };
     			}
 
@@ -10309,6 +10454,14 @@ var app = (function () {
     	return block;
     }
 
+    async function gen_public_key(post_data) {
+    	let keys = await promail_user_starter_keys();
+    	post_data.public_key = keys.pk_str;
+    	let storage_data = Object.assign({}, post_data);
+    	storage_data.priv_key = keys.priv_key;
+    	store_user_key(storage_data);
+    }
+
     function popup_size() {
     	let smallest_w = 200; // smallest and bigget willing to accomodate
     	let biggest_w = 3000;
@@ -10350,10 +10503,6 @@ var app = (function () {
     	return { "w": w_scale, "h": h_scale };
     }
 
-    function add_profile() {
-    	
-    } //
-
     function pop_editor() {
     	start_floating_window(1);
     }
@@ -10362,11 +10511,16 @@ var app = (function () {
     	
     }
 
+    function preview_contact_form(ev) {
+    	
+    } // start_floating_window(2);
+
     function instance($$self, $$props, $$invalidate) {
     	let filteredIndviduals;
     	let selected;
     	let { $$slots: slots = {}, $$scope } = $$props;
     	validate_slots("App", slots, []);
+    	let cid = "";
     	let active = "Signup";
 
     	let individuals = [
@@ -10374,7 +10528,7 @@ var app = (function () {
     			"name": "Hans Solo",
     			"DOB": "1000",
     			"place_of_origin": "alpha centauri",
-    			"cool_public_info": "I am a Master Jedi",
+    			"cool_public_info": "He is a Master Jedi",
     			"business": false,
     			"public_key": true,
     			"answer_message": ""
@@ -10442,10 +10596,13 @@ var app = (function () {
     		}
     	];
 
+    	let contact_form_links = ["contact_style_1.html", "contact_style_2.html"];
+    	let selected_form_link = "contact_style_1.html";
     	let prefix = "";
     	let i = 0;
     	let c_i = 0;
     	let i_i = 0;
+    	let form_index = 0;
     	let name = "";
     	let DOB = "";
     	let place_of_origin = "";
@@ -10479,11 +10636,41 @@ var app = (function () {
     			let scale = popup_size();
 
     			//
-    			$$invalidate(18, window_scale.h = scale.h, window_scale);
+    			$$invalidate(19, window_scale.h = scale.h, window_scale);
 
-    			$$invalidate(18, window_scale.w = scale.w, window_scale);
+    			$$invalidate(19, window_scale.w = scale.w, window_scale);
     		}); //
     	});
+
+    	// ADD PROFILE.....
+    	async function add_profile() {
+    		//
+    		let b_or_p = business ? "business" : "profile";
+
+    		let srver = location.host;
+    		srver = srver.replace("5111", "6111"); // CHANGE THIS
+    		let prot = location.protocol; // prot for (prot)ocol
+    		let data_stem = "add";
+    		let sp = "//";
+
+    		let post_data = {
+    			name,
+    			DOB,
+    			place_of_origin,
+    			cool_public_info,
+    			business,
+    			"public_key": false,
+    			"form_link": selected_form_link,
+    			"answer_message": ""
+    		};
+
+    		await gen_public_key(post_data); // by ref
+    		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data);
+
+    		if (search_result) {
+    			cid = search_result.cid;
+    		}
+    	}
 
     	function add_contact() {
     		people = people.concat({ first, last });
@@ -10507,11 +10694,11 @@ var app = (function () {
     	}
 
     	function reset_inputs(individual) {
-    		$$invalidate(12, c_name = individual ? individual.name : "");
-    		$$invalidate(13, c_DOB = individual ? individual.DOB : "");
-    		$$invalidate(14, c_place_of_origin = individual ? individual.place_of_origin : "");
-    		$$invalidate(15, c_cool_public_info = individual ? individual.cool_public_info : "");
-    		$$invalidate(16, c_business = individual ? individual.business : "");
+    		$$invalidate(13, c_name = individual ? individual.name : "");
+    		$$invalidate(14, c_DOB = individual ? individual.DOB : "");
+    		$$invalidate(15, c_place_of_origin = individual ? individual.place_of_origin : "");
+    		$$invalidate(16, c_cool_public_info = individual ? individual.cool_public_info : "");
+    		$$invalidate(17, c_business = individual ? individual.business : "");
     	}
 
     	function full_message(ev) {
@@ -10527,10 +10714,10 @@ var app = (function () {
     					if (parts[0] === "m") {
     						if (parts[1] === "contact") {
     							let index = parseInt(parts[2]);
-    							$$invalidate(17, message_selected = inbound_contact_messages[index]);
+    							$$invalidate(18, message_selected = inbound_contact_messages[index]);
     						} else {
     							let index = parseInt(parts[2]);
-    							$$invalidate(17, message_selected = inbound_solicitation_messages[index]);
+    							$$invalidate(18, message_selected = inbound_solicitation_messages[index]);
     						}
     					}
     				}
@@ -10542,13 +10729,13 @@ var app = (function () {
 
     	const writable_props = [];
 
-    	Object.keys($$props).forEach(key => {
+    	Object_1.keys($$props).forEach(key => {
     		if (!~writable_props.indexOf(key) && key.slice(0, 2) !== "$$") console_1.warn(`<App> was created with unknown prop '${key}'`);
     	});
 
     	function tabbar_active_binding(value) {
     		active = value;
-    		$$invalidate(5, active);
+    		$$invalidate(6, active);
     	}
 
     	function input0_input_handler() {
@@ -10558,32 +10745,37 @@ var app = (function () {
 
     	function input1_change_handler() {
     		business = this.checked;
-    		$$invalidate(11, business);
+    		$$invalidate(12, business);
     	}
 
     	function input_input_handler() {
     		DOB = this.value;
-    		$$invalidate(8, DOB);
+    		$$invalidate(9, DOB);
     	}
 
     	function input_input_handler_1() {
     		DOB = this.value;
-    		$$invalidate(8, DOB);
+    		$$invalidate(9, DOB);
     	}
 
     	function input_input_handler_2() {
     		place_of_origin = this.value;
-    		$$invalidate(9, place_of_origin);
+    		$$invalidate(10, place_of_origin);
     	}
 
     	function input_input_handler_3() {
     		place_of_origin = this.value;
-    		$$invalidate(9, place_of_origin);
+    		$$invalidate(10, place_of_origin);
     	}
 
     	function textarea_input_handler() {
     		cool_public_info = this.value;
-    		$$invalidate(10, cool_public_info);
+    		$$invalidate(11, cool_public_info);
+    	}
+
+    	function select_change_handler() {
+    		form_index = select_value(this);
+    		$$invalidate(5, form_index);
     	}
 
     	function input0_input_handler_1() {
@@ -10591,44 +10783,44 @@ var app = (function () {
     		$$invalidate(0, prefix);
     	}
 
-    	function select_change_handler() {
+    	function select_change_handler_1() {
     		i = select_value(this);
     		$$invalidate(4, i);
     	}
 
     	function input1_input_handler() {
     		c_name = this.value;
-    		$$invalidate(12, c_name);
+    		$$invalidate(13, c_name);
     	}
 
     	function input2_change_handler() {
     		c_business = this.checked;
-    		$$invalidate(16, c_business);
+    		$$invalidate(17, c_business);
     	}
 
     	function input_input_handler_4() {
     		c_DOB = this.value;
-    		$$invalidate(13, c_DOB);
+    		$$invalidate(14, c_DOB);
     	}
 
     	function input_input_handler_5() {
     		c_DOB = this.value;
-    		$$invalidate(13, c_DOB);
+    		$$invalidate(14, c_DOB);
     	}
 
     	function input_input_handler_6() {
     		c_place_of_origin = this.value;
-    		$$invalidate(14, c_place_of_origin);
+    		$$invalidate(15, c_place_of_origin);
     	}
 
     	function input_input_handler_7() {
     		c_place_of_origin = this.value;
-    		$$invalidate(14, c_place_of_origin);
+    		$$invalidate(15, c_place_of_origin);
     	}
 
     	function textarea_input_handler_1() {
     		c_cool_public_info = this.value;
-    		$$invalidate(15, c_cool_public_info);
+    		$$invalidate(16, c_cool_public_info);
     	}
 
     	$$self.$capture_state = () => ({
@@ -10639,16 +10831,20 @@ var app = (function () {
     		FloatWindow,
     		MessageDisplay,
     		MessageEditor,
+    		cid,
     		active,
     		individuals,
     		inbound_solicitation_messages,
     		inbound_contact_messages,
     		todays_date,
     		inbound_messages,
+    		contact_form_links,
+    		selected_form_link,
     		prefix,
     		i,
     		c_i,
     		i_i,
+    		form_index,
     		name,
     		DOB,
     		place_of_origin,
@@ -10661,6 +10857,7 @@ var app = (function () {
     		c_business,
     		today,
     		message_selected,
+    		gen_public_key,
     		window_scale,
     		popup_size,
     		add_profile,
@@ -10671,34 +10868,39 @@ var app = (function () {
     		pop_editor,
     		show_subject,
     		full_message,
+    		preview_contact_form,
     		filteredIndviduals,
     		selected
     	});
 
     	$$self.$inject_state = $$props => {
-    		if ("active" in $$props) $$invalidate(5, active = $$props.active);
-    		if ("individuals" in $$props) $$invalidate(42, individuals = $$props.individuals);
-    		if ("inbound_solicitation_messages" in $$props) $$invalidate(6, inbound_solicitation_messages = $$props.inbound_solicitation_messages);
-    		if ("inbound_contact_messages" in $$props) $$invalidate(7, inbound_contact_messages = $$props.inbound_contact_messages);
+    		if ("cid" in $$props) cid = $$props.cid;
+    		if ("active" in $$props) $$invalidate(6, active = $$props.active);
+    		if ("individuals" in $$props) $$invalidate(48, individuals = $$props.individuals);
+    		if ("inbound_solicitation_messages" in $$props) $$invalidate(7, inbound_solicitation_messages = $$props.inbound_solicitation_messages);
+    		if ("inbound_contact_messages" in $$props) $$invalidate(8, inbound_contact_messages = $$props.inbound_contact_messages);
     		if ("todays_date" in $$props) todays_date = $$props.todays_date;
-    		if ("inbound_messages" in $$props) $$invalidate(44, inbound_messages = $$props.inbound_messages);
+    		if ("inbound_messages" in $$props) $$invalidate(50, inbound_messages = $$props.inbound_messages);
+    		if ("contact_form_links" in $$props) $$invalidate(20, contact_form_links = $$props.contact_form_links);
+    		if ("selected_form_link" in $$props) selected_form_link = $$props.selected_form_link;
     		if ("prefix" in $$props) $$invalidate(0, prefix = $$props.prefix);
     		if ("i" in $$props) $$invalidate(4, i = $$props.i);
-    		if ("c_i" in $$props) $$invalidate(23, c_i = $$props.c_i);
-    		if ("i_i" in $$props) $$invalidate(24, i_i = $$props.i_i);
+    		if ("c_i" in $$props) $$invalidate(26, c_i = $$props.c_i);
+    		if ("i_i" in $$props) $$invalidate(27, i_i = $$props.i_i);
+    		if ("form_index" in $$props) $$invalidate(5, form_index = $$props.form_index);
     		if ("name" in $$props) $$invalidate(1, name = $$props.name);
-    		if ("DOB" in $$props) $$invalidate(8, DOB = $$props.DOB);
-    		if ("place_of_origin" in $$props) $$invalidate(9, place_of_origin = $$props.place_of_origin);
-    		if ("cool_public_info" in $$props) $$invalidate(10, cool_public_info = $$props.cool_public_info);
-    		if ("business" in $$props) $$invalidate(11, business = $$props.business);
-    		if ("c_name" in $$props) $$invalidate(12, c_name = $$props.c_name);
-    		if ("c_DOB" in $$props) $$invalidate(13, c_DOB = $$props.c_DOB);
-    		if ("c_place_of_origin" in $$props) $$invalidate(14, c_place_of_origin = $$props.c_place_of_origin);
-    		if ("c_cool_public_info" in $$props) $$invalidate(15, c_cool_public_info = $$props.c_cool_public_info);
-    		if ("c_business" in $$props) $$invalidate(16, c_business = $$props.c_business);
+    		if ("DOB" in $$props) $$invalidate(9, DOB = $$props.DOB);
+    		if ("place_of_origin" in $$props) $$invalidate(10, place_of_origin = $$props.place_of_origin);
+    		if ("cool_public_info" in $$props) $$invalidate(11, cool_public_info = $$props.cool_public_info);
+    		if ("business" in $$props) $$invalidate(12, business = $$props.business);
+    		if ("c_name" in $$props) $$invalidate(13, c_name = $$props.c_name);
+    		if ("c_DOB" in $$props) $$invalidate(14, c_DOB = $$props.c_DOB);
+    		if ("c_place_of_origin" in $$props) $$invalidate(15, c_place_of_origin = $$props.c_place_of_origin);
+    		if ("c_cool_public_info" in $$props) $$invalidate(16, c_cool_public_info = $$props.c_cool_public_info);
+    		if ("c_business" in $$props) $$invalidate(17, c_business = $$props.c_business);
     		if ("today" in $$props) today = $$props.today;
-    		if ("message_selected" in $$props) $$invalidate(17, message_selected = $$props.message_selected);
-    		if ("window_scale" in $$props) $$invalidate(18, window_scale = $$props.window_scale);
+    		if ("message_selected" in $$props) $$invalidate(18, message_selected = $$props.message_selected);
+    		if ("window_scale" in $$props) $$invalidate(19, window_scale = $$props.window_scale);
     		if ("filteredIndviduals" in $$props) $$invalidate(2, filteredIndviduals = $$props.filteredIndviduals);
     		if ("selected" in $$props) $$invalidate(3, selected = $$props.selected);
     	};
@@ -10724,14 +10926,18 @@ var app = (function () {
     		if ($$self.$$.dirty[0] & /*selected*/ 8) {
     			reset_inputs(selected);
     		}
+
+    		if ($$self.$$.dirty[0] & /*form_index*/ 32) {
+    			selected_form_link = contact_form_links[form_index];
+    		}
     	};
 
     	{
-    		$$invalidate(7, inbound_contact_messages = inbound_messages.filter(msg => {
+    		$$invalidate(8, inbound_contact_messages = inbound_messages.filter(msg => {
     			return msg.public_key == true;
     		}));
 
-    		$$invalidate(6, inbound_solicitation_messages = inbound_messages.filter(msg => {
+    		$$invalidate(7, inbound_solicitation_messages = inbound_messages.filter(msg => {
     			return msg.public_key == false;
     		}));
     	}
@@ -10742,6 +10948,7 @@ var app = (function () {
     		filteredIndviduals,
     		selected,
     		i,
+    		form_index,
     		active,
     		inbound_solicitation_messages,
     		inbound_contact_messages,
@@ -10756,6 +10963,8 @@ var app = (function () {
     		c_business,
     		message_selected,
     		window_scale,
+    		contact_form_links,
+    		add_profile,
     		add_contact,
     		update_concact,
     		remove_contact,
@@ -10770,8 +10979,9 @@ var app = (function () {
     		input_input_handler_2,
     		input_input_handler_3,
     		textarea_input_handler,
-    		input0_input_handler_1,
     		select_change_handler,
+    		input0_input_handler_1,
+    		select_change_handler_1,
     		input1_input_handler,
     		input2_change_handler,
     		input_input_handler_4,

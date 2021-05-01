@@ -8,12 +8,13 @@
 	import MessageDisplay from './MessageDisplay.svelte'
 	import MessageEditor from './MessageEditor.svelte'
 
+	let cid = ""
 
 	let active = 'Signup';
 
 
 	let individuals = [
-		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "I am a Master Jedi", "business" : false, "public_key" : true, "answer_message" : ""},
+		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : true, "answer_message" : ""},
 		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "answer_message" : "I got your songs"},
 		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : true, "answer_message" : "" }
 	];
@@ -30,10 +31,18 @@
 		{ "name": 'Darth Vadar', "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" },
 	]
 
+	let contact_form_links = [
+		"contact_style_1.html",
+		"contact_style_2.html"
+	]
+
+	let selected_form_link = "contact_style_1.html"
+
 	let prefix = '';
 	let i = 0;
 	let c_i = 0;
 	let i_i = 0;
+	let form_index = 0
 
 	let name = ''
 	let DOB = ''
@@ -63,6 +72,9 @@
 	$: reset_inputs(selected);
 
 
+	$: selected_form_link = contact_form_links[form_index]
+
+
 	$: {
 		inbound_contact_messages = inbound_messages.filter(msg => {
 			return (msg.public_key == true)
@@ -71,6 +83,16 @@
 			return (msg.public_key == false)
 		})
 	}
+
+
+	async function gen_public_key(post_data) {
+		let keys = await promail_user_starter_keys()
+		post_data.public_key = keys.pk_str
+		let storage_data = Object.assign({},post_data)
+		storage_data.priv_key = keys.priv_key
+		store_user_key(storage_data)
+	}
+ 
 
 	let window_scale = { "w" : 0.4, "h" : 0.8 }
 
@@ -128,8 +150,34 @@
 	})
 
 
-	function add_profile() {
+	// ADD PROFILE.....
+
+	async function add_profile() {
 		//
+		let b_or_p =  ( business ) ? "business" : "profile"
+		let srver = location.host
+		srver = srver.replace('5111','6111')  // CHANGE THIS
+		let prot = location.protocol  // prot for (prot)ocol
+		let data_stem = 'add'
+		let sp = '//'
+		let post_data = {
+			"name": name,
+			"DOB" : DOB,
+			"place_of_origin" : place_of_origin, 
+			"cool_public_info" : cool_public_info, 
+			"business" : business, 
+			"public_key" : false, 
+			"form_link" : selected_form_link,
+			"answer_message" : ""
+		}
+
+		await gen_public_key(post_data) // by ref
+		
+		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data)
+		if ( search_result ) {
+			cid = search_result.cid;
+		}
+
 	}
 
 	function add_contact() {
@@ -194,6 +242,10 @@
 		start_floating_window(0);
 	}
 
+
+	function preview_contact_form(ev) {
+		// start_floating_window(2);
+	}
 
 </script>
 
@@ -338,6 +390,14 @@
 		cursor: pointer;
 	}
 
+	.signup-grid-container {
+		display: grid;
+		grid-column-gap: 2px;
+		grid-row-gap: 2px;
+		grid-template-columns: auto auto;
+		background-color: rgb(250, 250, 242);
+		padding: 4px;
+	}
 </style>
 
 <div>
@@ -352,48 +412,70 @@
 	</TabBar>
   <br>
 	{#if (active === 'Signup')}
-	<div class="signerupper">
-		<br>
-		<div class="top_instructions" >
-			Please enter Unique Information about yourself which you would be willing to share with anyone:
+	<div class="signup-grid-container">
+		<div class="signerupper">
+			<br>
+			<div class="top_instructions" >
+				Please enter Unique Information about yourself which you would be willing to share with anyone:
+			</div>
+			<br>
+			<div class="inner_div" >
+				<label for="name"style="display:inline" >Name: </label>
+				<input id="name" bind:value={name} placeholder="Name" style="display:inline">
+				<input bind:checked={business}  type="checkbox" style="display:inline" ><span>Business (if checked)</span>
+			</div>
+			<div class="inner_div" >
+				{#if business }
+				<label for="DOB" style="display:inline" >Year of Inception: </label><input id="DOB" bind:value={DOB} placeholder="Year of Inception" style="display:inline" >
+				{:else}
+				<label for="DOB" style="display:inline" >DOB: </label><input id="DOB" bind:value={DOB} placeholder="Date of Birth" style="display:inline" >
+				{/if}
+			</div>
+			<div class="inner_div" >
+				{#if business }
+				<label  for="POO" style="display:inline" >Main Office: </label><input id="POO" bind:value={place_of_origin} placeholder="Main Office" style="display:inline" >
+				{:else}
+				<label for="POO" style="display:inline" >Place of Origin: </label><input id="POO" bind:value={place_of_origin} placeholder="Place of Origin" style="display:inline" >
+				{/if}
+			</div>
+			<div class="inner_div" >
+			<label for="self-text">Cool Public Info</label><br>
+			<textarea id="self-text" bind:value={cool_public_info} placeholder="Something you would say to anyone about yourself" />
+			</div>
+	
+			<div class="nice_message">
+				Enter your information above. It will be used to make an identifier to be used in your contact page.
+				The information should be unique. For example, I know that my name is shared by at least three other people on the planet,
+				all of whom were born in the same year. But, they are from differts or countries.
+				The information that you enter may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail 
+				from groups you choose to select. You may make selections at a later time. 
+				<span style="color:blue;">Note:</span> no information will be sent to any organization as a result of signing up.
+				All information and your personalized assets, including your contact page will be stored in the Interplanetary File System, and will be 
+				accessible from there through any service you wish to use to access it.
+			</div>
+			<button class="long_button" on:click={add_profile}>Create my contact page.</button>
 		</div>
-		<br>
-		<div class="inner_div" >
-			<label for="name"style="display:inline" >Name: </label>
-			<input id="name" bind:value={name} placeholder="Name" style="display:inline">
-			<input bind:checked={business}  type="checkbox" style="display:inline" ><span>Business (if checked)</span>
-		</div>
-		<div class="inner_div" >
-			{#if business }
-			<label for="DOB" style="display:inline" >Year of Inception: </label><input id="DOB" bind:value={DOB} placeholder="Year of Inception" style="display:inline" >
-			{:else}
-			<label for="DOB" style="display:inline" >DOB: </label><input id="DOB" bind:value={DOB} placeholder="Date of Birth" style="display:inline" >
-			{/if}
-		</div>
-		<div class="inner_div" >
-			{#if business }
-			<label  for="POO" style="display:inline" >Main Office: </label><input id="POO" bind:value={place_of_origin} placeholder="Main Office" style="display:inline" >
-			{:else}
-			<label for="POO" style="display:inline" >Place of Origin: </label><input id="POO" bind:value={place_of_origin} placeholder="Place of Origin" style="display:inline" >
-			{/if}
-		</div>
-		<div class="inner_div" >
-		<label for="self-text">Cool Public Info</label><br>
-		<textarea id="self-text" bind:value={cool_public_info} placeholder="Something you would say to anyone about yourself" />
-		</div>
+		<div class="signerupper">
+			<div>
+				drop a picture here
+			</div>
+			<div>
+				<div>Select a contact from</div>
+				<div>
+					<div class="tableFixHead" >
 
-		<div class="nice_message">
-			Enter your information above. It will be used to make an identifier to be used in your contact page.
-			The information should be unique. For example, I know that my name is shared by at least three other people on the planet,
-			all of whom were born in the same year. But, they are from differts or countries.
-			The information that you enter may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail 
-			from groups you choose to select. You may make selections at a later time. 
-			<span style="color:blue;">Note:</span> no information will be sent to any organization as a result of signing up.
-			All information and your personalized assets, including your contact page will be stored in the Interplanetary File System, and will be 
-			accessible from there through any service you wish to use to access it.
+						<select bind:value={form_index} size={10}>
+							{#each contact_form_links as form_link, form_index}
+								<option value={form_index}>{form_link}</option>
+							{/each}
+						</select>
+					</div>
+				</div>
+		
+			</div>
 		</div>
-		<button class="long_button" on:click={add_profile}>Create my contact page.</button>
 	</div>
+
 	{:else if (active === 'Messages')}
 		<div>Your Message History</div>
 		<div>

@@ -1,0 +1,138 @@
+
+
+<div >
+	<div style="width: 60%;display:inline;float: left;">
+		<div id="contact_box" style="z-index:102" >
+			<!-- The Modal -->
+			<div class="fade_able_content">				
+				<div id="myContactForm" style="padding-left:4%;padding-right:4%;padding-top:8px;padding-bottom:8px;height: inherit;" >
+					<div class="error-message" id="contact-errors_here" >no error</div>
+					<div class="form_el" >
+						<label for='contact-name' class='name'>Name<span> (required) </span></label>
+						<input type='text' name='contact-name' id='contact-name' value='' class='field_el name' required onkeyup="onkey_checkContactError('contact-name')" />
+					</div>
+					
+					<div class="form_el" >
+						<label for='contact-p_contact' class='p_contact'>Personal Identity<span> (required) </span></label>
+						<input type='p_contact' name='contact-p_contact' id='contact-p_contact' value=''class='field_el p_contact'  required onkeyup="onkey_checkContactError('contact-p_contact')"  />
+						<a class="infolink" href="#">id (not email)</a>
+					</div>
+					
+					<div class="form_el" >
+						<label for='contact-website' class='url'>Website<span> (optional)</span></label>
+						<input type='text' name='contact-website' id='contact-website' value='' class='field_el url' onkeyup="onkey_checkContactError('contact-website')"  />
+					</div>
+					
+					<div class="form_el" style="vertical-align:top">
+						<label for='contact-comment' class='grunion-field-label textarea'>Comment<span>(required)</span></label><br>
+						<textarea name='contact-comment' id='contact-comment' rows='20' class='textarea_field_el'  required onkeyup="onkey_checkContactError('contact-comment')"  ></textarea>
+					</div>
+					<p class='contact-submit'>
+					<button onclick="processContact_contact_style_1()" >Submit</button>
+					</p>
+					<div class="form_el" style="height:20px;background-color:rgb(230,230,240,0.4);font-style: oblique;font-weight: bold;color:rgba(242, 242, 210, 0.3);">
+						copious contact (thank you for your interest and concerns)
+					</div>
+				</div>
+			</div>
+		</div>	
+	</div>
+	<div class="item" style="text-align: center;vertical-align: middle;width: 30%;display:inline;">
+		<div class="art_container" >
+			{{user_image_or_art}}
+		</div>
+	</div>
+	<intput id="profile-owner-name" type="hidden" value="{{name}}" />
+	<intput id="profile-owner-DOB" type="hidden" value="{{DOB}}" />
+	<intput id="profile-owner-place_of_origin" type="hidden" value="{{place_of_origin}}" />
+	<intput id="profile-owner-cool_public_info" type="hidden" value="{{cool_public_info}}" />
+	<intput id="profile-owner-public_key" type="hidden" value="{{public_key}}" />
+
+	  
+</div>
+
+<script>
+//
+// global defs of some static topology
+//
+//
+const myContactForm = document.querySelector('#myContactForm');
+
+
+//  === ---------------------------------------  === ---------------------------------------  === --------------------------------------- 
+// APPLICATIONS
+// -- -- -- -- -- -- -- -- -- -- -- -- -- 
+
+// CONTACT APPLICATION
+var g_contact_Handling = null
+function initContact() {
+	g_contact_Handling = new ValidationContainer({
+		"auth_port" : "",
+		"service_url" : `${location.protocol}//${g_siteURL}/{{auth_path}}/transition/contact`,
+		"errors_here" : document.getElementById('contact-errors_here'),
+		"failure_msg_prefix" : "Cannot Process Captcha",
+		"fields" : {
+			"name" : document.querySelector('#contact-name'),
+			"p_contact" : document.querySelector('#contact-p_contact'),
+			"website" : document.querySelector('#contact-website'),
+			"comment" : document.querySelector('#contact-comment')
+		},
+		"checks" : {
+			"is_empty" : ["name","comment","p_contact"],  // ref into fields above...
+			"p_contact" : ["p_contact"]
+		},
+		"modal" : document.querySelector('#contactModal'),
+		"closer" : document.querySelector('#contactModalCloser'),
+		"form" : document.querySelector('#myContactForm'),
+		"captcha" : document.querySelector('#captcha-goes-here'),
+		"captcha_field" : document.querySelector("#captcha-field"),
+		"plain_text_color" : DEFAULT_PLAIN_TEXT_COLOR,
+		"error_text_color" : DEFAULT_ERROR_TEXT_COLOR
+	})
+	g_CurContainer = g_contact_Handling; // has to be initlialized in the function
+}
+
+
+function contact_calcAppDataDB() {
+	//
+	let c_name = g_contact_Handling.fields["name"]
+	let c_p_contact =  g_contact_Handling.fields["p_contact"]
+	let c_website = g_contact_Handling.fields["website"]
+	let c_comment = g_contact_Handling.fields["comment"]
+	//
+	let data = {
+		"name" : getVal(c_name),
+		"website" : getVal(c_website),
+		"p_contact" : getVal(c_p_contact),
+		"comment" : getVal(c_comment),
+		'token' : g_currenCaptchaTOKEN
+	}
+	//
+	return(data)
+}
+
+function contact_completionaAction() {
+	unpin_current();
+	show_thankyou_box("Thank you for your message");
+}
+
+function processContact_contact_style_1() {
+	/*
+	processUI_captchaService( g_contact_Handling,
+								contact_calcAppDataDB,
+								contact_completionaAction )
+	*/
+}
+
+function onkey_checkContactError(srcField) {
+	if ( g_contact_Handling.checkFormValid() ) {
+		let focusFld = '#' + srcField;
+		let focusEl = document.querySelector(focusFld);
+		focusEl.style.borderColor = 'black'
+		g_contact_Handling.hideFormErrorMessage()
+	}
+}
+
+initContact()
+
+</script>
