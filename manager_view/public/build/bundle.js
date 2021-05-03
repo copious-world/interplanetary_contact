@@ -7599,7 +7599,7 @@ var app = (function () {
 
     const file$1 = "src/MessageEditor.svelte";
 
-    // (80:1) {#if has_previous }
+    // (81:1) {#if has_previous }
     function create_if_block$1(ctx) {
     	let span;
     	let t1;
@@ -7612,10 +7612,10 @@ var app = (function () {
     			t1 = space();
     			div = element("div");
     			attr_dev(span, "class", "large-text-label svelte-19fvcgl");
-    			add_location(span, file$1, 80, 1, 2146);
+    			add_location(span, file$1, 81, 1, 2197);
     			attr_dev(div, "id", "blg-window-full-text-outgo");
     			attr_dev(div, "class", "full-display svelte-19fvcgl");
-    			add_location(div, file$1, 81, 1, 2204);
+    			add_location(div, file$1, 82, 1, 2255);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -7636,7 +7636,7 @@ var app = (function () {
     		block,
     		id: create_if_block$1.name,
     		type: "if",
-    		source: "(80:1) {#if has_previous }",
+    		source: "(81:1) {#if has_previous }",
     		ctx
     	});
 
@@ -7730,33 +7730,33 @@ var app = (function () {
     			input = element("input");
     			set_style(span0, "background-color", "yellowgreen");
     			attr_dev(span0, "class", "svelte-19fvcgl");
-    			add_location(span0, file$1, 68, 2, 1734);
+    			add_location(span0, file$1, 69, 2, 1785);
     			attr_dev(span1, "class", "message_indicator svelte-19fvcgl");
-    			add_location(span1, file$1, 69, 2, 1801);
+    			add_location(span1, file$1, 70, 2, 1852);
     			attr_dev(span2, "class", "name svelte-19fvcgl");
-    			add_location(span2, file$1, 71, 3, 1873);
+    			add_location(span2, file$1, 72, 3, 1924);
     			attr_dev(span3, "class", "about_name svelte-19fvcgl");
-    			add_location(span3, file$1, 72, 3, 1910);
-    			add_location(div0, file$1, 70, 2, 1864);
+    			add_location(span3, file$1, 73, 3, 1961);
+    			add_location(div0, file$1, 71, 2, 1915);
     			attr_dev(div1, "class", "cool-stuff svelte-19fvcgl");
-    			add_location(div1, file$1, 74, 2, 1983);
+    			add_location(div1, file$1, 75, 2, 2034);
     			set_style(div2, "padding", "6px");
-    			add_location(div2, file$1, 67, 1, 1704);
+    			add_location(div2, file$1, 68, 1, 1755);
     			attr_dev(span4, "class", "large-text-label svelte-19fvcgl");
-    			add_location(span4, file$1, 85, 1, 2306);
+    			add_location(span4, file$1, 86, 1, 2357);
     			attr_dev(button, "class", "medium_button svelte-19fvcgl");
-    			add_location(button, file$1, 85, 62, 2367);
+    			add_location(button, file$1, 86, 62, 2418);
     			attr_dev(div3, "id", "blg-window-full-text-outgo");
     			attr_dev(div3, "class", "full-display-bottom svelte-19fvcgl");
-    			add_location(div3, file$1, 86, 1, 2453);
+    			add_location(div3, file$1, 87, 1, 2504);
     			attr_dev(div4, "id", "blg-window-full-text-outgo-script");
     			attr_dev(div4, "class", "is-nothing svelte-19fvcgl");
-    			add_location(div4, file$1, 89, 1, 2553);
+    			add_location(div4, file$1, 90, 1, 2604);
     			attr_dev(input, "type", "hidden");
     			attr_dev(input, "id", "pub-key-outgo");
-    			add_location(input, file$1, 90, 1, 2625);
+    			add_location(input, file$1, 91, 1, 2676);
     			attr_dev(div5, "class", "blg-el-wrapper-full svelte-19fvcgl");
-    			add_location(div5, file$1, 66, 0, 1668);
+    			add_location(div5, file$1, 67, 0, 1719);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -7898,6 +7898,7 @@ var app = (function () {
     				$$invalidate(6, contact_page = decodeURIComponent(html));
     				let script = data.script;
     				script = decodeURIComponent(script);
+    				script = script.replace("{{when}}", Date.now());
     				addscript(script, "blg-window-full-text-outgo-script", true);
     			} //
     		}
@@ -8101,35 +8102,35 @@ var app = (function () {
 
     function get_each_context_3(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[58] = list[i];
+    	child_ctx[63] = list[i];
     	child_ctx[4] = i;
     	return child_ctx;
     }
 
     function get_each_context_2(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[55] = list[i];
+    	child_ctx[60] = list[i];
     	child_ctx[27] = i;
     	return child_ctx;
     }
 
     function get_each_context_1(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[55] = list[i];
+    	child_ctx[60] = list[i];
     	child_ctx[26] = i;
     	return child_ctx;
     }
 
     function get_each_context(ctx, list, i) {
     	const child_ctx = ctx.slice();
-    	child_ctx[53] = list[i];
+    	child_ctx[58] = list[i];
     	child_ctx[5] = i;
     	return child_ctx;
     }
 
-    // (410:2) <Label>
+    // (487:2) <Label>
     function create_default_slot_4(ctx) {
-    	let t_value = /*tab*/ ctx[60] + "";
+    	let t_value = /*tab*/ ctx[65] + "";
     	let t;
 
     	const block = {
@@ -8140,7 +8141,7 @@ var app = (function () {
     			insert_dev(target, t, anchor);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[1] & /*tab*/ 536870912 && t_value !== (t_value = /*tab*/ ctx[60] + "")) set_data_dev(t, t_value);
+    			if (dirty[2] & /*tab*/ 8 && t_value !== (t_value = /*tab*/ ctx[65] + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(t);
@@ -8151,14 +8152,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_4.name,
     		type: "slot",
-    		source: "(410:2) <Label>",
+    		source: "(487:2) <Label>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (409:3) <Tab {tab}>
+    // (486:3) <Tab {tab}>
     function create_default_slot_3(ctx) {
     	let label;
     	let current;
@@ -8182,7 +8183,7 @@ var app = (function () {
     		p: function update(ctx, dirty) {
     			const label_changes = {};
 
-    			if (dirty[1] & /*$$scope, tab*/ 1610612736) {
+    			if (dirty[2] & /*$$scope, tab*/ 24) {
     				label_changes.$$scope = { dirty, ctx };
     			}
 
@@ -8206,21 +8207,21 @@ var app = (function () {
     		block,
     		id: create_default_slot_3.name,
     		type: "slot",
-    		source: "(409:3) <Tab {tab}>",
+    		source: "(486:3) <Tab {tab}>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (407:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>
+    // (484:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>
     function create_default_slot_2(ctx) {
     	let tab;
     	let current;
 
     	tab = new Tab({
     			props: {
-    				tab: /*tab*/ ctx[60],
+    				tab: /*tab*/ ctx[65],
     				$$slots: { default: [create_default_slot_3] },
     				$$scope: { ctx }
     			},
@@ -8237,9 +8238,9 @@ var app = (function () {
     		},
     		p: function update(ctx, dirty) {
     			const tab_changes = {};
-    			if (dirty[1] & /*tab*/ 536870912) tab_changes.tab = /*tab*/ ctx[60];
+    			if (dirty[2] & /*tab*/ 8) tab_changes.tab = /*tab*/ ctx[65];
 
-    			if (dirty[1] & /*$$scope, tab*/ 1610612736) {
+    			if (dirty[2] & /*$$scope, tab*/ 24) {
     				tab_changes.$$scope = { dirty, ctx };
     			}
 
@@ -8263,14 +8264,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_2.name,
     		type: "slot",
-    		source: "(407:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>",
+    		source: "(484:1) <TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (571:36) 
+    // (648:36) 
     function create_if_block_9(ctx) {
     	let div;
     	let t0;
@@ -8321,28 +8322,28 @@ var app = (function () {
     			br8 = element("br");
     			t11 = text("\n\tMessages from contacts will show up in your mail stream (promail). Find links to that on your management dashboard (also generated by when you sign up.)\n\tTo help you find your information when you go back to your browser, the information you enter on signing up will be stored in your broswer's database (indexedDb).\n\tIf you switch browsers, you can always enter your information again, and click \"restore\". You will also find an option to remove your information from your browser.");
     			attr_dev(br0, "class", "svelte-gncbva");
-    			add_location(br0, file, 574, 1, 16601);
+    			add_location(br0, file, 651, 1, 18658);
     			attr_dev(br1, "class", "svelte-gncbva");
-    			add_location(br1, file, 577, 1, 16802);
+    			add_location(br1, file, 654, 1, 18859);
     			attr_dev(br2, "class", "svelte-gncbva");
-    			add_location(br2, file, 581, 1, 17158);
+    			add_location(br2, file, 658, 1, 19215);
     			attr_dev(br3, "class", "svelte-gncbva");
-    			add_location(br3, file, 585, 1, 17590);
+    			add_location(br3, file, 662, 1, 19647);
     			set_style(span, "font-weight", "bold");
     			attr_dev(span, "class", "svelte-gncbva");
-    			add_location(span, file, 586, 1, 17596);
+    			add_location(span, file, 663, 1, 19653);
     			attr_dev(br4, "class", "svelte-gncbva");
-    			add_location(br4, file, 589, 1, 18003);
+    			add_location(br4, file, 666, 1, 20060);
     			attr_dev(br5, "class", "svelte-gncbva");
-    			add_location(br5, file, 592, 1, 18294);
+    			add_location(br5, file, 669, 1, 20351);
     			attr_dev(br6, "class", "svelte-gncbva");
-    			add_location(br6, file, 595, 1, 18475);
+    			add_location(br6, file, 672, 1, 20532);
     			attr_dev(br7, "class", "svelte-gncbva");
-    			add_location(br7, file, 597, 1, 18595);
+    			add_location(br7, file, 674, 1, 20652);
     			attr_dev(br8, "class", "svelte-gncbva");
-    			add_location(br8, file, 601, 1, 18983);
+    			add_location(br8, file, 678, 1, 21040);
     			attr_dev(div, "class", "team_message svelte-gncbva");
-    			add_location(div, file, 571, 1, 16404);
+    			add_location(div, file, 648, 1, 18461);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div, anchor);
@@ -8378,14 +8379,14 @@ var app = (function () {
     		block,
     		id: create_if_block_9.name,
     		type: "if",
-    		source: "(571:36) ",
+    		source: "(648:36) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (519:35) 
+    // (596:35) 
     function create_if_block_5(ctx) {
     	let div8;
     	let div1;
@@ -8532,72 +8533,72 @@ var app = (function () {
     			button3.textContent = "compose";
     			attr_dev(input0, "placeholder", "filter prefix");
     			attr_dev(input0, "class", "svelte-gncbva");
-    			add_location(input0, file, 521, 3, 14169);
+    			add_location(input0, file, 598, 3, 16226);
     			attr_dev(select, "size", 5);
     			attr_dev(select, "class", "svelte-gncbva");
-    			if (/*i*/ ctx[4] === void 0) add_render_callback(() => /*select_change_handler_1*/ ctx[38].call(select));
-    			add_location(select, file, 522, 3, 14228);
+    			if (/*i*/ ctx[4] === void 0) add_render_callback(() => /*select_change_handler_1*/ ctx[40].call(select));
+    			add_location(select, file, 599, 3, 16285);
     			button0.disabled = button0_disabled_value = !/*c_name*/ ctx[13];
     			attr_dev(button0, "class", "svelte-gncbva");
-    			add_location(button0, file, 528, 4, 14413);
+    			add_location(button0, file, 605, 4, 16470);
     			button1.disabled = button1_disabled_value = !/*c_name*/ ctx[13] || !/*selected*/ ctx[3];
     			attr_dev(button1, "class", "svelte-gncbva");
-    			add_location(button1, file, 529, 4, 14482);
+    			add_location(button1, file, 606, 4, 16539);
     			button2.disabled = button2_disabled_value = !/*selected*/ ctx[3];
     			attr_dev(button2, "class", "svelte-gncbva");
-    			add_location(button2, file, 530, 4, 14570);
+    			add_location(button2, file, 607, 4, 16627);
     			attr_dev(div0, "class", "buttons svelte-gncbva");
-    			add_location(div0, file, 527, 3, 14387);
+    			add_location(div0, file, 604, 3, 16444);
     			attr_dev(div1, "class", "item svelte-gncbva");
-    			add_location(div1, file, 520, 2, 14146);
+    			add_location(div1, file, 597, 2, 16203);
     			attr_dev(br0, "class", "svelte-gncbva");
-    			add_location(br0, file, 534, 3, 14730);
+    			add_location(br0, file, 611, 3, 16787);
     			attr_dev(label0, "for", "name");
     			set_style(label0, "display", "inline");
     			attr_dev(label0, "class", "svelte-gncbva");
-    			add_location(label0, file, 536, 4, 14767);
+    			add_location(label0, file, 613, 4, 16824);
     			attr_dev(input1, "id", "name");
     			attr_dev(input1, "placeholder", "Name");
     			set_style(input1, "display", "inline");
     			attr_dev(input1, "class", "svelte-gncbva");
-    			add_location(input1, file, 537, 4, 14827);
+    			add_location(input1, file, 614, 4, 16884);
     			attr_dev(input2, "type", "checkbox");
     			set_style(input2, "display", "inline");
     			attr_dev(input2, "class", "svelte-gncbva");
-    			add_location(input2, file, 538, 4, 14911);
+    			add_location(input2, file, 615, 4, 16968);
     			attr_dev(div2, "class", "inner_div svelte-gncbva");
-    			add_location(div2, file, 535, 3, 14738);
+    			add_location(div2, file, 612, 3, 16795);
     			attr_dev(div3, "class", "inner_div svelte-gncbva");
-    			add_location(div3, file, 545, 3, 15092);
+    			add_location(div3, file, 622, 3, 17149);
     			attr_dev(div4, "class", "inner_div svelte-gncbva");
-    			add_location(div4, file, 552, 3, 15484);
+    			add_location(div4, file, 629, 3, 17541);
     			attr_dev(label1, "for", "self-text");
     			attr_dev(label1, "class", "svelte-gncbva");
-    			add_location(label1, file, 560, 3, 15931);
+    			add_location(label1, file, 637, 3, 17988);
     			attr_dev(br1, "class", "svelte-gncbva");
-    			add_location(br1, file, 560, 50, 15978);
+    			add_location(br1, file, 637, 50, 18035);
     			attr_dev(textarea, "id", "self-text");
     			attr_dev(textarea, "placeholder", "Copy info given to you by your new contact");
     			attr_dev(textarea, "class", "svelte-gncbva");
-    			add_location(textarea, file, 561, 3, 15986);
+    			add_location(textarea, file, 638, 3, 18043);
     			attr_dev(div5, "class", "inner_div svelte-gncbva");
-    			add_location(div5, file, 559, 3, 15903);
+    			add_location(div5, file, 636, 3, 17960);
     			attr_dev(div6, "class", "item svelte-gncbva");
     			set_style(div6, "border-top", "darkslategrey solid 2px");
-    			add_location(div6, file, 533, 2, 14664);
+    			add_location(div6, file, 610, 2, 16721);
     			attr_dev(span, "class", "top_instructions svelte-gncbva");
-    			add_location(span, file, 565, 3, 16192);
+    			add_location(span, file, 642, 3, 18249);
     			attr_dev(br2, "class", "svelte-gncbva");
-    			add_location(br2, file, 566, 3, 16270);
+    			add_location(br2, file, 643, 3, 18327);
     			attr_dev(br3, "class", "svelte-gncbva");
-    			add_location(br3, file, 566, 7, 16274);
+    			add_location(br3, file, 643, 7, 18331);
     			attr_dev(button3, "class", "long_button svelte-gncbva");
-    			add_location(button3, file, 567, 3, 16282);
+    			add_location(button3, file, 644, 3, 18339);
     			attr_dev(div7, "class", "item svelte-gncbva");
     			set_style(div7, "border-top", "darkslategrey solid 2px");
-    			add_location(div7, file, 564, 2, 16124);
+    			add_location(div7, file, 641, 2, 18181);
     			attr_dev(div8, "class", "items svelte-gncbva");
-    			add_location(div8, file, 519, 1, 14124);
+    			add_location(div8, file, 596, 1, 16181);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div8, anchor);
@@ -8662,14 +8663,14 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "input", /*input0_input_handler_1*/ ctx[37]),
-    					listen_dev(select, "change", /*select_change_handler_1*/ ctx[38]),
+    					listen_dev(input0, "input", /*input0_input_handler_1*/ ctx[39]),
+    					listen_dev(select, "change", /*select_change_handler_1*/ ctx[40]),
     					listen_dev(button0, "click", /*add_contact*/ ctx[22], false, false, false),
-    					listen_dev(button1, "click", /*update_concact*/ ctx[23], false, false, false),
+    					listen_dev(button1, "click", /*update_contact*/ ctx[23], false, false, false),
     					listen_dev(button2, "click", /*remove_contact*/ ctx[24], false, false, false),
-    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[39]),
-    					listen_dev(input2, "change", /*input2_change_handler*/ ctx[40]),
-    					listen_dev(textarea, "input", /*textarea_input_handler_1*/ ctx[45]),
+    					listen_dev(input1, "input", /*input1_input_handler*/ ctx[41]),
+    					listen_dev(input2, "change", /*input2_change_handler*/ ctx[42]),
+    					listen_dev(textarea, "input", /*textarea_input_handler_1*/ ctx[47]),
     					listen_dev(button3, "click", pop_editor, false, false, false)
     				];
 
@@ -8784,14 +8785,14 @@ var app = (function () {
     		block,
     		id: create_if_block_5.name,
     		type: "if",
-    		source: "(519:35) ",
+    		source: "(596:35) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (499:39) 
+    // (576:39) 
     function create_if_block_4(ctx) {
     	let div0;
     	let t1;
@@ -8835,28 +8836,28 @@ var app = (function () {
     			}
 
     			attr_dev(div0, "class", "svelte-gncbva");
-    			add_location(div0, file, 499, 2, 13370);
+    			add_location(div0, file, 576, 2, 15427);
     			set_style(th0, "width", "20%");
     			attr_dev(th0, "class", "svelte-gncbva");
-    			add_location(th0, file, 505, 7, 13504);
+    			add_location(th0, file, 582, 7, 15561);
     			set_style(th1, "width", "30%");
     			attr_dev(th1, "class", "svelte-gncbva");
-    			add_location(th1, file, 505, 38, 13535);
+    			add_location(th1, file, 582, 38, 15592);
     			set_style(th2, "width", "60%");
     			set_style(th2, "text-align", "left");
     			attr_dev(th2, "class", "svelte-gncbva");
-    			add_location(th2, file, 505, 71, 13568);
+    			add_location(th2, file, 582, 71, 15625);
     			attr_dev(tr, "class", "svelte-gncbva");
-    			add_location(tr, file, 504, 6, 13492);
+    			add_location(tr, file, 581, 6, 15549);
     			attr_dev(thead, "class", "svelte-gncbva");
-    			add_location(thead, file, 503, 5, 13478);
+    			add_location(thead, file, 580, 5, 15535);
     			set_style(table, "width", "100%");
     			attr_dev(table, "class", "svelte-gncbva");
-    			add_location(table, file, 502, 4, 13446);
+    			add_location(table, file, 579, 4, 15503);
     			attr_dev(div1, "class", "tableFixHead svelte-gncbva");
-    			add_location(div1, file, 501, 3, 13414);
+    			add_location(div1, file, 578, 3, 15471);
     			attr_dev(div2, "class", "svelte-gncbva");
-    			add_location(div2, file, 500, 2, 13405);
+    			add_location(div2, file, 577, 2, 15462);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
@@ -8912,14 +8913,14 @@ var app = (function () {
     		block,
     		id: create_if_block_4.name,
     		type: "if",
-    		source: "(499:39) ",
+    		source: "(576:39) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (479:35) 
+    // (556:35) 
     function create_if_block_3(ctx) {
     	let div0;
     	let t1;
@@ -8963,28 +8964,28 @@ var app = (function () {
     			}
 
     			attr_dev(div0, "class", "svelte-gncbva");
-    			add_location(div0, file, 479, 2, 12615);
+    			add_location(div0, file, 556, 2, 14672);
     			set_style(th0, "width", "20%");
     			attr_dev(th0, "class", "svelte-gncbva");
-    			add_location(th0, file, 485, 7, 12748);
+    			add_location(th0, file, 562, 7, 14805);
     			set_style(th1, "width", "30%");
     			attr_dev(th1, "class", "svelte-gncbva");
-    			add_location(th1, file, 485, 38, 12779);
+    			add_location(th1, file, 562, 38, 14836);
     			set_style(th2, "width", "60%");
     			set_style(th2, "text-align", "left");
     			attr_dev(th2, "class", "svelte-gncbva");
-    			add_location(th2, file, 485, 71, 12812);
+    			add_location(th2, file, 562, 71, 14869);
     			attr_dev(tr, "class", "svelte-gncbva");
-    			add_location(tr, file, 484, 6, 12736);
+    			add_location(tr, file, 561, 6, 14793);
     			attr_dev(thead, "class", "svelte-gncbva");
-    			add_location(thead, file, 483, 5, 12722);
+    			add_location(thead, file, 560, 5, 14779);
     			set_style(table, "width", "100%");
     			attr_dev(table, "class", "svelte-gncbva");
-    			add_location(table, file, 482, 4, 12690);
+    			add_location(table, file, 559, 4, 14747);
     			attr_dev(div1, "class", "tableFixHead svelte-gncbva");
-    			add_location(div1, file, 481, 3, 12658);
+    			add_location(div1, file, 558, 3, 14715);
     			attr_dev(div2, "class", "svelte-gncbva");
-    			add_location(div2, file, 480, 2, 12649);
+    			add_location(div2, file, 557, 2, 14706);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div0, anchor);
@@ -9040,14 +9041,14 @@ var app = (function () {
     		block,
     		id: create_if_block_3.name,
     		type: "if",
-    		source: "(479:35) ",
+    		source: "(556:35) ",
     		ctx
     	});
 
     	return block;
     }
 
-    // (414:1) {#if (active === 'Signup')}
+    // (491:1) {#if (active === 'Signup')}
     function create_if_block(ctx) {
     	let div13;
     	let div6;
@@ -9177,70 +9178,70 @@ var app = (function () {
     			}
 
     			attr_dev(br0, "class", "svelte-gncbva");
-    			add_location(br0, file, 416, 3, 9676);
+    			add_location(br0, file, 493, 3, 11733);
     			attr_dev(div0, "class", "top_instructions svelte-gncbva");
-    			add_location(div0, file, 417, 3, 9684);
+    			add_location(div0, file, 494, 3, 11741);
     			attr_dev(br1, "class", "svelte-gncbva");
-    			add_location(br1, file, 420, 3, 9829);
+    			add_location(br1, file, 497, 3, 11886);
     			attr_dev(label0, "for", "name");
     			set_style(label0, "display", "inline");
     			attr_dev(label0, "class", "svelte-gncbva");
-    			add_location(label0, file, 422, 4, 9866);
+    			add_location(label0, file, 499, 4, 11923);
     			attr_dev(input0, "id", "name");
     			attr_dev(input0, "placeholder", "Name");
     			set_style(input0, "display", "inline");
     			attr_dev(input0, "class", "svelte-gncbva");
-    			add_location(input0, file, 423, 4, 9926);
+    			add_location(input0, file, 500, 4, 11983);
     			attr_dev(input1, "type", "checkbox");
     			set_style(input1, "display", "inline");
     			attr_dev(input1, "class", "svelte-gncbva");
-    			add_location(input1, file, 424, 4, 10008);
+    			add_location(input1, file, 501, 4, 12065);
     			attr_dev(span0, "class", "svelte-gncbva");
-    			add_location(span0, file, 424, 76, 10080);
+    			add_location(span0, file, 501, 76, 12137);
     			attr_dev(div1, "class", "inner_div svelte-gncbva");
-    			add_location(div1, file, 421, 3, 9837);
+    			add_location(div1, file, 498, 3, 11894);
     			attr_dev(div2, "class", "inner_div svelte-gncbva");
-    			add_location(div2, file, 426, 3, 10128);
+    			add_location(div2, file, 503, 3, 12185);
     			attr_dev(div3, "class", "inner_div svelte-gncbva");
-    			add_location(div3, file, 433, 3, 10514);
+    			add_location(div3, file, 510, 3, 12571);
     			attr_dev(label1, "for", "self-text");
     			attr_dev(label1, "class", "svelte-gncbva");
-    			add_location(label1, file, 441, 3, 10955);
+    			add_location(label1, file, 518, 3, 13012);
     			attr_dev(br2, "class", "svelte-gncbva");
-    			add_location(br2, file, 441, 50, 11002);
+    			add_location(br2, file, 518, 50, 13059);
     			attr_dev(textarea, "id", "self-text");
     			attr_dev(textarea, "placeholder", "Something you would say to anyone about yourself");
     			attr_dev(textarea, "class", "svelte-gncbva");
-    			add_location(textarea, file, 442, 3, 11010);
+    			add_location(textarea, file, 519, 3, 13067);
     			attr_dev(div4, "class", "inner_div svelte-gncbva");
-    			add_location(div4, file, 440, 3, 10927);
+    			add_location(div4, file, 517, 3, 12984);
     			set_style(span1, "color", "blue");
     			attr_dev(span1, "class", "svelte-gncbva");
-    			add_location(span1, file, 451, 4, 11730);
+    			add_location(span1, file, 528, 4, 13787);
     			attr_dev(div5, "class", "nice_message svelte-gncbva");
-    			add_location(div5, file, 445, 3, 11146);
+    			add_location(div5, file, 522, 3, 13203);
     			attr_dev(button, "class", "long_button svelte-gncbva");
-    			add_location(button, file, 455, 3, 12074);
+    			add_location(button, file, 532, 3, 14131);
     			attr_dev(div6, "class", "signerupper svelte-gncbva");
-    			add_location(div6, file, 415, 2, 9647);
+    			add_location(div6, file, 492, 2, 11704);
     			attr_dev(div7, "class", "svelte-gncbva");
-    			add_location(div7, file, 458, 3, 12198);
+    			add_location(div7, file, 535, 3, 14255);
     			attr_dev(div8, "class", "svelte-gncbva");
-    			add_location(div8, file, 462, 4, 12251);
+    			add_location(div8, file, 539, 4, 14308);
     			attr_dev(select, "size", 10);
     			attr_dev(select, "class", "svelte-gncbva");
-    			if (/*form_index*/ ctx[5] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[36].call(select));
-    			add_location(select, file, 466, 6, 12334);
+    			if (/*form_index*/ ctx[5] === void 0) add_render_callback(() => /*select_change_handler*/ ctx[38].call(select));
+    			add_location(select, file, 543, 6, 14391);
     			attr_dev(div9, "class", "tableFixHead svelte-gncbva");
-    			add_location(div9, file, 464, 5, 12299);
+    			add_location(div9, file, 541, 5, 14356);
     			attr_dev(div10, "class", "svelte-gncbva");
-    			add_location(div10, file, 463, 4, 12288);
+    			add_location(div10, file, 540, 4, 14345);
     			attr_dev(div11, "class", "svelte-gncbva");
-    			add_location(div11, file, 461, 3, 12241);
+    			add_location(div11, file, 538, 3, 14298);
     			attr_dev(div12, "class", "signerupper svelte-gncbva");
-    			add_location(div12, file, 457, 2, 12169);
+    			add_location(div12, file, 534, 2, 14226);
     			attr_dev(div13, "class", "signup-grid-container svelte-gncbva");
-    			add_location(div13, file, 414, 1, 9609);
+    			add_location(div13, file, 491, 1, 11666);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, div13, anchor);
@@ -9299,11 +9300,11 @@ var app = (function () {
 
     			if (!mounted) {
     				dispose = [
-    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[29]),
-    					listen_dev(input1, "change", /*input1_change_handler*/ ctx[30]),
-    					listen_dev(textarea, "input", /*textarea_input_handler*/ ctx[35]),
+    					listen_dev(input0, "input", /*input0_input_handler*/ ctx[31]),
+    					listen_dev(input1, "change", /*input1_change_handler*/ ctx[32]),
+    					listen_dev(textarea, "input", /*textarea_input_handler*/ ctx[37]),
     					listen_dev(button, "click", /*add_profile*/ ctx[21], false, false, false),
-    					listen_dev(select, "change", /*select_change_handler*/ ctx[36])
+    					listen_dev(select, "change", /*select_change_handler*/ ctx[38])
     				];
 
     				mounted = true;
@@ -9388,17 +9389,17 @@ var app = (function () {
     		block,
     		id: create_if_block.name,
     		type: "if",
-    		source: "(414:1) {#if (active === 'Signup')}",
+    		source: "(491:1) {#if (active === 'Signup')}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (524:4) {#each filteredIndviduals as individual, i}
+    // (601:4) {#each filteredIndviduals as individual, i}
     function create_each_block_3(ctx) {
     	let option;
-    	let t_value = /*individual*/ ctx[58].name + "";
+    	let t_value = /*individual*/ ctx[63].name + "";
     	let t;
 
     	const block = {
@@ -9408,14 +9409,14 @@ var app = (function () {
     			option.__value = /*i*/ ctx[4];
     			option.value = option.__value;
     			attr_dev(option, "class", "svelte-gncbva");
-    			add_location(option, file, 524, 5, 14314);
+    			add_location(option, file, 601, 5, 16371);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
     			append_dev(option, t);
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*filteredIndviduals*/ 4 && t_value !== (t_value = /*individual*/ ctx[58].name + "")) set_data_dev(t, t_value);
+    			if (dirty[0] & /*filteredIndviduals*/ 4 && t_value !== (t_value = /*individual*/ ctx[63].name + "")) set_data_dev(t, t_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(option);
@@ -9426,14 +9427,14 @@ var app = (function () {
     		block,
     		id: create_each_block_3.name,
     		type: "each",
-    		source: "(524:4) {#each filteredIndviduals as individual, i}",
+    		source: "(601:4) {#each filteredIndviduals as individual, i}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (542:4) {:else}
+    // (619:4) {:else}
     function create_else_block_4(ctx) {
     	let span;
 
@@ -9442,7 +9443,7 @@ var app = (function () {
     			span = element("span");
     			span.textContent = "Person";
     			attr_dev(span, "class", "svelte-gncbva");
-    			add_location(span, file, 542, 4, 15049);
+    			add_location(span, file, 619, 4, 17106);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -9456,14 +9457,14 @@ var app = (function () {
     		block,
     		id: create_else_block_4.name,
     		type: "else",
-    		source: "(542:4) {:else}",
+    		source: "(619:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (540:4) {#if c_business }
+    // (617:4) {#if c_business }
     function create_if_block_8(ctx) {
     	let span;
 
@@ -9472,7 +9473,7 @@ var app = (function () {
     			span = element("span");
     			span.textContent = "Business";
     			attr_dev(span, "class", "svelte-gncbva");
-    			add_location(span, file, 540, 4, 15011);
+    			add_location(span, file, 617, 4, 17068);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, span, anchor);
@@ -9486,14 +9487,14 @@ var app = (function () {
     		block,
     		id: create_if_block_8.name,
     		type: "if",
-    		source: "(540:4) {#if c_business }",
+    		source: "(617:4) {#if c_business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (549:4) {:else}
+    // (626:4) {:else}
     function create_else_block_3(ctx) {
     	let label;
     	let input;
@@ -9508,12 +9509,12 @@ var app = (function () {
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 549, 4, 15319);
+    			add_location(label, file, 626, 4, 17376);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Date of Birth");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 549, 58, 15373);
+    			add_location(input, file, 626, 58, 17430);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -9521,7 +9522,7 @@ var app = (function () {
     			set_input_value(input, /*c_DOB*/ ctx[14]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_5*/ ctx[42]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_5*/ ctx[44]);
     				mounted = true;
     			}
     		},
@@ -9542,14 +9543,14 @@ var app = (function () {
     		block,
     		id: create_else_block_3.name,
     		type: "else",
-    		source: "(549:4) {:else}",
+    		source: "(626:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (547:4) {#if c_business }
+    // (624:4) {#if c_business }
     function create_if_block_7(ctx) {
     	let label;
     	let input;
@@ -9564,12 +9565,12 @@ var app = (function () {
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 547, 4, 15143);
+    			add_location(label, file, 624, 4, 17200);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Year of Inception");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 547, 72, 15211);
+    			add_location(input, file, 624, 72, 17268);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -9577,7 +9578,7 @@ var app = (function () {
     			set_input_value(input, /*c_DOB*/ ctx[14]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_4*/ ctx[41]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_4*/ ctx[43]);
     				mounted = true;
     			}
     		},
@@ -9598,14 +9599,14 @@ var app = (function () {
     		block,
     		id: create_if_block_7.name,
     		type: "if",
-    		source: "(547:4) {#if c_business }",
+    		source: "(624:4) {#if c_business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (556:4) {:else}
+    // (633:4) {:else}
     function create_else_block_2(ctx) {
     	let label;
     	let input;
@@ -9620,12 +9621,12 @@ var app = (function () {
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 556, 4, 15712);
+    			add_location(label, file, 633, 4, 17769);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Place of Origin");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 556, 70, 15778);
+    			add_location(input, file, 633, 70, 17835);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -9633,7 +9634,7 @@ var app = (function () {
     			set_input_value(input, /*c_place_of_origin*/ ctx[15]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_7*/ ctx[44]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_7*/ ctx[46]);
     				mounted = true;
     			}
     		},
@@ -9654,14 +9655,14 @@ var app = (function () {
     		block,
     		id: create_else_block_2.name,
     		type: "else",
-    		source: "(556:4) {:else}",
+    		source: "(633:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (554:4) {#if c_business }
+    // (631:4) {#if c_business }
     function create_if_block_6(ctx) {
     	let label;
     	let input;
@@ -9676,12 +9677,12 @@ var app = (function () {
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 554, 4, 15535);
+    			add_location(label, file, 631, 4, 17592);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Main Office");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 554, 67, 15598);
+    			add_location(input, file, 631, 67, 17655);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -9689,7 +9690,7 @@ var app = (function () {
     			set_input_value(input, /*c_place_of_origin*/ ctx[15]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_6*/ ctx[43]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_6*/ ctx[45]);
     				mounted = true;
     			}
     		},
@@ -9710,26 +9711,26 @@ var app = (function () {
     		block,
     		id: create_if_block_6.name,
     		type: "if",
-    		source: "(554:4) {#if c_business }",
+    		source: "(631:4) {#if c_business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (509:4) {#each inbound_solicitation_messages as a_message, i_i }
+    // (586:4) {#each inbound_solicitation_messages as a_message, i_i }
     function create_each_block_2(ctx) {
     	let tr;
     	let td0;
-    	let t0_value = /*a_message*/ ctx[55].date + "";
+    	let t0_value = /*a_message*/ ctx[60].date + "";
     	let t0;
     	let t1;
     	let td1;
-    	let t2_value = /*a_message*/ ctx[55].name + "";
+    	let t2_value = /*a_message*/ ctx[60].name + "";
     	let t2;
     	let t3;
     	let td2;
-    	let t4_value = /*a_message*/ ctx[55].subject + "";
+    	let t4_value = /*a_message*/ ctx[60].subject + "";
     	let t4;
     	let t5;
     	let mounted;
@@ -9750,16 +9751,16 @@ var app = (function () {
     			attr_dev(td0, "class", "date svelte-gncbva");
     			set_style(td0, "width", "20%");
     			set_style(td0, "text-align", "center");
-    			add_location(td0, file, 510, 6, 13821);
+    			add_location(td0, file, 587, 6, 15878);
     			attr_dev(td1, "class", "sender svelte-gncbva");
     			set_style(td1, "width", "30%");
-    			add_location(td1, file, 511, 6, 13903);
+    			add_location(td1, file, 588, 6, 15960);
     			attr_dev(td2, "class", "subject svelte-gncbva");
     			set_style(td2, "width", "60%");
-    			add_location(td2, file, 512, 6, 13969);
+    			add_location(td2, file, 589, 6, 16026);
     			attr_dev(tr, "id", "m_intro_" + /*i_i*/ ctx[27]);
     			attr_dev(tr, "class", "element-poster svelte-gncbva");
-    			add_location(tr, file, 509, 5, 13713);
+    			add_location(tr, file, 586, 5, 15770);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, tr, anchor);
@@ -9783,9 +9784,9 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t0_value !== (t0_value = /*a_message*/ ctx[55].date + "")) set_data_dev(t0, t0_value);
-    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t2_value !== (t2_value = /*a_message*/ ctx[55].name + "")) set_data_dev(t2, t2_value);
-    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t4_value !== (t4_value = /*a_message*/ ctx[55].subject + "")) set_data_dev(t4, t4_value);
+    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t0_value !== (t0_value = /*a_message*/ ctx[60].date + "")) set_data_dev(t0, t0_value);
+    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t2_value !== (t2_value = /*a_message*/ ctx[60].name + "")) set_data_dev(t2, t2_value);
+    			if (dirty[0] & /*inbound_solicitation_messages*/ 128 && t4_value !== (t4_value = /*a_message*/ ctx[60].subject + "")) set_data_dev(t4, t4_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(tr);
@@ -9798,26 +9799,26 @@ var app = (function () {
     		block,
     		id: create_each_block_2.name,
     		type: "each",
-    		source: "(509:4) {#each inbound_solicitation_messages as a_message, i_i }",
+    		source: "(586:4) {#each inbound_solicitation_messages as a_message, i_i }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (489:4) {#each inbound_contact_messages as a_message, c_i }
+    // (566:4) {#each inbound_contact_messages as a_message, c_i }
     function create_each_block_1(ctx) {
     	let tr;
     	let td0;
-    	let t0_value = /*a_message*/ ctx[55].date + "";
+    	let t0_value = /*a_message*/ ctx[60].date + "";
     	let t0;
     	let t1;
     	let td1;
-    	let t2_value = /*a_message*/ ctx[55].name + "";
+    	let t2_value = /*a_message*/ ctx[60].name + "";
     	let t2;
     	let t3;
     	let td2;
-    	let t4_value = /*a_message*/ ctx[55].subject + "";
+    	let t4_value = /*a_message*/ ctx[60].subject + "";
     	let t4;
     	let t5;
     	let mounted;
@@ -9838,16 +9839,16 @@ var app = (function () {
     			attr_dev(td0, "class", "date svelte-gncbva");
     			set_style(td0, "width", "20%");
     			set_style(td0, "text-align", "center");
-    			add_location(td0, file, 490, 6, 13062);
+    			add_location(td0, file, 567, 6, 15119);
     			attr_dev(td1, "class", "sender svelte-gncbva");
     			set_style(td1, "width", "30%");
-    			add_location(td1, file, 491, 6, 13144);
+    			add_location(td1, file, 568, 6, 15201);
     			attr_dev(td2, "class", "subject svelte-gncbva");
     			set_style(td2, "width", "60%");
-    			add_location(td2, file, 492, 6, 13210);
+    			add_location(td2, file, 569, 6, 15267);
     			attr_dev(tr, "id", "m_contact_" + /*c_i*/ ctx[26]);
     			attr_dev(tr, "class", "element-poster svelte-gncbva");
-    			add_location(tr, file, 489, 5, 12952);
+    			add_location(tr, file, 566, 5, 15009);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, tr, anchor);
@@ -9871,9 +9872,9 @@ var app = (function () {
     			}
     		},
     		p: function update(ctx, dirty) {
-    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t0_value !== (t0_value = /*a_message*/ ctx[55].date + "")) set_data_dev(t0, t0_value);
-    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t2_value !== (t2_value = /*a_message*/ ctx[55].name + "")) set_data_dev(t2, t2_value);
-    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t4_value !== (t4_value = /*a_message*/ ctx[55].subject + "")) set_data_dev(t4, t4_value);
+    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t0_value !== (t0_value = /*a_message*/ ctx[60].date + "")) set_data_dev(t0, t0_value);
+    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t2_value !== (t2_value = /*a_message*/ ctx[60].name + "")) set_data_dev(t2, t2_value);
+    			if (dirty[0] & /*inbound_contact_messages*/ 256 && t4_value !== (t4_value = /*a_message*/ ctx[60].subject + "")) set_data_dev(t4, t4_value);
     		},
     		d: function destroy(detaching) {
     			if (detaching) detach_dev(tr);
@@ -9886,14 +9887,14 @@ var app = (function () {
     		block,
     		id: create_each_block_1.name,
     		type: "each",
-    		source: "(489:4) {#each inbound_contact_messages as a_message, c_i }",
+    		source: "(566:4) {#each inbound_contact_messages as a_message, c_i }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (430:4) {:else}
+    // (507:4) {:else}
     function create_else_block_1(ctx) {
     	let label;
     	let input;
@@ -9908,12 +9909,12 @@ var app = (function () {
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 430, 4, 10351);
+    			add_location(label, file, 507, 4, 12408);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Date of Birth");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 430, 58, 10405);
+    			add_location(input, file, 507, 58, 12462);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -9921,7 +9922,7 @@ var app = (function () {
     			set_input_value(input, /*DOB*/ ctx[9]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_1*/ ctx[32]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_1*/ ctx[34]);
     				mounted = true;
     			}
     		},
@@ -9942,14 +9943,14 @@ var app = (function () {
     		block,
     		id: create_else_block_1.name,
     		type: "else",
-    		source: "(430:4) {:else}",
+    		source: "(507:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (428:4) {#if business }
+    // (505:4) {#if business }
     function create_if_block_2(ctx) {
     	let label;
     	let input;
@@ -9964,12 +9965,12 @@ var app = (function () {
     			attr_dev(label, "for", "DOB");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 428, 4, 10177);
+    			add_location(label, file, 505, 4, 12234);
     			attr_dev(input, "id", "DOB");
     			attr_dev(input, "placeholder", "Year of Inception");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 428, 72, 10245);
+    			add_location(input, file, 505, 72, 12302);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -9977,7 +9978,7 @@ var app = (function () {
     			set_input_value(input, /*DOB*/ ctx[9]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler*/ ctx[31]);
+    				dispose = listen_dev(input, "input", /*input_input_handler*/ ctx[33]);
     				mounted = true;
     			}
     		},
@@ -9998,14 +9999,14 @@ var app = (function () {
     		block,
     		id: create_if_block_2.name,
     		type: "if",
-    		source: "(428:4) {#if business }",
+    		source: "(505:4) {#if business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (437:4) {:else}
+    // (514:4) {:else}
     function create_else_block(ctx) {
     	let label;
     	let input;
@@ -10020,12 +10021,12 @@ var app = (function () {
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 437, 4, 10738);
+    			add_location(label, file, 514, 4, 12795);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Place of Origin");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 437, 70, 10804);
+    			add_location(input, file, 514, 70, 12861);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -10033,7 +10034,7 @@ var app = (function () {
     			set_input_value(input, /*place_of_origin*/ ctx[10]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_3*/ ctx[34]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_3*/ ctx[36]);
     				mounted = true;
     			}
     		},
@@ -10054,14 +10055,14 @@ var app = (function () {
     		block,
     		id: create_else_block.name,
     		type: "else",
-    		source: "(437:4) {:else}",
+    		source: "(514:4) {:else}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (435:4) {#if business }
+    // (512:4) {#if business }
     function create_if_block_1(ctx) {
     	let label;
     	let input;
@@ -10076,12 +10077,12 @@ var app = (function () {
     			attr_dev(label, "for", "POO");
     			set_style(label, "display", "inline");
     			attr_dev(label, "class", "svelte-gncbva");
-    			add_location(label, file, 435, 4, 10563);
+    			add_location(label, file, 512, 4, 12620);
     			attr_dev(input, "id", "POO");
     			attr_dev(input, "placeholder", "Main Office");
     			set_style(input, "display", "inline");
     			attr_dev(input, "class", "svelte-gncbva");
-    			add_location(input, file, 435, 67, 10626);
+    			add_location(input, file, 512, 67, 12683);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, label, anchor);
@@ -10089,7 +10090,7 @@ var app = (function () {
     			set_input_value(input, /*place_of_origin*/ ctx[10]);
 
     			if (!mounted) {
-    				dispose = listen_dev(input, "input", /*input_input_handler_2*/ ctx[33]);
+    				dispose = listen_dev(input, "input", /*input_input_handler_2*/ ctx[35]);
     				mounted = true;
     			}
     		},
@@ -10110,17 +10111,17 @@ var app = (function () {
     		block,
     		id: create_if_block_1.name,
     		type: "if",
-    		source: "(435:4) {#if business }",
+    		source: "(512:4) {#if business }",
     		ctx
     	});
 
     	return block;
     }
 
-    // (468:7) {#each contact_form_links as form_link, form_index}
+    // (545:7) {#each contact_form_links as form_link, form_index}
     function create_each_block(ctx) {
     	let option;
-    	let t_value = /*form_link*/ ctx[53] + "";
+    	let t_value = /*form_link*/ ctx[58] + "";
     	let t;
 
     	const block = {
@@ -10130,7 +10131,7 @@ var app = (function () {
     			option.__value = /*form_index*/ ctx[5];
     			option.value = option.__value;
     			attr_dev(option, "class", "svelte-gncbva");
-    			add_location(option, file, 468, 8, 12444);
+    			add_location(option, file, 545, 8, 14501);
     		},
     		m: function mount(target, anchor) {
     			insert_dev(target, option, anchor);
@@ -10146,14 +10147,14 @@ var app = (function () {
     		block,
     		id: create_each_block.name,
     		type: "each",
-    		source: "(468:7) {#each contact_form_links as form_link, form_index}",
+    		source: "(545:7) {#each contact_form_links as form_link, form_index}",
     		ctx
     	});
 
     	return block;
     }
 
-    // (610:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>
+    // (687:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>
     function create_default_slot_1(ctx) {
     	let messagedisplay;
     	let current;
@@ -10202,14 +10203,14 @@ var app = (function () {
     		block,
     		id: create_default_slot_1.name,
     		type: "slot",
-    		source: "(610:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>",
+    		source: "(687:0) <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>",
     		ctx
     	});
 
     	return block;
     }
 
-    // (614:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
+    // (691:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
     function create_default_slot(ctx) {
     	let messageeditor;
     	let current;
@@ -10258,7 +10259,7 @@ var app = (function () {
     		block,
     		id: create_default_slot.name,
     		type: "slot",
-    		source: "(614:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>",
+    		source: "(691:0) <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>",
     		ctx
     	});
 
@@ -10279,7 +10280,7 @@ var app = (function () {
     	let current;
 
     	function tabbar_active_binding(value) {
-    		/*tabbar_active_binding*/ ctx[28](value);
+    		/*tabbar_active_binding*/ ctx[30](value);
     	}
 
     	let tabbar_props = {
@@ -10287,8 +10288,8 @@ var app = (function () {
     		$$slots: {
     			default: [
     				create_default_slot_2,
-    				({ tab }) => ({ 60: tab }),
-    				({ tab }) => [0, tab ? 536870912 : 0]
+    				({ tab }) => ({ 65: tab }),
+    				({ tab }) => [0, 0, tab ? 8 : 0]
     			]
     		},
     		$$scope: { ctx }
@@ -10349,9 +10350,9 @@ var app = (function () {
     			t3 = space();
     			create_component(floatwindow1.$$.fragment);
     			attr_dev(br, "class", "svelte-gncbva");
-    			add_location(br, file, 412, 2, 9574);
+    			add_location(br, file, 489, 2, 11631);
     			attr_dev(div, "class", "svelte-gncbva");
-    			add_location(div, file, 402, 0, 9285);
+    			add_location(div, file, 479, 0, 11342);
     		},
     		l: function claim(nodes) {
     			throw new Error("options.hydrate only works if the component was compiled with the `hydratable: true` option");
@@ -10372,7 +10373,7 @@ var app = (function () {
     		p: function update(ctx, dirty) {
     			const tabbar_changes = {};
 
-    			if (dirty[1] & /*$$scope, tab*/ 1610612736) {
+    			if (dirty[2] & /*$$scope, tab*/ 24) {
     				tabbar_changes.$$scope = { dirty, ctx };
     			}
 
@@ -10400,7 +10401,7 @@ var app = (function () {
     			if (dirty[0] & /*message_selected*/ 262144) floatwindow0_changes.title = /*message_selected*/ ctx[18].name;
     			if (dirty[0] & /*window_scale*/ 524288) floatwindow0_changes.scale_size = /*window_scale*/ ctx[19];
 
-    			if (dirty[0] & /*message_selected*/ 262144 | dirty[1] & /*$$scope*/ 1073741824) {
+    			if (dirty[0] & /*message_selected*/ 262144 | dirty[2] & /*$$scope*/ 16) {
     				floatwindow0_changes.$$scope = { dirty, ctx };
     			}
 
@@ -10409,7 +10410,7 @@ var app = (function () {
     			if (dirty[0] & /*selected*/ 8) floatwindow1_changes.title = /*selected*/ ctx[3].name;
     			if (dirty[0] & /*window_scale*/ 524288) floatwindow1_changes.scale_size = /*window_scale*/ ctx[19];
 
-    			if (dirty[0] & /*selected*/ 8 | dirty[1] & /*$$scope*/ 1073741824) {
+    			if (dirty[0] & /*selected*/ 8 | dirty[2] & /*$$scope*/ 16) {
     				floatwindow1_changes.$$scope = { dirty, ctx };
     			}
 
@@ -10515,6 +10516,14 @@ var app = (function () {
     	
     } // start_floating_window(2);
 
+    function deciphered(message) {
+    	return message;
+    }
+
+    function decipher_contacts(c_file_data) {
+    	
+    }
+
     function instance($$self, $$props, $$invalidate) {
     	let filteredIndviduals;
     	let selected;
@@ -10522,6 +10531,8 @@ var app = (function () {
     	validate_slots("App", slots, []);
     	let cid = "";
     	let active = "Signup";
+    	let first_message = 0;
+    	let messages_per_page = 100;
 
     	let individuals = [
     		{
@@ -10531,6 +10542,7 @@ var app = (function () {
     			"cool_public_info": "He is a Master Jedi",
     			"business": false,
     			"public_key": true,
+    			"cid": "4504385938",
     			"answer_message": ""
     		},
     		{
@@ -10540,6 +10552,7 @@ var app = (function () {
     			"cool_public_info": "He Made a lot of songs",
     			"business": true,
     			"public_key": false,
+    			"cid": "4345687685",
     			"answer_message": "I got your songs"
     		},
     		{
@@ -10549,6 +10562,7 @@ var app = (function () {
     			"cool_public_info": "He Made Risque Movies",
     			"business": false,
     			"public_key": true,
+    			"cid": "9i58w78ew",
     			"answer_message": ""
     		}
     	];
@@ -10560,6 +10574,7 @@ var app = (function () {
     	let inbound_messages = [
     		{
     			"name": "Hans Solo",
+    			"user_cid": "4504385938",
     			"subject": "Darth Vadier Attacks",
     			"date": todays_date,
     			"readers": "joe,jane,harry",
@@ -10569,6 +10584,7 @@ var app = (function () {
     		},
     		{
     			"name": "Max Martin",
+    			"user_cid": "4345687685",
     			"subject": "Adele and Katy Perry Attacks",
     			"date": todays_date,
     			"readers": "Lady Gaga, Taylor Swift, Bruno Mars",
@@ -10578,6 +10594,7 @@ var app = (function () {
     		},
     		{
     			"name": "Roman Polanski",
+    			"user_cid": "9i58w78ew",
     			"subject": "Charlie Manson Attacks",
     			"date": todays_date,
     			"readers": "Attorney General, LA DA, Squeeky",
@@ -10587,6 +10604,7 @@ var app = (function () {
     		},
     		{
     			"name": "Darth Vadar",
+    			"user_cid": "869968609",
     			"subject": "Hans Solo is Mean",
     			"date": todays_date,
     			"readers": "luke,martha,chewy",
@@ -10598,6 +10616,17 @@ var app = (function () {
 
     	let contact_form_links = ["contact_style_1.html", "contact_style_2.html"];
     	let selected_form_link = "contact_style_1.html";
+
+    	function find_contact_from_message(message) {
+    		for (let contact of individuals) {
+    			if (contact.name == message.name && message.user_cid === contact.cid) {
+    				return contact;
+    			}
+    		}
+
+    		return false;
+    	}
+
     	let prefix = "";
     	let i = 0;
     	let c_i = 0;
@@ -10640,6 +10669,9 @@ var app = (function () {
 
     			$$invalidate(19, window_scale.w = scale.w, window_scale);
     		}); //
+
+    		fetch_array_data();
+    		fetch_contacts();
     	});
 
     	// ADD PROFILE.....
@@ -10660,17 +10692,22 @@ var app = (function () {
     			cool_public_info,
     			business,
     			"public_key": false,
-    			"form_link": selected_form_link,
+    			"form_link": selected_form_link, // a cid to a template ??
     			"answer_message": ""
     		};
 
+    		//
     		await gen_public_key(post_data); // by ref
+
+    		//
     		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data);
 
     		if (search_result) {
     			cid = search_result.cid;
+    			post_data.cid = cid;
+    			store_user_key(post_data);
     		}
-    	}
+    	} //
 
     	function add_contact() {
     		people = people.concat({ first, last });
@@ -10678,7 +10715,7 @@ var app = (function () {
     		first = "";
     	}
 
-    	function update_concact() {
+    	function update_contact() {
     		$$invalidate(3, selected.first = first, selected);
     		$$invalidate(3, selected.last = last, selected);
     		people = people;
@@ -10719,12 +10756,67 @@ var app = (function () {
     							let index = parseInt(parts[2]);
     							$$invalidate(18, message_selected = inbound_solicitation_messages[index]);
     						}
+
+    						break;
     					}
     				}
     			}
     		}
 
+    		let contact = find_contact_from_message(message_selected);
+
+    		if (contact) {
+    			contact.answer_message = `&lt;subject ${message_selected.subject}&gt;<br>` + message_selected.message;
+    		}
+
     		start_floating_window(0);
+    	}
+
+    	async function fetch_array_data() {
+    		let b_or_p = business ? "business" : "profile";
+    		let srver = location.host;
+    		srver = srver.replace("5111", "6111");
+    		let prot = location.protocol; // prot for (prot)ocol
+    		let data_stem = "spool";
+    		let sp = "//";
+
+    		let post_data = {
+    			cid,
+    			"start": first_message,
+    			"count": messages_per_page,
+    			"business": b_or_p
+    		};
+
+    		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data);
+
+    		if (search_result) {
+    			let data = search_result.data;
+
+    			if (data) {
+    				$$invalidate(29, inbound_messages = data.map(message => {
+    					return deciphered(message);
+    				}));
+    			}
+    		}
+    	}
+
+    	async function fetch_contacts() {
+    		let b_or_p = business ? "business" : "profile";
+    		let srver = location.host;
+    		srver = srver.replace("5111", "6111");
+    		let prot = location.protocol; // prot for (prot)ocol
+    		let data_stem = "contacts";
+    		let sp = "//";
+    		let post_data = { cid, "business": b_or_p };
+    		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data);
+
+    		if (search_result) {
+    			let data = search_result.data;
+
+    			if (data) {
+    				$$invalidate(28, individuals = JSON.parse(decipher_contacts()));
+    			}
+    		}
     	}
 
     	const writable_props = [];
@@ -10833,6 +10925,8 @@ var app = (function () {
     		MessageEditor,
     		cid,
     		active,
+    		first_message,
+    		messages_per_page,
     		individuals,
     		inbound_solicitation_messages,
     		inbound_contact_messages,
@@ -10840,6 +10934,7 @@ var app = (function () {
     		inbound_messages,
     		contact_form_links,
     		selected_form_link,
+    		find_contact_from_message,
     		prefix,
     		i,
     		c_i,
@@ -10862,13 +10957,17 @@ var app = (function () {
     		popup_size,
     		add_profile,
     		add_contact,
-    		update_concact,
+    		update_contact,
     		remove_contact,
     		reset_inputs,
     		pop_editor,
     		show_subject,
     		full_message,
     		preview_contact_form,
+    		deciphered,
+    		decipher_contacts,
+    		fetch_array_data,
+    		fetch_contacts,
     		filteredIndviduals,
     		selected
     	});
@@ -10876,11 +10975,13 @@ var app = (function () {
     	$$self.$inject_state = $$props => {
     		if ("cid" in $$props) cid = $$props.cid;
     		if ("active" in $$props) $$invalidate(6, active = $$props.active);
-    		if ("individuals" in $$props) $$invalidate(48, individuals = $$props.individuals);
+    		if ("first_message" in $$props) first_message = $$props.first_message;
+    		if ("messages_per_page" in $$props) messages_per_page = $$props.messages_per_page;
+    		if ("individuals" in $$props) $$invalidate(28, individuals = $$props.individuals);
     		if ("inbound_solicitation_messages" in $$props) $$invalidate(7, inbound_solicitation_messages = $$props.inbound_solicitation_messages);
     		if ("inbound_contact_messages" in $$props) $$invalidate(8, inbound_contact_messages = $$props.inbound_contact_messages);
     		if ("todays_date" in $$props) todays_date = $$props.todays_date;
-    		if ("inbound_messages" in $$props) $$invalidate(50, inbound_messages = $$props.inbound_messages);
+    		if ("inbound_messages" in $$props) $$invalidate(29, inbound_messages = $$props.inbound_messages);
     		if ("contact_form_links" in $$props) $$invalidate(20, contact_form_links = $$props.contact_form_links);
     		if ("selected_form_link" in $$props) selected_form_link = $$props.selected_form_link;
     		if ("prefix" in $$props) $$invalidate(0, prefix = $$props.prefix);
@@ -10910,7 +11011,7 @@ var app = (function () {
     	}
 
     	$$self.$$.update = () => {
-    		if ($$self.$$.dirty[0] & /*prefix*/ 1) {
+    		if ($$self.$$.dirty[0] & /*prefix, individuals*/ 268435457) {
     			$$invalidate(2, filteredIndviduals = prefix
     			? individuals.filter(individual => {
     					const name = `${individual.name}`;
@@ -10930,17 +11031,19 @@ var app = (function () {
     		if ($$self.$$.dirty[0] & /*form_index*/ 32) {
     			selected_form_link = contact_form_links[form_index];
     		}
+
+    		if ($$self.$$.dirty[0] & /*inbound_messages*/ 536870912) {
+    			{
+    				$$invalidate(8, inbound_contact_messages = inbound_messages.filter(msg => {
+    					return msg.public_key == true;
+    				}));
+
+    				$$invalidate(7, inbound_solicitation_messages = inbound_messages.filter(msg => {
+    					return msg.public_key == false;
+    				}));
+    			}
+    		}
     	};
-
-    	{
-    		$$invalidate(8, inbound_contact_messages = inbound_messages.filter(msg => {
-    			return msg.public_key == true;
-    		}));
-
-    		$$invalidate(7, inbound_solicitation_messages = inbound_messages.filter(msg => {
-    			return msg.public_key == false;
-    		}));
-    	}
 
     	return [
     		prefix,
@@ -10966,11 +11069,13 @@ var app = (function () {
     		contact_form_links,
     		add_profile,
     		add_contact,
-    		update_concact,
+    		update_contact,
     		remove_contact,
     		full_message,
     		c_i,
     		i_i,
+    		individuals,
+    		inbound_messages,
     		tabbar_active_binding,
     		input0_input_handler,
     		input1_change_handler,
@@ -10995,7 +11100,7 @@ var app = (function () {
     class App extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance, create_fragment, safe_not_equal, {}, [-1, -1]);
+    		init(this, options, instance, create_fragment, safe_not_equal, {}, [-1, -1, -1]);
 
     		dispatch_dev("SvelteRegisterComponent", {
     			component: this,

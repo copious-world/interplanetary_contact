@@ -11,12 +11,14 @@
 	let cid = ""
 
 	let active = 'Signup';
+	let first_message = 0
+	let messages_per_page = 100
 
 
 	let individuals = [
-		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : true, "answer_message" : ""},
-		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "answer_message" : "I got your songs"},
-		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : true, "answer_message" : "" }
+		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : true, "cid" : "4504385938", "answer_message" : ""},
+		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "cid" : "4345687685", "answer_message" : "I got your songs"},
+		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : true, "cid" : "9i58w78ew", "answer_message" : "" }
 	];
 
 
@@ -25,10 +27,10 @@
 
 	let todays_date = (new Date()).toLocaleString()
 	let inbound_messages = [
-		{ "name": 'Hans Solo', "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : true, "message" : "this is a message 1" },
-		{ "name": 'Max Martin', "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : true, "message" : "this is a message 2"  },
-		{ "name": 'Roman Polanski', "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : true, "message" : "this is a message 3"  },
-		{ "name": 'Darth Vadar', "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" },
+		{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : true, "message" : "this is a message 1" },
+		{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : true, "message" : "this is a message 2"  },
+		{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : true, "message" : "this is a message 3"  },
+		{ "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" },
 	]
 
 	let contact_form_links = [
@@ -37,6 +39,16 @@
 	]
 
 	let selected_form_link = "contact_style_1.html"
+
+
+	function find_contact_from_message(message) {
+		for ( let contact of individuals ) {
+			if ( (contact.name == message.name) && (message.user_cid === contact.cid) ) {
+				return contact
+			}
+		}
+		return false
+	}
 
 	let prefix = '';
 	let i = 0;
@@ -147,6 +159,9 @@
 			window_scale.w = scale.w;
 			//
 		})
+
+		fetch_array_data()
+		fetch_contacts()
 	})
 
 
@@ -167,17 +182,19 @@
 			"cool_public_info" : cool_public_info, 
 			"business" : business, 
 			"public_key" : false, 
-			"form_link" : selected_form_link,
+			"form_link" : selected_form_link,  // a cid to a template ??
 			"answer_message" : ""
 		}
-
+		//
 		await gen_public_key(post_data) // by ref
-		
+		//
 		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data)
 		if ( search_result ) {
 			cid = search_result.cid;
+			post_data.cid = cid
+			store_user_key(post_data)
 		}
-
+		//
 	}
 
 	function add_contact() {
@@ -186,7 +203,7 @@
 		first = '';
 	}
 
-	function update_concact() {
+	function update_contact() {
 		selected.first = first;
 		selected.last = last;
 		people = people;
@@ -235,9 +252,14 @@
 							let index = parseInt(parts[2])
 							message_selected = inbound_solicitation_messages[index]
 						}
+						break;
 					}
 				}
 			}
+		}
+		let contact = find_contact_from_message(message_selected)
+		if ( contact ) {
+			contact.answer_message = `&lt;subject ${message_selected.subject}&gt;<br>` + message_selected.message
 		}
 		start_floating_window(0);
 	}
@@ -246,6 +268,61 @@
 	function preview_contact_form(ev) {
 		// start_floating_window(2);
 	}
+
+
+	function deciphered(message) {
+		return(message)
+	}
+
+	function decipher_contacts(c_file_data) {
+
+	}
+
+
+	async function fetch_array_data() {
+		let b_or_p =  ( business ) ? "business" : "profile"
+		let srver = location.host
+		srver = srver.replace('5111','6111')
+		let prot = location.protocol  // prot for (prot)ocol
+		let data_stem = 'spool'
+		let sp = '//'
+		let post_data = {
+			"cid" : cid,
+			"start" : first_message,
+			"count" : messages_per_page,
+			"business" : b_or_p
+		}
+		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+		if ( search_result ) {
+			let data = search_result.data;
+			if ( data ) {
+				inbound_messages = data.map(message => {
+					return deciphered(message)
+				})
+			}
+		}
+	}
+
+	async function fetch_contacts() {
+		let b_or_p =  ( business ) ? "business" : "profile"
+		let srver = location.host
+		srver = srver.replace('5111','6111')
+		let prot = location.protocol  // prot for (prot)ocol
+		let data_stem = 'contacts'
+		let sp = '//'
+		let post_data = {
+			"cid" : cid,
+			"business" : b_or_p
+		}
+		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+		if ( search_result ) {
+			let data = search_result.data;
+			if ( data ) {
+				individuals = JSON.parse(decipher_contacts(data))
+			}
+		}
+	}
+
 
 </script>
 
@@ -527,7 +604,7 @@
 			</select>
 			<div class='buttons'>
 				<button on:click={add_contact} disabled="{!c_name}">add</button>
-				<button on:click={update_concact} disabled="{!c_name || !selected}">update</button>
+				<button on:click={update_contact} disabled="{!c_name || !selected}">update</button>
 				<button on:click={remove_contact} disabled="{!selected}">delete</button>
 			</div>
 		</div>

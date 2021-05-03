@@ -56,6 +56,7 @@
 				contact_page = decodeURIComponent(html)
 				let script = data.script
 				script = decodeURIComponent(script)
+				script = script.replace("{{when}}",Date.now())
 				addscript(script,"blg-window-full-text-outgo-script",true)
 				//
 			}
