@@ -33,6 +33,12 @@
 		{ "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" },
 	]
 
+	/*
+      "wrapped_key" : false,
+      "encoding" : "uri",
+	  "when"  ... whereas"date" is a human readable string...
+	*/
+
 	let contact_form_links = [
 		"contact_style_1.html",
 		"contact_style_2.html"
@@ -322,6 +328,113 @@
 			}
 		}
 	}
+
+/*		MANIFEST EDITING
+     //
+	 async edit_manifest(user_cid,old_manifest_cid,op,proceed) {
+        //
+        let profile_path = `/copious.world/grand_${btype}_repository/profiles/${user_cid}`
+        let manifest_path = `${profile_path}/manifest`
+        //
+        let file = await ipfs.files.stat(manifest_path)
+        let manifest_entry = {
+            "file" : file.name,
+            "cid" : file.cid.toString(),   /// new cid
+            "size" : file.size
+        }
+        //
+        if ( manifest_entry ) {
+            let no_error = true
+            proceed = (proceed === undefined) ? false : proceed
+            let m_cid = manifest_entry.cid
+            if ( m_cid !== old_manifest_cid ) {
+                no_error = false
+                addError(new Error("Manifest has been replaced"))
+            }
+            //
+            // proceed with the old manifest CID
+            if ( proceed || no_error ) {
+                let manifest_data = await this.get_complete_file_from_cid(old_manifest_cid)
+                try {
+                    //
+                    let manifest_obj = JSON.parse(manifest_data)
+                    if ( op ) {     ///  MANIFEST OPERATIONS
+                        //
+                        let store_op = Object.assign({},op)
+                        store_op.when = Date.now()
+                        manifest_obj.op_history.push(store_op)
+                        //
+                        let cfile_cid = op.cid // a contact form
+                        let encrypted = op.encrypted
+                        let preference = op.preference
+                        switch ( op.cmd ) {
+                            case 'add' : {
+                                if ( (manifest_obj.max_preference <  preference) && (encrypted == false) ) {
+                                    manifest_obj.default_contact_form = cfile_cid
+                                    manifest_obj.max_preference = preference
+                                }
+                                let b = manifest_obj.custom_contact_forms.some((cfile) => {
+                                    return ( cfile.cid === cfile_cid )
+                                })
+                                if ( b ) {
+                                    insert_by_pref(manifest_obj.custom_contact_forms,{
+                                    "file" : cfile_cid,
+                                    "preference" : preference,
+                                    "encrypted" : encrypted
+                                    })
+                                }
+                                //
+                                break;
+                            }
+                            case 'delete' : {
+                                let contact_form_list = manifest_obj.custom_contact_forms.filter((cform) => {
+                                    return(cform.cid !== cfile_cid)
+                                })
+                                manifest_obj.custom_contact_forms = contact_form_list // list without the form being discarded
+                                // 
+                                // try to find a clear text form to replace the default 
+                                // if the default is being discarded. If there is not one, then don't replace.. Expect user to search for a better one.
+                                if ( cfile_cid == manifest_obj.default_contact_form ) { 
+                                    for ( let cform_entry of manifest_obj.custom_contact_forms ) {
+                                        if ( cform_entry.encrypted === false ) {
+                                            manifest_obj.default_contact_form = cform_entry.cid
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                            }
+                            case 'update_default' : {   // only apply to the default. Preference is not read
+                                manifest_obj.default_contact_form = cfile_cid
+                                // if this does not exsist, then insert it...
+                                let b = manifest_obj.custom_contact_forms.some((cfile) => {
+                                    return ( cfile.cid === cfile_cid )
+                                })
+                                if ( !b ) {
+                                    insert_by_pref(manifest_obj.custom_contact_forms,{
+                                    "file" : cfile_cid,
+                                    "preference" : preference,
+                                    "encrypted" : encrypted
+                                    })
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    let manifest = JSON.stringify(manifest_obj)
+                    let manifest_cid = await this.update_file_in_ipfs(manifest_path,manifest)
+                    return(manifest_cid)
+                    //
+                } catch (e) {
+                    console.dir(e)
+                }
+            }
+            //
+        }
+        return false
+    }
+ */
+
 
 
 </script>
