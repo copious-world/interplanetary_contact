@@ -179,7 +179,7 @@
 		let srver = location.host
 		srver = srver.replace('5111','6111')  // CHANGE THIS
 		let prot = location.protocol  // prot for (prot)ocol
-		let data_stem = 'add'
+		let data_stem = 'add/profile'
 		let sp = '//'
 		let post_data = {
 			"name": name,
@@ -305,26 +305,6 @@
 				inbound_messages = data.map(message => {
 					return deciphered(message)
 				})
-			}
-		}
-	}
-
-	async function fetch_contacts() {
-		let b_or_p =  ( business ) ? "business" : "profile"
-		let srver = location.host
-		srver = srver.replace('5111','6111')
-		let prot = location.protocol  // prot for (prot)ocol
-		let data_stem = 'contacts'
-		let sp = '//'
-		let post_data = {
-			"cid" : cid,
-			"business" : b_or_p
-		}
-		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
-		if ( search_result ) {
-			let data = search_result.data;
-			if ( data ) {
-				individuals = JSON.parse(decipher_contacts(data))
 			}
 		}
 	}

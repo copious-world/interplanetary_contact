@@ -11,6 +11,8 @@ const app = fastify()
 //
 const IPFSProfiles = require('./lib/ipfs_user_profile')
 
+var g_ipfs_profiles = false
+
 //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// //// 
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
@@ -60,7 +62,7 @@ app.get('/',(req, res) => {
 })
 
 
-
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
 /*
     "name" : "Just Stew",
@@ -71,8 +73,13 @@ app.get('/',(req, res) => {
     "public_key" : '345345
 
 */
-let g_user_fields = ["name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key "]
+let g_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key" ]
 app.post('/add/profile',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
   //
   let storable_profile = req.body
   for ( let fld of g_user_fields ) {
@@ -82,7 +89,7 @@ app.post('/add/profile',async (req, res) => {
     }
   }
   //
-  let cids = await ipfs_profiles.add_profile(storable_profile)
+  let cids = await g_ipfs_profiles.add_profile(storable_profile)
   //
   let ipfs_identity = {
     "id" : cids[0],
@@ -97,8 +104,13 @@ app.post('/add/profile',async (req, res) => {
 
 app.post('/dir',async (req, res) => {
   //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
   let body = req.body
-  let tree = await ipfs_profiles.get_user_dir(body)
+  let tree = await g_ipfs_profiles.get_user_dir(body)
   res.type('application/json').send({ "status" : "OK", "data" : JSON.stringify(tree) })
   //
 })
@@ -126,8 +138,17 @@ let body = {
     }
   }
 */
+
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+
+
 let g_message_fields = ["name", "user_cid", "subject", "readers", "date", "when", "business", "public_key", "wrapped_key", "encoding","message"]
 app.post('/send/message',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
   //
   let body = req.body
   let message = body.message
@@ -145,12 +166,17 @@ app.post('/send/message',async (req, res) => {
     }
   }
   //
-  let message_cid = ipfs_profiles.add_profile_message(body,"spool")
+  let message_cid = g_ipfs_profiles.add_profile_message(body,"spool")
   res.type('application/json').send({ "status" : "OK", "message_cid" : message_cid })
 })
 
 
 app.post('/send/introduction',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
   //
   let body = req.body
   let message = body.message
@@ -173,12 +199,17 @@ app.post('/send/introduction',async (req, res) => {
     }
   }
   //
-  let message_cid = ipfs_profiles.add_profile_message(body,"spool")
+  let message_cid = g_ipfs_profiles.add_profile_message(body,"spool")
   res.type('application/json').send({ "status" : "OK", "message_cid" : message_cid })
 })
 
 
 app.post('/send/topic',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
   //
   let body = req.body
   let message = body.message
@@ -189,12 +220,17 @@ app.post('/send/topic',async (req, res) => {
     }
   }
   //
-  let topic_cid = ipfs_profiles.add_profile_message(body,"topic_spool")
+  let topic_cid = g_ipfs_profiles.add_profile_message(body,"topic_spool")
   res.type('application/json').send({ "status" : "OK", "topic_cid" : topic_cid })
 })
 
 
 app.post('/send/topic_offer',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
   //
   let body = req.body
   let message = body.message
@@ -217,33 +253,66 @@ app.post('/send/topic_offer',async (req, res) => {
     }
   }
   //
-  let offer_template_cid = ipfs_profiles.write_to_profile_path(body,"topic_spool")
+  let offer_template_cid = g_ipfs_profiles.write_to_profile_path(body,"topic_spool")
   body.template_cid = offer_template_cid
   delete body.contents
   //
-  let topic_cid = ipfs_profiles.add_profile_message(body,"topic_spool")
+  let topic_cid = g_ipfs_profiles.add_profile_message(body,"topic_spool")
   res.type('application/json').send({ "status" : "OK", "topic_cid" : topic_cid })
 })
 
 
+
+
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+
+
+// get messages or topics from the spool file....
+app.post('/get-spool',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
+  let body = req.body
+  let answer = { "status" : "error", "reason" : "unidentified spool" }
+  //
+  let messages = ""
+  if ( body.cid !== undefined ) {
+    messages = await g_ipfs_profiles.get_spool_files_body(body)
+    answer = { "status" : "OK", "data" : messages }
+  }
+  //
+  res.type('application/json').send(answer)
+})
+
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+
 app.post('/get-asset/:asset',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
   let body = req.body
   let asset = req.params.asset
   //
   let answer = { "status" : "error", "reason" : "unidentified asset" }
   switch ( asset ) {
     case "contacts" : {
-      let file_data = await ipfs_profiles.fetch_cid_contacts(body)
+      let file_data = await g_ipfs_profiles.fetch_cid_contacts(body)
       answer = { "status" : "OK", "contacts" : file_data }
       break;
     }
     case "topics" : {
-      let file_data = await ipfs_profiles.fetch_cid_topic_file(body)
+      let file_data = await g_ipfs_profiles.fetch_cid_topic_file(body)
       answer = { "status" : "OK", "topics" : file_data }
       break;
     }
     case "manifest" : {
-      let file_data = await ipfs_profiles.fetch_cid_manifest(body)
+      let file_data = await g_ipfs_profiles.fetch_cid_manifest(body)
       answer = { "status" : "OK", "manifest" : file_data }
       break;
     }
@@ -252,37 +321,33 @@ app.post('/get-asset/:asset',async (req, res) => {
 })
 
 
-
-app.post('/get-contact/:asset',async (req, res) => {
+app.post('/get-contact-page/:asset',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
   let body = req.body
   let asset = req.params.asset
   let answer = { "status" : "error", "reason" : "unidentified asset" }
-  if ( asset === "default" ) {
-    let cid = ipfs_profiles.default_contact_form
+  if ( asset !== "cid" ) {
+    let cid = false
+    if ( asset !== "default" ) {
+      cid = g_ipfs_profiles.default_contact_map[asset]  // service provides different introduction types. (service is a curator)
+      if ( cid === undefined ) {
+        cid = g_ipfs_profiles.default_contact_form
+      }
+    } else {
+      cid = g_ipfs_profiles.default_contact_form
+    }
     let contact_file = this.get_complete_file_from_cid(cid)
     answer = { "status" : "OK", "contact" : contact_file }
-  } else {
-    let cid = body.cid // from the manifest
+  } else if ( asset === 'cid' ) {
+    let cid = body.cid // from the manifest (by way of previous introduction (at least) from the recipient)
     let contact_file = this.get_complete_file_from_cid(cid)
     answer = { "status" : "OK", "contact" : contact_file }
   }
-  res.type('application/json').send(answer)
-})
-
-
-// get messages or topics from the spool file....
-app.post('/get-spool',async (req, res) => {
-  let body = req.body
-  let answer = { "status" : "error", "reason" : "unidentified spool" }
-  //
-  let messages = ""
-  if ( body.cid !== undefined ) {
-    messages = await ipfs_profiles.get_spool_files_body(body)
-  } else {
-    messages = await ipfs_profiles.get_user_spool_files(body)
-  }
-  answer = { "status" : "OK", "data" : messages }
-  //
   res.type('application/json').send(answer)
 })
 
@@ -292,7 +357,12 @@ app.post('/get-spool',async (req, res) => {
 // manifest -- describes customized contact forms that you keep. The list provides information that you send to people you want messages from.
 // contact_forms -- contact forms or templates that will be in the manifest... (writing to this requires a manifest update)
 var g_asset_typtes = [ "contacts", "topics", "manifest", "contact_forms"]
-app.post('/put_asset/:asset',async (req, res) => {
+app.post('/put-asset/:asset',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
   //
   let body = req.body
   let message = body.message
@@ -315,14 +385,23 @@ app.post('/put_asset/:asset',async (req, res) => {
     return
   }
   //
-  let update_cid = await ipfs_profiles.write_to_profile_path(body,asset)
+  let update_cid = await g_ipfs_profiles.write_to_profile_path(body,asset)
   res.type('application/json').send({ "status" : "OK", "update_cid" : update_cid, "asset" : asset })
   //
 })
 
 
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+// TEMPLATES
+
 // Template searching...  Template Management
 app.post('/template-list/:narrow_search',async (req, res) => {  // narrow search by category.
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
   let category = req.params.narrow_search
   let body = req.body
   let btype = body.business_types   // may be an array or just a string
@@ -330,25 +409,37 @@ app.post('/template-list/:narrow_search',async (req, res) => {  // narrow search
   let count = body.count
   let t_list
   if ( category === 'any' ) {
-    t_list = await ipfs_profiles.get_template_files(btype,false,start,count)
+    t_list = await g_ipfs_profiles.get_template_files(btype,false,start,count)
   } else {
-    t_list = await ipfs_profiles.get_template_files(btype,category)
+    t_list = await g_ipfs_profiles.get_template_files(btype,category,start,count)
   }
   res.type('application/json').send({ "status" : "OK", "templates" : t_list })
 })
 
 
 app.get('/get/template/:cid',async (req, res) => {  // narrow search by category.
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
   let a_cid = req.params.cid
-  let template_obj = await ipfs_profiles.get_json_from_cid(a_cid)
+  let template_obj = await g_ipfs_profiles.get_json_from_cid(a_cid)
   res.type('application/json').send({ "status" : "OK", "template" : template_obj })
 })
 
 
 app.post('/put/template',async (req, res) => {  // narrow search by category.
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
   let template_name = req.body.name 
   let template_data = req.body.uri_encoded_json
-  let t_cid = await ipfs_profiles.add_template_json(template_name,template_data)
+  let t_cid = await g_ipfs_profiles.add_template_json(template_name,template_data)
   res.type('application/json').send({ "status" : "OK", "template_cid" : t_cid })
 })
 
@@ -359,6 +450,7 @@ app.post('/put/template',async (req, res) => {  // narrow search by category.
 async function main() {
   let ipfs_profiles = new IPFSProfiles(conf)
   await ipfs_profiles.init_ipfs(conf)
+  g_ipfs_profiles = ipfs_profiles
 }
 
 
