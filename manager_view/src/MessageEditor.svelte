@@ -1,4 +1,5 @@
 <script>
+	import { onMount } from 'svelte';
 
 	// `current` is updated whenever the prop value changes...
 	export let name;
@@ -8,6 +9,34 @@
 	export let public_key;
 	export let answer_message
 
+
+	import * as ipfs_profiles from './ipfs_profile_proxy.js'
+
+	let message_type = "introduction"
+	let receiver_user_info = {
+			"name" : name,
+			"place_of_origin" : place_of_origin,
+			"cool_public_info" : cool_public_info,
+			"business" : business,
+			"public_key" : public_key,
+			"name" : name
+		}
+
+	let r_cid = false
+	let r_p_cid = false 
+
+	$: {
+		receiver_user_info = {
+			"name" : name,
+			"place_of_origin" : place_of_origin,
+			"cool_public_info" : cool_public_info,
+			"business" : business,
+			"public_key" : public_key
+		}
+		r_cid = ipfs_profiles.fetch_contact_cid(receiver_user_info)  // established contact
+		delete receiver_user_info.public_key
+		r_p_cid = ipfs_profiles.fetch_contact_cid(receiver_user_info)	// introduction or no privacy intended
+	}
 
 	let todays_date = ''
 	$: 	{
@@ -34,34 +63,69 @@
 		}
 	}
 
-	async function start_composing() {
-		let b_or_p =  ( business ) ? "business" : "profile"
-		let srver = location.host
-		srver = srver.replace('5111','6111')
-		let prot = location.protocol  // prot for (prot)ocol
-		let data_stem = 'contact_form'
-		let sp = '//'
-		let post_data = {
-			"name" : name,
-			"place_of_origin" : encodeURIComponent(place_of_origin),
-			"cool_public_info" : encodeURIComponent(cool_public_info)
-		}
 
-		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data)
-		if ( search_result ) {
-			let data = search_result;
-			if ( data ) {
-				//
-				let html = data.html
-				contact_page = decodeURIComponent(html)
-				let script = data.script
-				script = decodeURIComponent(script)
-				script = script.replace("{{when}}",Date.now())
-				addscript(script,"blg-window-full-text-outgo-script",true)
-				//
+	async function start_introduction() {
+		//
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page('default',r_p_cid)
+		if ( contact_page_descr ) {
+			let html = contact_page_descr.html
+			contact_page = decodeURIComponent(html)
+			let script = contact_page_descr.script
+			script = decodeURIComponent(script)
+			script = script.replace("{{when}}",Date.now())
+			addscript(script,"blg-window-full-text-outgo-script",true)
+		}
+		//
+	}
+
+
+	async function start_composing() {
+		//
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page('cid',r_cid)
+		if ( contact_page_descr ) {
+			let html = contact_page_descr.html
+			contact_page = decodeURIComponent(html)
+			let script = contact_page_descr.script
+			script = decodeURIComponent(script)
+			script = script.replace("{{when}}",Date.now())
+			addscript(script,"blg-window-full-text-outgo-script",true)
+		}
+		//
+	}
+
+	// // // // // // 
+	//
+	async function ipfs_sender(message) {
+		switch ( message_type ) {
+			case "introduction" : {
+				let identify = ipfs_profiles.get_current_identity()
+				if ( identify ) {
+					let user_info = identify.user_info
+					await ipfs_profiles.send_introduction(receiver_user_info,user_info,message)
+
+				}
+				break;
+			}
+			default: {
+				let identify = ipfs_profiles.get_current_identity()
+				if ( identify ) {
+					let user_info = identify.user_info
+					await ipfs_profiles.send_message(receiver_user_info,user_info,message)
+
+				}
+				break;
 			}
 		}
 	}
+	
+	//
+	onMount(() => {
+		if ( window._app_set_default_message_sender !== undefined ) {
+			window._app_set_default_message_sender(ipfs_sender)
+		}
+	})
+
+	
 
 </script>
  
@@ -84,7 +148,9 @@
 		{@html answer_message}
 	</div>
 	{/if}
-	<span class="large-text-label" >Compose message here:</span> <button class="medium_button" on:click={start_composing}>begin compositions</button>
+	<span class="large-text-label" >Compose message here:</span> 
+	<button class="medium_button" on:click={start_composing}>begin compositions</button>
+	<button class="medium_button" on:click={start_introduction}>begin introduction</button>
 	<div id="blg-window-full-text-outgo"  class="full-display-bottom" >
 		{@html contact_page}
 	</div>

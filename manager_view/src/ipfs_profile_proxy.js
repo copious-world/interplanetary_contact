@@ -1,10 +1,10 @@
 
-
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 const CONTACTS = 'contacts'
 const MANIFEST  = 'manifest'
 const TOPICS = 'topics'
 
-// ----
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 let g_search_table = {}
 let g_when_table = {}
 let g_all_keys = []
@@ -58,7 +58,7 @@ async function fetch_asset(topics_cid,user_cid,asset) {  // specifically from th
     //
     let prot = location.protocol  // prot for (prot)ocol
     
-    let data_stem = '/get-asset/${asset}'
+    let data_stem = `/get-asset/${asset}`
     let sp = '//'
     let post_data = {
         "cid" : topics_cid
@@ -105,14 +105,17 @@ async function update_asset_to_ipfs(asset,user_cid,is_business,contents) {
     let srver = location.host
     srver = correct_server(srver)
     //
-    let prot = location.protocol  // prot for (prot)ocol
+    if ( typeof contents !== 'string' ) {
+        contents = JSON.stringify(contents)
+    }
     let encryptor = window.user_encryption(user_cid,asset)
     let encoded_contents = contents
     if ( encryptor !== undefined ) {
         encoded_contents = encryptor(contents)
     }
     //
-    let data_stem = '/put-asset/${asset}'
+    let prot = location.protocol  // prot for (prot)ocol
+    let data_stem = `/put-asset/${asset}`
     let sp = '//'
     let post_data = {
         "cid" : user_cid,
@@ -125,6 +128,7 @@ async function update_asset_to_ipfs(asset,user_cid,is_business,contents) {
     }
     return false
 }
+
 
 export async function update_contacts_to_ipfs(user_cid,is_business,contents) {
     return await update_asset_to_ipfs(CONTACTS,user_cid,is_business,contents)
@@ -150,7 +154,7 @@ export async function fetch_contact_page(asset,contact_cid) {  // specifically f
     if ( contact_cid !== undefined ) {
         asset = 'cid'
     }
-    let data_stem = '/get-contact-page/${asset}'
+    let data_stem = `/get-contact-page/${asset}`
     let sp = '//'
 
     let post_data = {
@@ -225,7 +229,7 @@ export async function get_dir(user_info,clear) {
     //
     for ( let field of g_user_fields ) {
         if ( user_info[field] === undefined ) {
-            if ( (field ===  "public_key")  && !(clear) ) {
+            if ( (field === "public_key")  && !(clear) ) {
                 let p_key = get_user_public_wrapper_key(`${user_info.name}-${user_info.DOB}`)
                 if ( p_key ) {
                     user_info[field] = p_key
@@ -280,8 +284,8 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
     //
     for ( let field of g_user_fields ) {
         if ( recipient_info[field] === undefined ) {
-            if ( (field ===  "public_key")  && clear ) {
-                delete recipient_info.public_key
+            if ( (field === "public_key")  && clear ) {
+                delete recipient_info.public_key            /// delete public key from messages that are introductions, etc.
                 continue
             }
             alert_error("undefined field " + field)
@@ -398,11 +402,15 @@ async function get_spool_files(user_info,spool_select,offset,count) {
 
 
 export async function get_message_files(user_info,offset,count) {
-    return get_spool_files(user_info,true,offset,count)
+    let expected_messages = await get_spool_files(user_info,true,offset,count)
+    let solicitations = await get_spool_files(user_info,true,offset,count)
+    return [expected_messages,solicitations]
 }
 
 export async function get_topic_files(user_info,offset,count) {
-    return get_spool_files(user_info,false,offset,count)
+    let expected_messages = await get_spool_files(user_info,false,offset,count)
+    let solicitations = await get_spool_files(user_info,false,offset,count)
+    return [expected_messages,solicitations]
 }
 
 
@@ -424,7 +432,7 @@ export async function get_template_list(offset,count,category) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = '/template-list/${category}'
+    let data_stem = `/template-list/${category}`
     let sp = '//'
     let post_data = {
         'category' : category,
@@ -446,7 +454,7 @@ export async function get_template_list(offset,count,category) {
 
 export async function get_contact_template(template_cid) {
     //
-    let data_stem = '/get/template/${template_cid}'
+    let data_stem = `/get/template/${template_cid}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
         let contact_template = result.data
@@ -477,4 +485,114 @@ export async function put_contact_template(name,data) {
     }
     return false
 }
+
+
+
+
+/*		MANIFEST EDITING
+//
+async edit_manifest(user_cid,old_manifest_cid,op,proceed) {
+    //
+    let profile_path = `/copious.world/grand_${btype}_repository/profiles/${user_cid}`
+    let manifest_path = `${profile_path}/manifest`
+    //
+    let file = await ipfs.files.stat(manifest_path)
+    let manifest_entry = {
+        "file" : file.name,
+        "cid" : file.cid.toString(),   /// new cid
+        "size" : file.size
+    }
+    //
+    if ( manifest_entry ) {
+        let no_error = true
+        proceed = (proceed === undefined) ? false : proceed
+        let m_cid = manifest_entry.cid
+        if ( m_cid !== old_manifest_cid ) {
+            no_error = false
+            addError(new Error("Manifest has been replaced"))
+        }
+        //
+        // proceed with the old manifest CID
+        if ( proceed || no_error ) {
+            let manifest_data = await this.get_complete_file_from_cid(old_manifest_cid)
+            try {
+                //
+                let manifest_obj = JSON.parse(manifest_data)
+                if ( op ) {     ///  MANIFEST OPERATIONS
+                    //
+                    let store_op = Object.assign({},op)
+                    store_op.when = Date.now()
+                    manifest_obj.op_history.push(store_op)
+                    //
+                    let cfile_cid = op.cid // a contact form
+                    let encrypted = op.encrypted
+                    let preference = op.preference
+                    switch ( op.cmd ) {
+                        case 'add' : {
+                            if ( (manifest_obj.max_preference <  preference) && (encrypted == false) ) {
+                                manifest_obj.default_contact_form = cfile_cid
+                                manifest_obj.max_preference = preference
+                            }
+                            let b = manifest_obj.custom_contact_forms.some((cfile) => {
+                                return ( cfile.cid === cfile_cid )
+                            })
+                            if ( b ) {
+                                insert_by_pref(manifest_obj.custom_contact_forms,{
+                                "file" : cfile_cid,
+                                "preference" : preference,
+                                "encrypted" : encrypted
+                                })
+                            }
+                            //
+                            break;
+                        }
+                        case 'delete' : {
+                            let contact_form_list = manifest_obj.custom_contact_forms.filter((cform) => {
+                                return(cform.cid !== cfile_cid)
+                            })
+                            manifest_obj.custom_contact_forms = contact_form_list // list without the form being discarded
+                            // 
+                            // try to find a clear text form to replace the default 
+                            // if the default is being discarded. If there is not one, then don't replace.. Expect user to search for a better one.
+                            if ( cfile_cid == manifest_obj.default_contact_form ) { 
+                                for ( let cform_entry of manifest_obj.custom_contact_forms ) {
+                                    if ( cform_entry.encrypted === false ) {
+                                        manifest_obj.default_contact_form = cform_entry.cid
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        case 'update_default' : {   // only apply to the default. Preference is not read
+                            manifest_obj.default_contact_form = cfile_cid
+                            // if this does not exsist, then insert it...
+                            let b = manifest_obj.custom_contact_forms.some((cfile) => {
+                                return ( cfile.cid === cfile_cid )
+                            })
+                            if ( !b ) {
+                                insert_by_pref(manifest_obj.custom_contact_forms,{
+                                "file" : cfile_cid,
+                                "preference" : preference,
+                                "encrypted" : encrypted
+                                })
+                            }
+                            break;
+                        }
+                    }
+                }
+                let manifest = JSON.stringify(manifest_obj)
+                let manifest_cid = await this.update_file_in_ipfs(manifest_path,manifest)
+                return(manifest_cid)
+                //
+            } catch (e) {
+                console.dir(e)
+            }
+        }
+        //
+    }
+    return false
+}
+
+*/
 

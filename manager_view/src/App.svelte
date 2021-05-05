@@ -1,19 +1,21 @@
 <!-- https://eugenkiss.github.io/7guis/tasks#crud -->
-
 <script>
+	//
 	import Tab, { Label } from '@smui/tab';
 	import TabBar from '@smui/tab-bar';
 	import { onMount } from 'svelte';
 	import FloatWindow from './FloatWindow.svelte';
 	import MessageDisplay from './MessageDisplay.svelte'
 	import MessageEditor from './MessageEditor.svelte'
-
+	import * as ipfs_profiles from './ipfs_profile_proxy.js'
+	//
 	let cid = ""
 
 	let active = 'Signup';
 	let first_message = 0
 	let messages_per_page = 100
 
+	let green = false     // an indicator telling if this user ID is set
 
 	let individuals = [
 		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : true, "cid" : "4504385938", "answer_message" : ""},
@@ -21,17 +23,18 @@
 		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : true, "cid" : "9i58w78ew", "answer_message" : "" }
 	];
 
+	let selected
 
-	let inbound_solicitation_messages = []
-	let inbound_contact_messages = []
-
-	let todays_date = (new Date()).toLocaleString()
-	let inbound_messages = [
+	let inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" } ]
+	let inbound_contact_messages = [
 		{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : true, "message" : "this is a message 1" },
 		{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : true, "message" : "this is a message 2"  },
-		{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : true, "message" : "this is a message 3"  },
-		{ "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" },
+		{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : true, "message" : "this is a message 3"  }
 	]
+
+	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
+
+	let todays_date = (new Date()).toLocaleString()
 
 	/*
       "wrapped_key" : false,
@@ -56,6 +59,10 @@
 		return false
 	}
 
+
+	let start_of_messages = 0
+	let messages_per_pate = 100
+
 	let prefix = '';
 	let i = 0;
 	let c_i = 0;
@@ -76,7 +83,6 @@
 
 	let today = (new Date()).toUTCString()
 
-	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
 
 	$: filteredIndviduals = prefix
 		? individuals.filter(individual => {
@@ -89,18 +95,7 @@
 
 	$: reset_inputs(selected);
 
-
 	$: selected_form_link = contact_form_links[form_index]
-
-
-	$: {
-		inbound_contact_messages = inbound_messages.filter(msg => {
-			return (msg.public_key == true)
-		})
-		inbound_solicitation_messages = inbound_messages.filter(msg => {
-			return (msg.public_key == false)
-		})
-	}
 
 
 	async function gen_public_key(post_data) {
@@ -166,22 +161,19 @@
 			//
 		})
 
-		fetch_array_data()
+		fetch_messages()
 		fetch_contacts()
 	})
 
 
-	// ADD PROFILE.....
 
+// PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE 
+// PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE 
+
+	// ADD PROFILE.....
 	async function add_profile() {
 		//
-		let b_or_p =  ( business ) ? "business" : "profile"
-		let srver = location.host
-		srver = srver.replace('5111','6111')  // CHANGE THIS
-		let prot = location.protocol  // prot for (prot)ocol
-		let data_stem = 'add/profile'
-		let sp = '//'
-		let post_data = {
+		let user_data = {
 			"name": name,
 			"DOB" : DOB,
 			"place_of_origin" : place_of_origin, 
@@ -191,57 +183,23 @@
 			"form_link" : selected_form_link,  // a cid to a template ??
 			"answer_message" : ""
 		}
-		//
-		await gen_public_key(post_data) // by ref
-		//
-		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}/${b_or_p}`, post_data)
-		if ( search_result ) {
-			cid = search_result.cid;
-			post_data.cid = cid
-			store_user_key(post_data)
-		}
+		await gen_public_key(user_data) // by ref
+		green = await ipfs_profiles.add_profile(user_data)
 		//
 	}
 
-	function add_contact() {
-		people = people.concat({ first, last });
-		i = people.length - 1;
-		first = '';
-	}
 
-	function update_contact() {
-		selected.first = first;
-		selected.last = last;
-		people = people;
-	}
-
-	function remove_contact() {
-		// Remove selected person from the source array (people), not the filtered array
-		const index = individuals.indexOf(selected);
-		people = [...individuals.slice(0, index), ...individuals.slice(index + 1)];
-
-		first = last = '';
-		i = Math.min(i, filteredIndviduals.length - 2);
-	}
-
-	function reset_inputs(individual) {
-		c_name = individual ? individual.name : '';
-		c_DOB = individual ? individual.DOB : '';
-		c_place_of_origin = individual ? individual.place_of_origin : '';
-		c_cool_public_info = individual ? individual.cool_public_info : '';
-		c_business = individual ? individual.business : '';
-	}
+// MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
+// MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
 
 
 	function pop_editor() {
 		start_floating_window(1);
 	}
 
-
 	function show_subject() {
 
 	}
-
 
 	function full_message(ev) {
 		if ( ev ) {
@@ -271,150 +229,89 @@
 	}
 
 
+	async function fetch_messages() {
+		let identify = ipfs_profiles.get_current_identity()
+		if ( identify ) {
+			let user_info = identify.user_info
+			let all_inbound_messages = await ipfs_profiles.get_message_files(user_info,start_of_messages,messages_per_pate)
+			inbound_contact_messages = all_inbound_messages[0]
+			inbound_solicitation_messages = all_inbound_messages[1]
+		}
+	}
+
+
+// CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
+// CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
+
+
+	function reset_inputs(individual) {
+		c_name = individual ? individual.name : '';
+		c_DOB = individual ? individual.DOB : '';
+		c_place_of_origin = individual ? individual.place_of_origin : '';
+		c_cool_public_info = individual ? individual.cool_public_info : '';
+		c_business = individual ? individual.business : '';
+	}
+
+
+	async function add_contact() {
+		individuals = individuals.concat({ first, last });
+		i = individuals.length - 1;
+		first = '';
+		//
+		let identify = ipfs_profiles.get_current_identity()
+		if ( identify ) {
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,contents)
+			identify.file.contacts = update_cid
+			ipfs_profiles.set_current_identiry(identify)
+		}
+		//
+	}
+
+	async function update_contact() {
+		selected.first = first;
+		selected.last = last;
+		individuals = individuals;
+		//
+		let identify = ipfs_profiles.get_current_identity()
+		if ( identify ) {
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,contents)
+			identify.file.contacts = update_cid
+			ipfs_profiles.set_current_identiry(identify)
+		}
+		//
+	}
+
+	async function remove_contact() {
+		// Remove selected person from the source array (people), not the filtered array
+		const index = individuals.indexOf(selected);
+		individuals = [...individuals.slice(0, index), ...individuals.slice(index + 1)];
+
+		first = last = '';
+		i = Math.min(i, filteredIndviduals.length - 2);
+		//
+		let identify = ipfs_profiles.get_current_identity()
+		if ( identify ) {
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,contents)
+			identify.file.contacts = update_cid
+			ipfs_profiles.set_current_identiry(identify)
+		}
+		//
+	}
+
+	async function fetch_contacts() {
+		let identify = ipfs_profiles.get_current_identity()
+		if ( identify ) {
+			let contacts_cid = identify.file.contacts
+			let user_cid = identify.cid
+			individuals = await ipfs_profiles.fetch_contacts(contacts_cid,user_cid)
+			cid = user_cid  // the user cid, person running this page..
+		}
+	}
+
+	// ---- ---- ---- ---- ---- ---- ----
 	function preview_contact_form(ev) {
 		// start_floating_window(2);
 	}
-
-
-	function deciphered(message) {
-		return(message)
-	}
-
-	function decipher_contacts(c_file_data) {
-
-	}
-
-
-	async function fetch_array_data() {
-		let b_or_p =  ( business ) ? "business" : "profile"
-		let srver = location.host
-		srver = srver.replace('5111','6111')
-		let prot = location.protocol  // prot for (prot)ocol
-		let data_stem = 'spool'
-		let sp = '//'
-		let post_data = {
-			"cid" : cid,
-			"start" : first_message,
-			"count" : messages_per_page,
-			"business" : b_or_p
-		}
-		let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
-		if ( search_result ) {
-			let data = search_result.data;
-			if ( data ) {
-				inbound_messages = data.map(message => {
-					return deciphered(message)
-				})
-			}
-		}
-	}
-
-/*		MANIFEST EDITING
-     //
-	 async edit_manifest(user_cid,old_manifest_cid,op,proceed) {
-        //
-        let profile_path = `/copious.world/grand_${btype}_repository/profiles/${user_cid}`
-        let manifest_path = `${profile_path}/manifest`
-        //
-        let file = await ipfs.files.stat(manifest_path)
-        let manifest_entry = {
-            "file" : file.name,
-            "cid" : file.cid.toString(),   /// new cid
-            "size" : file.size
-        }
-        //
-        if ( manifest_entry ) {
-            let no_error = true
-            proceed = (proceed === undefined) ? false : proceed
-            let m_cid = manifest_entry.cid
-            if ( m_cid !== old_manifest_cid ) {
-                no_error = false
-                addError(new Error("Manifest has been replaced"))
-            }
-            //
-            // proceed with the old manifest CID
-            if ( proceed || no_error ) {
-                let manifest_data = await this.get_complete_file_from_cid(old_manifest_cid)
-                try {
-                    //
-                    let manifest_obj = JSON.parse(manifest_data)
-                    if ( op ) {     ///  MANIFEST OPERATIONS
-                        //
-                        let store_op = Object.assign({},op)
-                        store_op.when = Date.now()
-                        manifest_obj.op_history.push(store_op)
-                        //
-                        let cfile_cid = op.cid // a contact form
-                        let encrypted = op.encrypted
-                        let preference = op.preference
-                        switch ( op.cmd ) {
-                            case 'add' : {
-                                if ( (manifest_obj.max_preference <  preference) && (encrypted == false) ) {
-                                    manifest_obj.default_contact_form = cfile_cid
-                                    manifest_obj.max_preference = preference
-                                }
-                                let b = manifest_obj.custom_contact_forms.some((cfile) => {
-                                    return ( cfile.cid === cfile_cid )
-                                })
-                                if ( b ) {
-                                    insert_by_pref(manifest_obj.custom_contact_forms,{
-                                    "file" : cfile_cid,
-                                    "preference" : preference,
-                                    "encrypted" : encrypted
-                                    })
-                                }
-                                //
-                                break;
-                            }
-                            case 'delete' : {
-                                let contact_form_list = manifest_obj.custom_contact_forms.filter((cform) => {
-                                    return(cform.cid !== cfile_cid)
-                                })
-                                manifest_obj.custom_contact_forms = contact_form_list // list without the form being discarded
-                                // 
-                                // try to find a clear text form to replace the default 
-                                // if the default is being discarded. If there is not one, then don't replace.. Expect user to search for a better one.
-                                if ( cfile_cid == manifest_obj.default_contact_form ) { 
-                                    for ( let cform_entry of manifest_obj.custom_contact_forms ) {
-                                        if ( cform_entry.encrypted === false ) {
-                                            manifest_obj.default_contact_form = cform_entry.cid
-                                            break;
-                                        }
-                                    }
-                                }
-                                break;
-                            }
-                            case 'update_default' : {   // only apply to the default. Preference is not read
-                                manifest_obj.default_contact_form = cfile_cid
-                                // if this does not exsist, then insert it...
-                                let b = manifest_obj.custom_contact_forms.some((cfile) => {
-                                    return ( cfile.cid === cfile_cid )
-                                })
-                                if ( !b ) {
-                                    insert_by_pref(manifest_obj.custom_contact_forms,{
-                                    "file" : cfile_cid,
-                                    "preference" : preference,
-                                    "encrypted" : encrypted
-                                    })
-                                }
-                                break;
-                            }
-                        }
-                    }
-                    let manifest = JSON.stringify(manifest_obj)
-                    let manifest_cid = await this.update_file_in_ipfs(manifest_path,manifest)
-                    return(manifest_cid)
-                    //
-                } catch (e) {
-                    console.dir(e)
-                }
-            }
-            //
-        }
-        return false
-    }
- */
-
 
 
 </script>
