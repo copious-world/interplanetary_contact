@@ -9,6 +9,7 @@
 	export let public_key;
 	export let answer_message
 
+	export let active_user
 
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 
@@ -98,7 +99,7 @@
 	async function ipfs_sender(message) {
 		switch ( message_type ) {
 			case "introduction" : {
-				let identify = ipfs_profiles.get_current_identity()
+				let identify = active_user
 				if ( identify ) {
 					let user_info = identify.user_info
 					await ipfs_profiles.send_introduction(receiver_user_info,user_info,message)
@@ -107,7 +108,7 @@
 				break;
 			}
 			default: {
-				let identify = ipfs_profiles.get_current_identity()
+				let identify = active_user
 				if ( identify ) {
 					let user_info = identify.user_info
 					await ipfs_profiles.send_message(receiver_user_info,user_info,message)
@@ -125,7 +126,7 @@
 		}
 	})
 
-	
+
 
 </script>
  

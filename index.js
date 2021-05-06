@@ -188,7 +188,7 @@ app.post('/send/introduction',async (req, res) => {
   }
   let receiver = body.receiver
   for ( let fld of g_user_fields ) {
-    if ( fld === "public_key"  || fld === "wrapped_key" ) {
+    if ( fld === "public_key"  || fld === "wrapped_key" ) {  // neither key is used in establishing the identity of the recipient
       receiver[fld] !== undefined
       delete receiver[fld]
       continue;

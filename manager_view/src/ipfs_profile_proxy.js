@@ -218,7 +218,7 @@ export async function add_profile(u_info) {
         // "clear_id" : cid without key,
         // "dir_data" : user directory structure
         u_info.cid = ipfs_identity.id
-        await store_identity(ipfs_identity,u_info)
+        await store_user(u_info,ipfs_identity)
         return true
     }
     return false
@@ -270,7 +270,8 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
     //
     for ( let field of g_user_fields ) {
         if ( user_info[field] === undefined ) {
-            if ( (field ===  "public_key")  && !(clear) ) {
+            // public_key is the public wrapper key (asymmetric)
+            if ( field ===  "public_key" ) {  // always send the wrapper key (although not a wrapped_key) especially for an introduction
                 let p_key = get_user_public_wrapper_key(`${user_info.name}-${user_info.DOB}`)
                 if ( p_key ) {
                     user_info[field] = p_key
@@ -282,12 +283,13 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
         }
     }
     //
+    let recipient = Object.assign({},recipient_info)
     for ( let field of g_user_fields ) {
-        if ( recipient_info[field] === undefined ) {
-            if ( (field === "public_key")  && clear ) {
-                delete recipient_info.public_key            /// delete public key from messages that are introductions, etc.
-                continue
-            }
+        if ( (field === "wrapped_key")  && clear ) {     // when wrapping a key use the recipients public wrapper key
+            delete recipient_info.wrapped_key            // delete wrapped key from messages that are introductions, etc. It won't be used
+            continue
+        }
+        if ( recipient[field] === undefined ) {
             alert_error("undefined field " + field)
             return
         }
@@ -296,17 +298,21 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
     let sendable_message = {}
     sendable_message.when = Date.now()
     sendable_message.date = (new Date(message.when)).toISOString()
+    //
 
+    sendable_message.name = user_info.name       // from
+    sendable_message.user_cid = user_info.cid    // cid of from
+    sendable_message.public_key = user_info.public_key  // basically says we know the recipient (we have talked)
+                                                        // the recipient will wrap key with this (so refresh his memory)
     if ( clear ) {
         sendable_message = message
+        // the id of the clear directory ignores the key.
+        // the identity of established contact messages requires the public (so it stays for not clear)
+        delete recipient.public_key  // this has to do with the identiy and the directory where introductions go.
     }
 
-    message.name = user_info.name
-    message.user_cid = user_info.cid
-    message.public_key = recipient_info.public_key
-
     if ( !clear ) {
-        let key_to_wrap = window.key_wrapper(user_info)
+        let key_to_wrap = window.gen_cipher_key(user_info)
         if ( key_to_wrap === undefined ) {
             alert_error("could not get key ")
             return
@@ -315,12 +321,11 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
             let encryptor = window.user_encryption(user_cid,"message")
             let encoded_contents = sendable_message.message 
             if ( encryptor !== undefined ) {
-                encoded_contents = encryptor(contents)
+                encoded_contents = encryptor(contents,key_to_wrap)
             }
             sendable_message.message = encoded_contents
-            sendable_message.wrapped_key = key_wrapper(key_to_wrap,recipient_info.public_key)
+            sendable_message.wrapped_key = window.key_wrapper(key_to_wrap,recipient.public_key)
         }
-    
     }
     //
     let srver = location.host
@@ -330,7 +335,7 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
     let data_stem = m_path
     let sp = '//'
     let post_data = {
-        "receiver" : recipient_info,
+        "receiver" : recipient,
         "message" : sendable_message
     }
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
@@ -371,9 +376,36 @@ export async function send_topic_offer(recipient_info,user_info,message) {
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
-async function get_spool_files(user_info,spool_select,offset,count) {
+async function* message_decryptor(messages,identity) {
+    let priv_key = identity.priv_key
+    for ( let message of messages ) {
+        let wrapped_key = message.wrapped_key
+        try {
+            message.message = await window.decipher_message(message.message,wrapped_key,priv_key)
+            yield message    
+        } catch (e) {}
+    }
+}
+
+async function clarify_message(messages) {
+    let clear_messages = []
+    try {
+        for await (let message of message_decryptor(messages,identity) ) {
+            clear_messages.push(message)
+        }
+    } catch (e) {
+        console.log('caught', e)
+    }
+    return(clear_messages)
+}
+
+
+async function get_spool_files(identity,spool_select,clear,offset,count) {
     //
-    let cid = user_info.cid
+    let cid = identity.cid
+    if ( clear ) {
+        cid = identity.clear_cid
+    }
     if ( cid === undefined ) return false
     //
     let srver = location.host
@@ -384,8 +416,8 @@ async function get_spool_files(user_info,spool_select,offset,count) {
     let sp = '//'
     let post_data = {
         'cid' : cid,
-        'spool' : spool_select,
-        'business' : user_info.business,
+        'spool' : spool_select,  // false for introduction
+        'business' : identity.user_info.business,
         'offset' : offset,
         'count' : count
     }
@@ -394,6 +426,9 @@ async function get_spool_files(user_info,spool_select,offset,count) {
         let messages = result.data
         try {
             messages = JSON.parse(messages)
+            if ( !clear ) {
+                messages = await clarify_message(messages,identity)
+            }
             return messages
         } catch (e) {}
     }
@@ -402,14 +437,14 @@ async function get_spool_files(user_info,spool_select,offset,count) {
 
 
 export async function get_message_files(user_info,offset,count) {
-    let expected_messages = await get_spool_files(user_info,true,offset,count)
-    let solicitations = await get_spool_files(user_info,true,offset,count)
+    let expected_messages = await get_spool_files(user_info,true,false,offset,count)
+    let solicitations = await get_spool_files(user_info,true,true,offset,count)
     return [expected_messages,solicitations]
 }
 
 export async function get_topic_files(user_info,offset,count) {
-    let expected_messages = await get_spool_files(user_info,false,offset,count)
-    let solicitations = await get_spool_files(user_info,false,offset,count)
+    let expected_messages = await get_spool_files(user_info,false,false,offset,count)
+    let solicitations = await get_spool_files(user_info,false,true,offset,count)
     return [expected_messages,solicitations]
 }
 

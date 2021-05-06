@@ -844,16 +844,114 @@ async function wv_init_database(db_name) {
 // store_user_key
 //    called when the user info is created by user_keys ... see wv_ask_create_user
 //
-function store_user_key(user_information) {
-	if ( user_information.name === undefined ) {
-		alert("NO USER NAME --- store_user_key")
+
+
+
+function name_key_of(user_info) {
+	if ( (user_info.name === undefined) || (user_info.DOB === undefined) ) {
+		return false
 	}
+	let name_key = `${user_info.name}-${user_info.DOB}`
+	return name_key
+}
+
+function value_fallback(value) {
+	let vv = value ? value : ""
+}
+
+function store_user(user_information,identity_files) {
+	//
+	let nkey = name_key_of(user_information)
+	if ( !nkey ) return(false)
+	//
 	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
-	userStore.put(user_information)           // information create by 
+	//
+	let storage_obj = {
+		"name" : name_key,
+		"user_info" : user_information,
+		"cid" : value_fallback(identity_files.id),
+		"clear_cid" :  value_fallback(identity_files.clear_id),
+		"dirs" :  value_fallback(value_fallback(identity_files.dir_data).dirs),
+		"files" :  value_fallback(value_fallback(identity_files.dir_data).files)
+	}
+	if ( user_information.priv_key ) {
+		storage_obj.priv_key = user_information.priv_key
+		delete user_information.priv_key
+	}
+	//
+	userStore.put(storage_obj)           // information create by 
+	return(true)
+}
+
+// // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
+//		update_identity
+//
+function update_identity(identify) {
+	try {
+		let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
+		let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+		userStore.put(storage_obj)           // information create by 
+	} catch (e) {
+	}
 }
 
 
+async function gen_public_key(user_info) {
+	let keys = await promail_user_starter_keys()
+	user_info.public_key = keys.pk_str
+	let storage_data = Object.assign({},user_info)
+	storage_data.priv_key = keys.priv_key
+	store_user(storage_data,{})
+}
+
+async function get_user_public_wrapper_key(name_key) {
+	//
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "read");
+	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+
+	let p = new Promise((resolve,reject) => {
+		let nameIndex = userStore.index('name');
+		nameIndex.openCursor().onsuccess = (event) => {
+			let keyRangeValue = IDBKeyRange.only(name_key);
+			nameIndex.openCursor(keyRangeValue).onsuccess = (event) => {
+				var cursor = event.target.result;
+				if ( cursor ) {
+					let idObj = cursor.value
+					let pkey = idObj.user_info.public_key;
+				}
+			}
+		}
+	})
+	//
+	return p
+
+}
+
+// // // 
+function get_known_users() {
+	//
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "read");
+	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+	let user_list = []
+	let p = new Promise((resolve,reject) => {
+		let nameIndex = userStore.index('name_key');
+		nameIndex.openCursor().onsuccess = (event) => {
+			let cursor = event.target.result;
+			if ( cursor ) {
+				user_list.push(cursor.value.name)
+				cursor.continue();
+			} else {
+				reslove(user_list)
+			}
+		};
+	})
+	//
+	return p
+}
+
+
+// 
 
 //>--
 // wv_keypair_promise
@@ -871,12 +969,31 @@ function wv_keypair_promise() {  // return
 }
 //-
 
+//>--
+// wv_wrapper_keypair_promise
+//  -- 
+function wv_wrapper_keypair_promise() {  // return 
+    // Generate a local public/private key pair
+    let p =  g_crypto.generateKey({
+            name: "RSA-OAEP",
+            modulusLength: 4096, //can be 1024, 2048, or 4096
+            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+            hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+        },
+        false,
+        ["wrapKey","unwrapKey"]
+    )
+    return p  // promise
+}
+//--<
+
+
 
 // promail_user_starter_keys
 //    make a priv/pub key pair. Then negotiate with the server to wrap the key.
 async function promail_user_starter_keys() {
   // Generate a local public/private key pair
-  let keypair = await wv_keypair_promise()
+  let keypair = await wv_wrapper_keypair_promise()
   // ---- ---- ---- ----
   let pub_key = keypair.publicKey
   let priv_key = keypair.privateKey

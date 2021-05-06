@@ -1,3 +1,7 @@
+<script>
+import { fetch_manifest } from "./ipfs_profile_proxy";
+
+</script>
 <!-- https://eugenkiss.github.io/7guis/tasks#crud -->
 <script>
 	//
@@ -11,6 +15,46 @@
 	//
 	let cid = ""
 
+
+	let start_of_messages = 0
+	let messages_per_pate = 100
+
+	let prefix = '';
+	let man_prefix = '';
+	let i = 0;
+	let c_i = 0;
+	let i_i = 0;
+	let form_index = 0
+
+	let name = ''
+	let DOB = ''
+	let place_of_origin = ''
+	let cool_public_info = ''
+	let business = false
+
+	let c_name = ''
+	let c_DOB = ''
+	let c_place_of_origin = ''
+	let c_cool_public_info = ''
+	let c_business = false
+
+	let today = (new Date()).toUTCString()
+
+	let active_user = false
+	let known_users = [false]
+  	let u_index = 0
+	
+	let manifest_selected_entry = false
+	let manifest_selected_form = false
+	let manifest_contact_form_list = [false]
+	//
+	let manifest_index = 0
+	let man_title = ''
+	let man_cid = ''
+	let man_wrapped_key = ''
+	let man_html = ''
+	let man_max_preference
+	//
 	let active = 'Signup';
 	let first_message = 0
 	let messages_per_page = 100
@@ -60,29 +104,7 @@
 	}
 
 
-	let start_of_messages = 0
-	let messages_per_pate = 100
-
-	let prefix = '';
-	let i = 0;
-	let c_i = 0;
-	let i_i = 0;
-	let form_index = 0
-
-	let name = ''
-	let DOB = ''
-	let place_of_origin = ''
-	let cool_public_info = ''
-	let business = false
-
-	let c_name = ''
-	let c_DOB = ''
-	let c_place_of_origin = ''
-	let c_cool_public_info = ''
-	let c_business = false
-
-	let today = (new Date()).toUTCString()
-
+	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 	$: filteredIndviduals = prefix
 		? individuals.filter(individual => {
@@ -91,20 +113,45 @@
 		})
 		: individuals;
 
-	$: selected = filteredIndviduals[i];
+	$: selected = filteredIndviduals[i]
 
-	$: reset_inputs(selected);
+	$: reset_inputs(selected)
 
+	// 
 	$: selected_form_link = contact_form_links[form_index]
 
+	//
+	$: active_user = known_users[u_index]
 
-	async function gen_public_key(post_data) {
-		let keys = await promail_user_starter_keys()
-		post_data.public_key = keys.pk_str
-		let storage_data = Object.assign({},post_data)
-		storage_data.priv_key = keys.priv_key
-		store_user_key(storage_data)
+	$: {
+		name = active_user.name
+		DOB = active_user.DOB
+		place_of_origin = active_user.place_of_origin
+		cool_public_info = active_user.cool_public_info
+		business = active_user.business
 	}
+
+	$: filtered_manifest_contact_form_list = man_prefix
+		? manifest_contact_form_list.filter(man_contact => {
+			const name = `${man_contact.name}`;
+			return name.toLowerCase().startsWith(man_prefix.toLowerCase());
+		})
+		: manifest_contact_form_list;
+
+	$: {
+		manifest_selected_entry = filtered_manifest_contact_form_list[manifest_index]
+		if ( manifest_selected_entry !== undefined ) {
+			manifest_selected_form = manifest_selected_entry.html
+		}
+		manifest_obj = {
+			"default_contact_form" : man_cid,    // a template CID (composition done at the interface),
+			"custom_contact_forms" : manifest_contact_form_list,
+			"max_preference" : man_max_preference
+		}
+	}
+	//
+
+	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
  
 
 	let window_scale = { "w" : 0.4, "h" : 0.8 }
@@ -163,6 +210,7 @@
 
 		fetch_messages()
 		fetch_contacts()
+		fetch_manifest()
 	})
 
 
@@ -186,8 +234,19 @@
 		await gen_public_key(user_data) // by ref
 		green = await ipfs_profiles.add_profile(user_data)
 		//
+		await get_active_users()
+		u_index = (known_users.length - 1)
+		//
 	}
 
+	async function get_active_users() {
+		try {
+			known_users = await window.get_known_users()
+		} catch (e) {}
+	}
+
+	// initialize
+	get_active_users()
 
 // MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
 // MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
@@ -230,10 +289,10 @@
 
 
 	async function fetch_messages() {
-		let identify = ipfs_profiles.get_current_identity()
+		let identify = active_user
 		if ( identify ) {
 			let user_info = identify.user_info
-			let all_inbound_messages = await ipfs_profiles.get_message_files(user_info,start_of_messages,messages_per_pate)
+			let all_inbound_messages = await ipfs_profiles.get_message_files(identify,start_of_messages,messages_per_pate)
 			inbound_contact_messages = all_inbound_messages[0]
 			inbound_solicitation_messages = all_inbound_messages[1]
 		}
@@ -254,29 +313,40 @@
 
 
 	async function add_contact() {
-		individuals = individuals.concat({ first, last });
+		let contact = {
+			"name": c_name,
+			"DOB" : c_DOB,
+			"place_of_origin" : c_place_of_origin, 
+			"cool_public_info" : c_cool_public_info, 
+			"business" : c_business, 
+			"public_key" : c_public_key, 
+		}
+		individuals = individuals.concat(contact);
 		i = individuals.length - 1;
 		first = '';
 		//
-		let identify = ipfs_profiles.get_current_identity()
+		let identify = active_user
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,contents)
-			identify.file.contacts = update_cid
-			ipfs_profiles.set_current_identiry(identify)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+			identify.files.contacts = update_cid
+			update_identity(identify)
 		}
 		//
 	}
 
 	async function update_contact() {
-		selected.first = first;
-		selected.last = last;
-		individuals = individuals;
+		selected.name = c_name;
+		selected.DOB = c_DOB;
+		selected.place_of_origin = c_place_of_origin;
+		selected.cool_public_info = c_cool_public_info;
+		selected.business = c_business;
+		selected.public_key = c_public_key;
 		//
-		let identify = ipfs_profiles.get_current_identity()
+		let identify = active_user
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,contents)
-			identify.file.contacts = update_cid
-			ipfs_profiles.set_current_identiry(identify)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+			identify.files.contacts = update_cid
+			update_identity(identify)
 		}
 		//
 	}
@@ -289,28 +359,96 @@
 		first = last = '';
 		i = Math.min(i, filteredIndviduals.length - 2);
 		//
-		let identify = ipfs_profiles.get_current_identity()
+		let identify = active_user
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,contents)
-			identify.file.contacts = update_cid
-			ipfs_profiles.set_current_identiry(identify)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+			identify.files.contacts = update_cid
+			update_identity(identify)
 		}
 		//
 	}
 
 	async function fetch_contacts() {
-		let identify = ipfs_profiles.get_current_identity()
+		let identify = active_user
 		if ( identify ) {
-			let contacts_cid = identify.file.contacts
+			let contacts_cid = identify.files.contacts
 			let user_cid = identify.cid
 			individuals = await ipfs_profiles.fetch_contacts(contacts_cid,user_cid)
-			cid = user_cid  // the user cid, person running this page..
 		}
 	}
 
 	// ---- ---- ---- ---- ---- ---- ----
 	function preview_contact_form(ev) {
 		// start_floating_window(2);
+	}
+
+
+// MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST 
+
+	async function man_add_contact_form() {
+		//
+		let a_contact_form = {
+			"title" :  man_title,
+			"cid" : man_cid,
+			"wrapped_key" : man_wrapped_key,
+			"html" : man_html
+		}
+		//
+		manifest_contact_form_list = manifest_contact_form_list.concat(a_contact_form);
+		manifest_index = manifest_contact_form_list.length - 1;
+		//
+		manifest_obj.custom_contact_forms = manifest_contact_form_list
+		//
+		let identify = active_user
+		if ( identify ) {
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
+			identify.files.contacts = update_cid
+			update_identity(identify)
+		}
+		//
+	}
+
+	async function man_update_contact_form() {
+		//
+		manifest_selected_entry.title = man_title;
+		manifest_selected_entry.cid = man_cid;
+		manifest_selected_entry.wrapped_key = man_wrapped_key;
+		manifest_selected_entry.html = man_html;
+		//
+		let identify = active_user
+		if ( identify ) {
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
+			identify.files.contacts = update_cid
+			update_identity(identify)
+		}
+		//
+	}
+
+	async function man_remove_contact_form() {
+		// Remove selected person from the source array (people), not the filtered array
+		const index = manifest_contact_form_list.indexOf(manifest_selected_entry);
+		manifest_contact_form_list = [...manifest_contact_form_list.slice(0, index), ...manifest_contact_form_list.slice(index + 1)];
+		manifest_index = Math.min(manifest_index, filtered_manifest_contact_form_list.length - 2);
+		//
+		manifest_obj.custom_contact_forms = manifest_contact_form_list
+		//
+		let identify = active_user
+		if ( identify ) {
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
+			identify.files.contacts = update_cid
+			update_identity(identify)
+		}
+		//
+	}
+
+
+	async function fetch_manifest() {
+		let identify = active_user
+		if ( identify ) {
+			let manifest_cid = identify.files.manifest
+			let user_cid = identify.cid
+			manifest_obj = await ipfs_profiles.fetch_contacts(manifest_cid,user_cid)
+		}
 	}
 
 
@@ -363,11 +501,6 @@
 		font-weight: 600;
 	}
 
-	.signerupper {
-		background-color: rgb(251, 254, 245);
-		border: solid 1px darkblue;
-		padding:4px;
-	}
 
 	.team_message {
 		background-color: rgb(254, 252, 245);
@@ -375,8 +508,6 @@
 		padding:4px;
 		color:rgb(12, 12, 100);
 	}
-
-
 
 	.items {
 		display: flex;
@@ -465,20 +596,62 @@
 		background-color: rgb(250, 250, 242);
 		padding: 4px;
 	}
+
+	.signerupper {
+		background-color: rgb(251, 254, 245);
+		border: solid 1px darkblue;
+		padding:4px;
+	}
+
+	.manifest-grid-container {
+		display: grid;
+		grid-column-gap: 2px;
+		grid-row-gap: 2px;
+		grid-template-columns: auto auto;
+		background-color: rgb(250, 250, 242);
+		padding: 4px;
+	}
+	.manifester {
+		background-color: rgb(251, 254, 245);
+		border: solid 1px darkblue;
+		padding:4px;
+	}
 </style>
 
 <div>
 	<!--
 	  Note: tabs must be unique. (They cannot === each other.)
 	-->
-	<TabBar tabs={['Signup', 'Messages', 'Introductions', 'Contacts', 'About Us']} let:tab bind:active>
+	<TabBar tabs={['Identify', 'User', 'Messages', 'Introductions', 'Contacts', 'Manifest', 'About Us']} let:tab bind:active>
 	  <!-- Note: the `tab` property is required! -->
 	  <Tab {tab}>
 		<Label>{tab}</Label>
 	  </Tab>
 	</TabBar>
   <br>
-	{#if (active === 'Signup')}
+
+	{#if (active === 'Identify')}
+	<div>
+		{#if active_user }
+		<div>
+			The current user is {active_user}.
+			<br>
+			Not you?
+			<br>
+			<select bind:value={u_index} size={10}>
+				{#each known_users as maybe_user, u_index }
+					<option value={u_index}>{maybe_user.name}</option>
+				{/each}
+			</select>
+		</div>
+		{:else}
+		<div>
+			Please join in using this way of sending messages. 
+			Click on the <span style="font-weight: bold;">User</span> tab.
+		</div>
+		{/if}
+	</div>
+  	{:else if (active === 'User')}
 	<div class="signup-grid-container">
 		<div class="signerupper">
 			<br>
@@ -493,16 +666,16 @@
 			</div>
 			<div class="inner_div" >
 				{#if business }
-				<label for="DOB" style="display:inline" >Year of Inception: </label><input id="DOB" bind:value={DOB} placeholder="Year of Inception" style="display:inline" >
+					<label for="DOB" style="display:inline" >Year of Inception: </label><input id="DOB" bind:value={DOB} placeholder="Year of Inception" style="display:inline" >
 				{:else}
-				<label for="DOB" style="display:inline" >DOB: </label><input id="DOB" bind:value={DOB} placeholder="Date of Birth" style="display:inline" >
+					<label for="DOB" style="display:inline" >DOB: </label><input id="DOB" bind:value={DOB} placeholder="Date of Birth" style="display:inline" >
 				{/if}
 			</div>
 			<div class="inner_div" >
 				{#if business }
-				<label  for="POO" style="display:inline" >Main Office: </label><input id="POO" bind:value={place_of_origin} placeholder="Main Office" style="display:inline" >
+					<label  for="POO" style="display:inline" >Main Office: </label><input id="POO" bind:value={place_of_origin} placeholder="Main Office" style="display:inline" >
 				{:else}
-				<label for="POO" style="display:inline" >Place of Origin: </label><input id="POO" bind:value={place_of_origin} placeholder="Place of Origin" style="display:inline" >
+					<label for="POO" style="display:inline" >Place of Origin: </label><input id="POO" bind:value={place_of_origin} placeholder="Place of Origin" style="display:inline" >
 				{/if}
 			</div>
 			<div class="inner_div" >
@@ -530,7 +703,6 @@
 				<div>Select a contact from</div>
 				<div>
 					<div class="tableFixHead" >
-
 						<select bind:value={form_index} size={10}>
 							{#each contact_form_links as form_link, form_index}
 								<option value={form_index}>{form_link}</option>
@@ -538,11 +710,9 @@
 						</select>
 					</div>
 				</div>
-		
 			</div>
 		</div>
 	</div>
-
 	{:else if (active === 'Messages')}
 		<div>Your Message History</div>
 		<div>
@@ -605,23 +775,23 @@
 				<input id="name" bind:value={c_name} placeholder="Name" style="display:inline">
 				<input bind:checked={c_business}  type="checkbox" style="display:inline">
 				{#if c_business }
-				<span>Business</span>
+					<span>Business</span>
 				{:else}
-				<span>Person</span>
+					<span>Person</span>
 				{/if}
 			</div>
 			<div class="inner_div" >
 				{#if c_business }
-				<label for="DOB" style="display:inline" >Year of Inception: </label><input id="DOB" bind:value={c_DOB} placeholder="Year of Inception" style="display:inline" >
+					<label for="DOB" style="display:inline" >Year of Inception: </label><input id="DOB" bind:value={c_DOB} placeholder="Year of Inception" style="display:inline" >
 				{:else}
-				<label for="DOB" style="display:inline" >DOB: </label><input id="DOB" bind:value={c_DOB} placeholder="Date of Birth" style="display:inline" >
+					<label for="DOB" style="display:inline" >DOB: </label><input id="DOB" bind:value={c_DOB} placeholder="Date of Birth" style="display:inline" >
 				{/if}
 			</div>
 			<div class="inner_div" >
 				{#if c_business }
-				<label  for="POO" style="display:inline" >Main Office: </label><input id="POO" bind:value={c_place_of_origin} placeholder="Main Office" style="display:inline" >
+					<label  for="POO" style="display:inline" >Main Office: </label><input id="POO" bind:value={c_place_of_origin} placeholder="Main Office" style="display:inline" >
 				{:else}
-				<label for="POO" style="display:inline" >Place of Origin: </label><input id="POO" bind:value={c_place_of_origin} placeholder="Place of Origin" style="display:inline" >
+					<label for="POO" style="display:inline" >Place of Origin: </label><input id="POO" bind:value={c_place_of_origin} placeholder="Place of Origin" style="display:inline" >
 				{/if}
 			</div>
 			<div class="inner_div" >
@@ -633,6 +803,47 @@
 			<span class="top_instructions" >Compose a new message for:</span> {c_name}
 			<br><br>
 			<button class="long_button" on:click={pop_editor}>compose</button>
+		</div>
+	</div>
+	{:else if (active === 'Manifest') }
+	<div>
+		<blockquote>
+			The manifest is your list of custom contact forms. 
+			When you send a message to someone, you may send them a link to one of your contact forms that will best handle 
+			the way that your contact might respond to you. Use the tools here to manage your collection of contact forms.
+		</blockquote>
+		<div class="manifest-grid-container" >
+			<div class="manifester">
+				<div class="items">
+					<div class="item" >
+						<input placeholder="filter prefix" bind:value={man_prefix}>
+						<select bind:value={manifest_index} size={5}>
+							{#each filtered_manifest_contact_form_list as contact_item, manifest_index}
+								<option value={manifest_index}>{contact_item.name}</option>
+							{/each}
+						</select>
+						<div class='buttons'>
+							<button on:click={man_add_contact_form} disabled="{!man_title}">add</button>
+							<button on:click={man_update_contact_form} disabled="{!man_title || !manifest_selected_entry}">update</button>
+							<button on:click={man_remove_contact_form} disabled="{!manifest_selected_entry}">delete</button>
+						</div>
+						<div class="inner_div" >
+							<label for="name"style="display:inline" >Name: </label>
+							<input id="name" bind:value={man_title} placeholder="Name" style="display:inline">
+							//
+							<label for="name"style="display:inline" >Preference Level: </label>
+							<input id="name" bind:value={man_max_preference} placeholder="Name" style="display:inline">
+							
+							<label for="name"style="display:inline" >Manifest IPFS Link: </label>
+							<input id="name" bind:value={man_cid} placeholder="Name" style="display:inline">
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="manifester">
+				{@html manifest_selected_form}
+			</div>
+		</div>
 		</div>
 	</div>
 	{:else if (active === 'About Us') }
@@ -675,9 +886,9 @@
   </div>
 
 <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>
-	<MessageDisplay {...message_selected} />
+	<MessageDisplay {...message_selected}  />
 </FloatWindow>
 
 <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
-	<MessageEditor {...selected} />
+	<MessageEditor {...selected} active_user={active_user} />
 </FloatWindow>
