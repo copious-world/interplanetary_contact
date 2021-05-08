@@ -699,18 +699,27 @@
 </html>
 <script>
 
+	// temporarily using pc_ prefix. There is a wv_ in a file "recorder.html"  that is for wave. This is for profile contacts.
+	// Later, these all should be wrapped in a class that handles generic use cases..
+	// Currently, this improper usage is contained in this file...
+
+const CONTACT_DB_NAME = "promail_contacts"
 const PROMAIL_USERID_STORE = 'promail_users'
+const DB_VERSION = 1
+//
+var g_promail_db = null
+
 
 // ---- ---- ---- ---- ---- ----
 // ---- ---- ---- ---- ---- ----
 
-function wv_getLocation() {
+function pc_getLocation() {
   if (navigator.geolocation) {
     var x = document.getElementById("wv-geo-location");
     navigator.geolocation.watchPosition((position) => {  // watch position updates location at a system defined interval
       x.innerHTML = `${position.coords.latitude},${position.coords.longitude}`
-      g_wv_current_locaion = { "latitude" : position.coords.latitude, "longitude" : position.coords.longitude }  // clone
-      wv_update_geo_location(g_wv_current_locaion)
+      g_pc_current_locaion = { "latitude" : position.coords.latitude, "longitude" : position.coords.longitude }  // clone
+      pc_update_geo_location(g_pc_current_locaion)
     });
   } else { 
     alert("Geolocation is not supported by this browser.");
@@ -801,48 +810,46 @@ if (!window.indexedDB) {
 
 
 // DATABASE
-var g_promail_db = null
-const gc_contact_db_name = "promail_contacts"
-async function wv_init_database(db_name) {
-  // request an open of DB
-  let p = new Promise((resolve,reject) => {
-    let request = window.indexedDB.open(db_name, DB_VERSION);
-    //
-    request.onerror = (event) => {
-      alert("This web app will not store recorded audio without the use of computer storage.")
-    };
-    request.onsuccess = (event) => {
-      //
-      let db = event.target.result;
-      db.onerror = (event) => {
-        console.log("Database error: " + event.target.error);
-        reject(event.target.error)
-      };
-      //
-      g_promail_db = db;
-      resolve(db)
-    }
+async function pc_init_database() {
+	// request an open of DB
+	let p = new Promise((resolve,reject) => {
+		//
+		let request = window.indexedDB.open(CONTACT_DB_NAME, DB_VERSION);
+		//
+		request.onerror = (event) => {
+			alert("This web app will not store recorded audio without the use of computer storage.")
+		};
+		request.onsuccess = (event) => {
+			//
+			let db = event.target.result;
+			db.onerror = (event) => {
+				console.log("Database error: " + event.target.error);
+				reject(event.target.error)
+			};
+			//
+			g_promail_db = db;
+			resolve(db)
+		}
 
-    request.onupgradeneeded = (event) => {
-      let db = event.target.result;
-      //
-      try {
-        let userStore = db.createObjectStore(PROMAIL_USERID_STORE, { autoIncrement : false, keyPath: 'name' });  // supposed to be just one
-        userStore.createIndex("name", "name", { unique: true });
-      } catch (e) {
-      }
-      //
-    };
-
-  })
-  //
-  return p
+		request.onupgradeneeded = (event) => {
+			let db = event.target.result;
+			//
+			try {
+				let userStore = db.createObjectStore(PROMAIL_USERID_STORE, { autoIncrement : false, keyPath: 'name_key' });  // supposed to be just one
+				userStore.createIndex("name_key", "name_key", { unique: true });
+			} catch (e) {
+			}
+			//
+		};
+	})
+	//
+	return p
 };
 
 
 
 // store_user_key
-//    called when the user info is created by user_keys ... see wv_ask_create_user
+//    called when the user info is created by user_keys ... see pc_ask_create_user
 //
 
 
@@ -857,24 +864,54 @@ function name_key_of(user_info) {
 
 function value_fallback(value) {
 	let vv = value ? value : ""
+	return vv
+}
+
+
+function unstore_user(identity) {
+	let name_key = identity.name_key
+	if ( !name_key ) return(false)
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
+	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+	let p = new Promise((resolve,reject) => {
+		let nameIndex = userStore.index('name_key');
+		nameIndex.openCursor().onsuccess = (event) => {
+			let keyRangeValue = IDBKeyRange.only(name_key);
+			nameIndex.openCursor(keyRangeValue).onsuccess = (event) => {
+				var cursor = event.target.result;
+				if ( cursor ) {
+					const request = cursor.delete();
+					request.onsuccess = () => {
+						resolve(true)
+					};
+				}
+			}
+		}
+	})
+	//
+	return p
 }
 
 function store_user(user_information,identity_files) {
 	//
-	let nkey = name_key_of(user_information)
-	if ( !nkey ) return(false)
+	let name_key = name_key_of(user_information)
+	if ( !name_key ) return(false)
 	//
 	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
 	//
+	let cid = value_fallback(identity_files.id)
+	//
 	let storage_obj = {
-		"name" : name_key,
+		"name_key" : name_key,
 		"user_info" : user_information,
-		"cid" : value_fallback(identity_files.id),
+		"cid" : cid,
 		"clear_cid" :  value_fallback(identity_files.clear_id),
 		"dirs" :  value_fallback(value_fallback(identity_files.dir_data).dirs),
-		"files" :  value_fallback(value_fallback(identity_files.dir_data).files)
+		"files" :  value_fallback(value_fallback(identity_files.dir_data).files),
+		"stored_externally" : (cid.length > 0)
 	}
+	//
 	if ( user_information.priv_key ) {
 		storage_obj.priv_key = user_information.priv_key
 		delete user_information.priv_key
@@ -897,6 +934,29 @@ function update_identity(identify) {
 }
 
 
+function identify_from_user(user_info) {
+	let name_key = name_key_of(user_info)
+	if ( !name_key ) return(false)
+	//
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
+	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+	//
+	let p = new Promise((resolve,reject) => {
+		let nameIndex = userStore.index('name_key');
+		nameIndex.openCursor().onsuccess = (event) => {
+			let keyRangeValue = IDBKeyRange.only(name_key);
+			nameIndex.openCursor(keyRangeValue).onsuccess = (event) => {
+				var cursor = event.target.result;
+				if ( cursor ) {
+					resolve(cursor.value)
+				}
+			}
+		}
+	})
+	//
+	return p
+}
+
 async function gen_public_key(user_info) {
 	let keys = await promail_user_starter_keys()
 	user_info.public_key = keys.pk_str
@@ -907,11 +967,11 @@ async function gen_public_key(user_info) {
 
 async function get_user_public_wrapper_key(name_key) {
 	//
-	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "read");
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
 
 	let p = new Promise((resolve,reject) => {
-		let nameIndex = userStore.index('name');
+		let nameIndex = userStore.index('name_key');
 		nameIndex.openCursor().onsuccess = (event) => {
 			let keyRangeValue = IDBKeyRange.only(name_key);
 			nameIndex.openCursor(keyRangeValue).onsuccess = (event) => {
@@ -931,18 +991,21 @@ async function get_user_public_wrapper_key(name_key) {
 // // // 
 function get_known_users() {
 	//
-	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "read");
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
 	let user_list = []
+	let identity_list = []
 	let p = new Promise((resolve,reject) => {
 		let nameIndex = userStore.index('name_key');
 		nameIndex.openCursor().onsuccess = (event) => {
 			let cursor = event.target.result;
 			if ( cursor ) {
-				user_list.push(cursor.value.name)
+				let identity = cursor.value
+				identity_list.push(identity)
+				user_list.push(identity.user_info)
 				cursor.continue();
 			} else {
-				reslove(user_list)
+				resolve([user_list,identity_list])
 			}
 		};
 	})
@@ -954,9 +1017,9 @@ function get_known_users() {
 // 
 
 //>--
-// wv_keypair_promise
+// pc_keypair_promise
 //  -- 
-function wv_keypair_promise() {  // return 
+function pc_keypair_promise() {  // return 
     // Generate a local public/private key pair
     let p =  g_crypto.generateKey({
             'name': "ECDSA",
@@ -970,9 +1033,9 @@ function wv_keypair_promise() {  // return
 //-
 
 //>--
-// wv_wrapper_keypair_promise
+// pc_wrapper_keypair_promise
 //  -- 
-function wv_wrapper_keypair_promise() {  // return 
+function pc_wrapper_keypair_promise() {  // return 
     // Generate a local public/private key pair
     let p =  g_crypto.generateKey({
             name: "RSA-OAEP",
@@ -980,7 +1043,7 @@ function wv_wrapper_keypair_promise() {  // return
             publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
             hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
         },
-        false,
+        true,
         ["wrapKey","unwrapKey"]
     )
     return p  // promise
@@ -993,18 +1056,16 @@ function wv_wrapper_keypair_promise() {  // return
 //    make a priv/pub key pair. Then negotiate with the server to wrap the key.
 async function promail_user_starter_keys() {
   // Generate a local public/private key pair
-  let keypair = await wv_wrapper_keypair_promise()
+  let keypair = await pc_wrapper_keypair_promise()
   // ---- ---- ---- ----
   let pub_key = keypair.publicKey
   let priv_key = keypair.privateKey
   // ---- ---- ---- ----                                      // g_nonce_buffer - space to use
-  let exported = await g_crypto.exportKey("raw",pub_key);
-  let exportedKeyBuffer = new Uint8Array(exported);
-  let pub_key_str = hex_fromTypedArray(exportedKeyBuffer);
+  let exported = await g_crypto.exportKey("jwk",pub_key);
+  let pub_key_str = JSON.stringify(exported)
   
-  let priv_exported = await g_crypto.exportKey("raw",pub_key);
-  let priv_exportedKeyBuffer = new Uint8Array(exported);
-  let priv_key_str = hex_fromTypedArray(exportedKeyBuffer);
+  let priv_exported = await g_crypto.exportKey("jwk",priv_key);
+  let priv_key_str =  JSON.stringify(priv_exported);
 
   let key_info = {
     "pk_str" : pub_key_str,
@@ -1163,7 +1224,13 @@ async function postData(url = '', data = {}, creds = 'omit', do_stringify = true
 	}
 
 	// Default options are marked with *
-	const response = await fetch(url, options);
+	let response = false
+	try {
+		response = await fetch(url, options);
+	} catch(e){
+		console.log('fetch url error')
+		return false
+	}
 	if ( response.ok == false ) {
 		console.log(response.status + ': ' + response.statusText)
 		return {}
@@ -1710,11 +1777,10 @@ function setupCaptchaClose() {
 }
 
 
-(async () => {
-	await wv_init_database(gc_contact_db_name)
+async function startup() {
+	await pc_init_database()
 	not_https_switch()
-})
-
+}
 
 
 </script>

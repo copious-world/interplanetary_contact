@@ -1,7 +1,3 @@
-<script>
-import { fetch_manifest } from "./ipfs_profile_proxy";
-
-</script>
 <!-- https://eugenkiss.github.io/7guis/tasks#crud -->
 <script>
 	//
@@ -14,6 +10,8 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	//
 	let cid = ""
+
+	let signup_status = "OK"
 
 
 	let start_of_messages = 0
@@ -41,25 +39,32 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 	let today = (new Date()).toUTCString()
 
 	let active_user = false
+	let active_identity = false
 	let known_users = [false]
+	let known_identities = [false]
   	let u_index = 0
+
+	let adding_new = false
 	
 	let manifest_selected_entry = false
 	let manifest_selected_form = false
 	let manifest_contact_form_list = [false]
 	//
+	let manifest_obj = {}
 	let manifest_index = 0
 	let man_title = ''
 	let man_cid = ''
 	let man_wrapped_key = ''
 	let man_html = ''
-	let man_max_preference
+	let man_max_preference = 1.0
 	//
-	let active = 'Signup';
+	let active = 'Identify';
 	let first_message = 0
 	let messages_per_page = 100
 
 	let green = false     // an indicator telling if this user ID is set
+	let todays_date = (new Date()).toLocaleString()
+
 
 	let individuals = [
 		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : true, "cid" : "4504385938", "answer_message" : ""},
@@ -78,7 +83,6 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 
 	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
 
-	let todays_date = (new Date()).toLocaleString()
 
 	/*
       "wrapped_key" : false,
@@ -87,11 +91,23 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 	*/
 
 	let contact_form_links = [
-		"contact_style_1.html",
-		"contact_style_2.html"
+		{
+			"link" : "contact_style_1.html",
+			"html" : "some stuff that goes here"
+		},
+		{
+			"link" : "contact_style_2.html",
+			"html" : `
+			<div style="border:solid 1px green; padding: 7px; background-color:lightyellow;text-align:center;" >
+				This is a test of showing forms
+			</div>`
+		},
 	]
 
-	let selected_form_link = "contact_style_1.html"
+	let selected_form_link = {
+		"link" : "contact_style_1.html",
+		"html" : `some stuff that goes here`
+	}
 
 
 	function find_contact_from_message(message) {
@@ -122,13 +138,19 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 
 	//
 	$: active_user = known_users[u_index]
+	$: active_identity = known_identities[u_index]
+	$: green = ( active_identity ) ? active_identity.stored_externally : false
+
 
 	$: {
-		name = active_user.name
-		DOB = active_user.DOB
-		place_of_origin = active_user.place_of_origin
-		cool_public_info = active_user.cool_public_info
-		business = active_user.business
+		if ( (active_user !== undefined) && active_user ) {
+			name = active_user.name
+			DOB = active_user.DOB
+			place_of_origin = active_user.place_of_origin
+			cool_public_info = active_user.cool_public_info
+			business = active_user.business
+			adding_new = false
+		}
 	}
 
 	$: filtered_manifest_contact_form_list = man_prefix
@@ -198,7 +220,8 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 	//
 	window_scale = popup_size()
 	//
-	onMount(() => {
+	onMount(async () => {
+		//
 		window.addEventListener("resize", (e) => {
 			//
 			let scale = popup_size()
@@ -208,15 +231,49 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 			//
 		})
 
+		await startup()
+
 		fetch_messages()
 		fetch_contacts()
 		fetch_manifest()
+			// initialize
+		await get_active_users()
 	})
 
 
 
 // PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE 
 // PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE 
+
+	let g_required_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "public_key", "form_link" ]
+	let g_renamed_user_fields = {
+		"DOB" : "Year of inception",
+		"place_of_origin" : "Main Office",
+	}
+	let g_last_inspected_field = false
+	function check_required_fields(object,required_fields) {
+		g_last_inspected_field = false
+		for ( let field of required_fields ) {
+			let value = object[field]
+			g_last_inspected_field = field
+			if (( value === undefined) || (value.length === 0) ) return false
+		}
+		return true
+	}
+
+	function missing_fields(activity,app_rename,do_rename) {
+		let l_field = g_last_inspected_field
+		// 
+		if ( do_rename ) {
+			let r_field = app_rename[l_field]
+			if ( r_field ) {
+				l_field = r_field
+			}
+		}
+		let message = `Missing field: ${l_field},  when ${activity}`
+		return(message);
+	}
+
 
 	// ADD PROFILE.....
 	async function add_profile() {
@@ -226,13 +283,23 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 			"DOB" : DOB,
 			"place_of_origin" : place_of_origin, 
 			"cool_public_info" : cool_public_info, 
-			"business" : business, 
+			"business" : business === undefined ? false : business, 
 			"public_key" : false, 
 			"form_link" : selected_form_link,  // a cid to a template ??
 			"answer_message" : ""
 		}
+
+		signup_status = "OK"
+		if ( !check_required_fields(user_data,g_required_user_fields) ) {
+			signup_status = missing_fields("creating contact page",g_renamed_user_fields,business)
+			return;
+		}
+
 		await gen_public_key(user_data) // by ref
-		green = await ipfs_profiles.add_profile(user_data)
+		try {
+			green = await ipfs_profiles.add_profile(user_data)
+		} catch (e) {
+		}
 		//
 		await get_active_users()
 		u_index = (known_users.length - 1)
@@ -241,12 +308,33 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 
 	async function get_active_users() {
 		try {
-			known_users = await window.get_known_users()
+			let known_user_lists = await window.get_known_users()
+			known_users = known_user_lists[0]
+			known_identities = known_user_lists[1]
 		} catch (e) {}
 	}
 
-	// initialize
-	get_active_users()
+
+	function clear_identify_form() {
+		name = ''
+		DOB = ''
+		place_of_origin = ''
+		cool_public_info = ''
+		business = false
+		active_user = false
+		u_index = false
+		adding_new = true
+	}
+
+	async function remove_identify_seen_in_form() {
+		let identity = active_identity
+		const index = known_users.indexOf(active_user);
+		if ( index >= 0 ) {
+			known_users = [...known_users.slice(0, index), ...known_users.slice(index + 1)];
+			u_index = Math.min(u_index, known_users.length - 1);
+			await unstore_user(identity)
+		}
+	}
 
 // MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
 // MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
@@ -460,13 +548,54 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 		font-size: inherit;
 	}
 
+
+
+	.splash-if-you-will {
+		font-size: 140%;
+		text-align: center;
+		line-height: 180%;
+		font-weight: 700;
+		color:rgb(81, 107, 131);
+		font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+	}
+
+	.splash-if-you-will span {
+		color:rgb(27, 78, 31);
+		font-weight: 900;
+		font-size: 140%;
+		background-color: rgb(255, 254, 238);
+		padding: 12px;
+		border-radius: 25px;
+		font-family: 'Times New Roman', Times, serif;
+	}
+
+
+	.front-page-explain {
+		padding: 8px;
+		margin-top: 30px;
+		color: orangered;
+		font-size: 85%;
+		font-weight: 500;
+		border: solid 1px rgb(45, 99, 45);
+		font-family:Georgia, 'Times New Roman', Times, serif;
+	}
+
+	blockquote {
+		font: 14px/22px normal helvetica, sans-serif;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		margin-left: 50px;
+		padding-left: 15px;
+		border-left: 3px solid rgb(221, 219, 219);
+  	}
+
+
 	input {
 		display: block;
 		margin: 0 0 0.5em 0;
 	}
 
 	select {
-		float: left;
 		margin: 0 1em 1em 0;
 		width: 14em;
 	}
@@ -486,19 +615,30 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 	}
 
 	.nice_message {
-		width: 50%;
-		font-size: smaller;
+		width: 85%;
+		font-size: small;
 		font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-		color:rgb(120, 183, 221);
+		color:rgb(54, 81, 99);
 		font-weight:600;
+		background: -webkit-linear-gradient(to right, white ,rgb(252, 251, 248));
+		background: linear-gradient(to right, white, rgb(252, 251, 248) );
+	}
+
+	.add-profile-div {
+		margin-top:8px;
+		border: 1px solid rgb(165, 161, 190);
+		padding: 2px;
+		background: -webkit-linear-gradient(to right, rgb(252, 251, 240) ,rgb(249, 252, 248));
+		background: linear-gradient(to right, rgb(252, 251, 240), rgb(249, 252, 248) );
 	}
 
 	.top_instructions {
 		padding: 2px;
-		color:rgb(36, 16, 3);
+		color:rgb(66, 33, 13);
 		border-bottom: sienna 1px solid;
 		font: 0.9em sans-serif;
 		font-weight: 600;
+		font-style: oblique;
 	}
 
 
@@ -507,6 +647,14 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 		border: solid 1px darkblue;
 		padding:4px;
 		color:rgb(12, 12, 100);
+		font-size: 110%;
+		height: calc(100vh - 280px);
+		overflow: scroll;
+	}
+
+	.team_message blockquote {
+		width: 85%;
+		line-height: 200%;
 	}
 
 	.items {
@@ -588,19 +736,96 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 		cursor: pointer;
 	}
 
+	.tableFixHead option {
+		cursor: pointer;
+	}
+
+
+	.user-options {
+		background-color: rgb(252, 252, 249);
+	}
+
+	.user-options option {
+		cursor: pointer;
+	}
+
+	.selected_form_link-display {
+		margin-top:4px;
+		margin-bottom:4px;
+		border: solid 1px rgb(13, 48, 20);
+		padding:4px;
+		background-color: white;
+		height:200px;
+		overflow:auto;
+	}
+
+	.signup-status {
+		color: black;
+		background-color: rgb(254, 252, 245);
+		font-weight: bold;
+		border: solid 1px rgb(13, 48, 20);
+		padding:4px;
+		height: 60px;
+		overflow: auto;
+	} 
+	.good-status {
+		color: green;
+	}
+	.bad-status {
+		color: red;
+	}
+
+	.contact_form_list {
+		margin-top:4px;
+		margin-bottom:4px;
+		border: solid 1px navy;
+		padding:4px;
+		color: darkgreen;
+		background-color: rgb(253, 249, 242);
+		text-align: center;
+	}
+
 	.signup-grid-container {
 		display: grid;
 		grid-column-gap: 2px;
 		grid-row-gap: 2px;
-		grid-template-columns: auto auto;
+		grid-template-columns: 65% auto;
 		background-color: rgb(250, 250, 242);
 		padding: 4px;
 	}
 
 	.signerupper {
-		background-color: rgb(251, 254, 245);
-		border: solid 1px darkblue;
-		padding:4px;
+		background-color: rgb(252, 251, 248);
+		border: solid 1px rgb(0, 0, 117);
+		padding:6px;
+	}
+
+	.picture-drop {
+		width:90px;
+		min-height:90px;
+		border: 1px solid navy;
+		background-color:rgb(225, 230, 236);
+		display:inline-block;
+		margin: 2px;
+		text-align:center;
+		vertical-align: middle;
+		cursor:pointer;
+	}
+
+	.picture-drop:hover {
+		background-color:rgb(234, 247, 223);
+	}
+	
+	.contact_controls {
+		width: calc(32vw - 96px);
+		margin: 2px;
+		border: 1px solid navy;
+		display:inline-block;
+		background-color: white;
+	}
+
+	.contact_controls button {
+		border-radius: 8px;
 	}
 
 	.manifest-grid-container {
@@ -612,10 +837,21 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 		padding: 4px;
 	}
 	.manifester {
-		background-color: rgb(251, 254, 245);
+		background-color: rgb(244, 248, 244);
 		border: solid 1px darkblue;
 		padding:4px;
 	}
+	
+	.active-tab {
+		color: rgb(40, 122, 19);
+		background-color: rgb(255, 255, 255);
+		font-weight: bolder;
+	}
+
+	.plain-tab {
+		color: rgb(1, 10, 1);
+	}
+
 </style>
 
 <div>
@@ -625,31 +861,51 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 	<TabBar tabs={['Identify', 'User', 'Messages', 'Introductions', 'Contacts', 'Manifest', 'About Us']} let:tab bind:active>
 	  <!-- Note: the `tab` property is required! -->
 	  <Tab {tab}>
-		<Label>{tab}</Label>
+		<Label><span class={ (tab === active) ? "active-tab" : "plain-tab"}>{tab}</span></Label>
 	  </Tab>
 	</TabBar>
   <br>
 
 	{#if (active === 'Identify')}
-	<div>
-		{#if active_user }
-		<div>
-			The current user is {active_user}.
+	<div class="splash-if-you-will" style="height:fit-content" >
+		{#if active_user || adding_new }
+		<div style="height:fit-content">
+			The current user is <span>{active_user ? active_user.name : "being created" }</span>.
 			<br>
-			Not you?
-			<br>
-			<select bind:value={u_index} size={10}>
-				{#each known_users as maybe_user, u_index }
-					<option value={u_index}>{maybe_user.name}</option>
-				{/each}
-			</select>
+			Not you? Select from the list below or Add yourself with the User tab.
+			<div class="user-options" style="text-align:center" >
+				<select bind:value={u_index} size={10} style="text-align:center;">
+					{#each known_users as maybe_user, u_index }
+						<option value={u_index}>{maybe_user.name}</option>
+					{/each}
+				</select>	
+			</div>
 		</div>
 		{:else}
-		<div>
-			Please join in using this way of sending messages. 
-			Click on the <span style="font-weight: bold;">User</span> tab.
+		<div class="splash-if-you-will" >
+			Please join us in using this way of sending messages.
+			<div>
+				Click on the <span>User</span> tab.
+			</div>
 		</div>
 		{/if}
+		<div class="front-page-explain">
+			Pro-mail is like e-mail. 
+			<br>
+			But, where e-mail is complicated, Pro-mail is simpler.
+			<br>
+			And, where Pro-mail is more complicated, it's more fun.
+			<br>
+			No just more fun.
+			<br>
+			More secure
+			<br>
+			More customizable.
+			<br>
+			More Manageable
+			<br>
+			Easier to Filter and Maintain
+		</div>
 	</div>
   	{:else if (active === 'User')}
 	<div class="signup-grid-container">
@@ -682,30 +938,65 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 			<label for="self-text">Cool Public Info</label><br>
 			<textarea id="self-text" bind:value={cool_public_info} placeholder="Something you would say to anyone about yourself" />
 			</div>
-	
-			<div class="nice_message">
-				Enter your information above. It will be used to make an identifier to be used in your contact page.
-				The information should be unique. For example, I know that my name is shared by at least three other people on the planet,
-				all of whom were born in the same year. But, they are from differts or countries.
-				The information that you enter may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail 
-				from groups you choose to select. You may make selections at a later time. 
-				<span style="color:blue;">Note:</span> no information will be sent to any organization as a result of signing up.
-				All information and your personalized assets, including your contact page will be stored in the Interplanetary File System, and will be 
-				accessible from there through any service you wish to use to access it.
+			<div class="add-profile-div" style="text-align:center" >
+				<div style = { green ? "background-color:rgba(245,255,250,0.9)" : "background-color:rgba(250,250,250,0.3)" } >
+					<button class="long_button" on:click={add_profile}>Create my contact profile.</button>
+				</div>
 			</div>
-			<button class="long_button" on:click={add_profile}>Create my contact page.</button>
+			<div class="nice_message">
+				<blockquote>
+				Enter your information above. This information will be used to make an identifier for sending and receiving messages.
+				When you click on the button, "Create my contact profile", your information will got to a gateway server where it will be 
+				used to make an ID, called a CID. This "User" tab will store the CID for you. And, you will be able to download it along with 
+				special directory information and your security keys from your browser at any time. This information will never be sent from the
+				browser by these pages.
+				</blockquote>
+				<blockquote>
+				The information should be unique.For example, I know that my name is shared by at least three other people on the planet,
+				all of whom were born in the same year. But, they are from different towns or countries.
+				</blockquote>
+				<blockquote>
+				Some of the  information that you enter, not including keys, may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail. 
+				You may choose the groups or business that may publish to topics that you select. You may make selections at a later time. And, the process of managing
+				topics will be workable on topics pages separate from these message pages.
+				</blockquote>
+				<blockquote>
+				<span style="color:blue;">Note:</span> no information will be sent to any organization as a result of signing up.
+				All information, excluding private keys, and your personalized assets such as your contact pages, public and encrypted,
+				will be stored in the Interplanetary File System. All this information will be accessible from there through any service
+				you wish to use to access it.
+				</blockquote>
+			</div>
 		</div>
 		<div class="signerupper">
-			<div>
-				drop a picture here
+			<div class="signup-status">
+				status: <span class={signup_status === 'OK' ? "good-status" : "bad-status"}>{signup_status}</span>
 			</div>
 			<div>
-				<div>Select a contact from</div>
+				<div class="picture-drop">
+					drop a picture here
+				</div>
 				<div>
+					<div class="contact_controls">
+						<button on:click={clear_identify_form} >∋ new </button>
+						<button on:click={remove_identify_seen_in_form} >∌ remove</button>
+					</div>	
+					<div class="contact_controls">
+						<button>▼ identity</button>
+						<button>▲ identity</button>
+					</div>	
+				</div>
+			</div>
+			<div>
+				<div class="contact_form_list">Select a contact from</div>
+				<div>
+					<div class="selected_form_link-display">
+						{@html selected_form_link.html }
+					</div>
 					<div class="tableFixHead" >
-						<select bind:value={form_index} size={10}>
+						<select bind:value={form_index} size={10} style="width:100%;height:90px;padding-left:4px;">
 							{#each contact_form_links as form_link, form_index}
-								<option value={form_index}>{form_link}</option>
+								<option value={form_index}>{form_link.link}</option>
 							{/each}
 						</select>
 					</div>
@@ -844,43 +1135,53 @@ import { fetch_manifest } from "./ipfs_profile_proxy";
 				{@html manifest_selected_form}
 			</div>
 		</div>
-		</div>
 	</div>
 	{:else if (active === 'About Us') }
 	<div  class="team_message" >
-	This service is free. It is a way for you to set up messaging with other people.
-	It is like email, but it offers an alernative ways of running your message process.
-	<br>
-	For one, there is no email service associated with this way of handling messages. 
-	All messages and interfaces for interacting with the processes are stored on the Inner Planetary File System.
-	<br>
-	Your contact pages is stored there. This tool makes the contact page and stores it for you. Then when someone wants to send 
-	you a message, they access your contact page. The person who sends you a message will write a message on your page and click send.
-	The contact page you use will send a message service that is baked into the contact page. 
-	<br>
-	This tool, makes and stores the kind of contact page you want to store. So, by selecting the type of contact page, you will also be selecting 
-	how you want to communicate. You also get to select your style of contact page. Maybe you want to have your picture on it, maybe not.
-	Depending on the community of contact page makers, you may find different styles. Each style is part of a template. And, you select the template.
-	<br>
-	<span style="font-weight: bold;">How to get the word out about your page?</span> You are probably used to handing out a business card with your email on it.
-	But, instead of that, you can hand out the link to your contact page. The actual link that you receive when you sign up might be hard to read. 
-	But, you can give out the contents of the fields that you entered in order to make your contact page. 
-	<br>
-	The reason we have asked for information you might tell anyone is that we are asking for information you want to share. This information should identify you,
-	but not give away secrets. When someone sends a message, we can find your contact page by reprocessing the same information.
-	<br>
-	If you don't want to print you contact information on your business card, you can always just give out the hash code.
-	But, keep in mind, your contacts will have to type it.
-	<br>
-	Now, you can store contact information in your list of contacts. Each of these links will find the contact page.
-	<br>
-	Now about getting unsoliceted mail or blog feeds from organizations. For these you get a separate number. Messages being sent through a messaging service will use
-	an API link to send messages to the agreed upon topic (the topic you tell the organization that they can bug you about.) You can use your topic dashbaord to 
-	select the latest news from organization you care about. 
-	<br>
-	Messages from contacts will show up in your mail stream (promail). Find links to that on your management dashboard (also generated by when you sign up.)
-	To help you find your information when you go back to your browser, the information you enter on signing up will be stored in your broswer's database (indexedDb).
-	If you switch browsers, you can always enter your information again, and click "restore". You will also find an option to remove your information from your browser.
+		<blockquote>
+		This service is free. It is a way for you to set up messaging with other people.
+		It is like email, but it offers an alernative ways of running your message process.
+		</blockquote>
+		<blockquote>
+		For one, there is no email service associated with this way of handling messages. 
+		All messages and interfaces for interacting with the processes are stored on the Inner Planetary File System.
+		</blockquote>
+		<blockquote>
+		Your contact pages is stored there. This tool makes the contact page and stores it for you. Then when someone wants to send 
+		you a message, they access your contact page. The person who sends you a message will write a message on your page and click send.
+		The contact page you use will send a message service that is baked into the contact page.
+		</blockquote>
+		<blockquote>
+		This tool, makes and stores the kind of contact page you want to store. So, by selecting the type of contact page, you will also be selecting 
+		how you want to communicate. You also get to select your style of contact page. Maybe you want to have your picture on it, maybe not.
+		Depending on the community of contact page makers, you may find different styles. Each style is part of a template. And, you select the template.
+		</blockquote>
+		<blockquote>
+		<span style="font-weight: bold;">How to get the word out about your page?</span> You are probably used to handing out a business card with your email on it.
+		But, instead of that, you can hand out the link to your contact page. The actual link that you receive when you sign up might be hard to read. 
+		But, you can give out the contents of the fields that you entered in order to make your contact page. 
+		</blockquote>
+		<blockquote>
+		The reason we have asked for information you might tell anyone is that we are asking for information you want to share. This information should identify you,
+		but not give away secrets. When someone sends a message, we can find your contact page by reprocessing the same information.
+		</blockquote>
+		<blockquote>
+		If you don't want to print you contact information on your business card, you can always just give out the hash code.
+		But, keep in mind, your contacts will have to type it.
+		</blockquote>
+		<blockquote>
+		Now, you can store contact information in your list of contacts. Each of these links will find the contact page.
+		</blockquote>
+		<blockquote>
+		Now about getting unsoliceted mail or blog feeds from organizations. For these you get a separate number. Messages being sent through a messaging service will use
+		an API link to send messages to the agreed upon topic (the topic you tell the organization that they can bug you about.) You can use your topic dashbaord to 
+		select the latest news from organization you care about. 
+		</blockquote>
+		<blockquote>
+		Messages from contacts will show up in your mail stream (promail). Find links to that on your management dashboard (also generated by when you sign up.)
+		To help you find your information when you go back to your browser, the information you enter on signing up will be stored in your broswer's database (indexedDb).
+		If you switch browsers, you can always enter your information again, and click "restore". You will also find an option to remove your information from your browser.
+		</blockquote>
 	</div>
 	{/if}
   </div>

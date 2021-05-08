@@ -3,6 +3,7 @@
 
 	// `current` is updated whenever the prop value changes...
 	export let name;
+	export let DOB;
 	export let place_of_origin;
 	export let cool_public_info;
 	export let business;
@@ -16,6 +17,7 @@
 	let message_type = "introduction"
 	let receiver_user_info = {
 			"name" : name,
+			"DOB" : DOB,
 			"place_of_origin" : place_of_origin,
 			"cool_public_info" : cool_public_info,
 			"business" : business,
@@ -29,15 +31,18 @@
 	$: {
 		receiver_user_info = {
 			"name" : name,
+			"DOB" : Date.now(),
 			"place_of_origin" : place_of_origin,
 			"cool_public_info" : cool_public_info,
 			"business" : business,
 			"public_key" : public_key
 		}
-		r_cid = ipfs_profiles.fetch_contact_cid(receiver_user_info)  // established contact
-		delete receiver_user_info.public_key
-		r_p_cid = ipfs_profiles.fetch_contact_cid(receiver_user_info)	// introduction or no privacy intended
 	}
+
+	(async () => {
+			r_cid =  await ipfs_profiles.fetch_contact_cid(receiver_user_info,false)  // established contact
+			r_p_cid = await ipfs_profiles.fetch_contact_cid(receiver_user_info,true)	// introduction or no privacy intended
+	})()
 
 	let todays_date = ''
 	$: 	{

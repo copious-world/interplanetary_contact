@@ -102,6 +102,13 @@ app.post('/add/profile',async (req, res) => {
 })
 
 
+app.post('/get/user-cid',async (req, res) => {
+  let body = req.body
+  let cid =  await g_ipfs_profiles.add_profile_file(body)
+  res.type('application/json').send({ "status" : "OK", "cid" : cid })
+})
+
+
 app.post('/dir',async (req, res) => {
   //
   if ( !(g_ipfs_profiles) ) {
@@ -508,7 +515,7 @@ main()
 const start = async () => {
   try {
       console.log(`listening on port: ${g_port}`)
-    await app.listen(g_port)
+      await app.listen(g_port)
   } catch (err) {
       app.log.error(err)
       process.exit(1)

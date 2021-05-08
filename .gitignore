@@ -106,3 +106,7 @@ dist
 repos/*
 test/*
 lib/repos/*
+manager_view/public/build/*
+manager_view/public/build/bundle.css
+manager_view/public/build/bundle.js
+*.map

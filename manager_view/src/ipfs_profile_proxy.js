@@ -16,6 +16,7 @@ const TIMEOUT_THRESHHOLD = 4*60*60
 
 var alert_error = (msg) => {
     alert(msg)
+    console.log(new Error("stack"))
 }
 
 export function set_alert_error_handler(fn) {
@@ -58,7 +59,7 @@ async function fetch_asset(topics_cid,user_cid,asset) {  // specifically from th
     //
     let prot = location.protocol  // prot for (prot)ocol
     
-    let data_stem = `/get-asset/${asset}`
+    let data_stem = `get-asset/${asset}`
     let sp = '//'
     let post_data = {
         "cid" : topics_cid
@@ -92,7 +93,7 @@ export async function fetch_manifest(manifest_cid,user_cid) {  // specifically f
     return await fetch_asset(manifest_cid,user_cid,MANIFEST)
 }
 
-export async function fetch_manifest(topics_cid,user_cid) {  // specifically from this user
+export async function fetch_topicst(topics_cid,user_cid) {  // specifically from this user
     return await fetch_asset(topics_cid,user_cid,TOPICS)
 }
 
@@ -115,7 +116,7 @@ async function update_asset_to_ipfs(asset,user_cid,is_business,contents) {
     }
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = `/put-asset/${asset}`
+    let data_stem = `put-asset/${asset}`
     let sp = '//'
     let post_data = {
         "cid" : user_cid,
@@ -154,7 +155,7 @@ export async function fetch_contact_page(asset,contact_cid) {  // specifically f
     if ( contact_cid !== undefined ) {
         asset = 'cid'
     }
-    let data_stem = `/get-contact-page/${asset}`
+    let data_stem = `get-contact-page/${asset}`
     let sp = '//'
 
     let post_data = {
@@ -208,7 +209,7 @@ export async function add_profile(u_info) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = '/add/profile'
+    let data_stem = 'add/profile'
     let sp = '//'
     let post_data = user_info
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
@@ -223,6 +224,34 @@ export async function add_profile(u_info) {
     }
     return false
 }
+
+
+export async function fetch_contact_cid(someones_info,clear) {  // a user,, not the owner of the manifest, most likely a recipients
+    let user_info = Object.assign({},someones_info) 
+    for ( let field of g_user_fields ) {
+        if ( user_info[field] === undefined ) {
+            if ( (field === "public_key") && clear ) {
+                delete user_info.public_key
+            }
+            alert_error("undefined field " + field)
+            return
+        }
+    }
+    let srver = location.host
+    srver = correct_server(srver)
+    //
+    let prot = location.protocol  // prot for (prot)ocol
+    let data_stem = 'get/user-cid'
+    let sp = '//'
+    let post_data = user_info
+    let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+    if ( result.status === "OK" ) {
+        let cid = result.cid
+        return cid
+    }
+    return false
+}
+
 
 
 export async function get_dir(user_info,clear) {
@@ -249,7 +278,7 @@ export async function get_dir(user_info,clear) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = '/dir'
+    let data_stem = 'dir'
     let sp = '//'
     let post_data = user_info
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
@@ -412,7 +441,7 @@ async function get_spool_files(identity,spool_select,clear,offset,count) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = '/get-spool'
+    let data_stem = 'get-spool'
     let sp = '//'
     let post_data = {
         'cid' : cid,
@@ -467,7 +496,7 @@ export async function get_template_list(offset,count,category) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = `/template-list/${category}`
+    let data_stem = `template-list/${category}`
     let sp = '//'
     let post_data = {
         'category' : category,
@@ -489,7 +518,7 @@ export async function get_template_list(offset,count,category) {
 
 export async function get_contact_template(template_cid) {
     //
-    let data_stem = `/get/template/${template_cid}`
+    let data_stem = `get/template/${template_cid}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
         let contact_template = result.data
@@ -507,7 +536,7 @@ export async function put_contact_template(name,data) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = '/put/template/${template_cid}'
+    let data_stem = 'put/template/${template_cid}'
     let sp = '//'
     let post_data = {
         'name' : name,

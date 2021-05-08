@@ -45,6 +45,7 @@
 </div>
 
 <style>
+
 	.grid-container {
 		display: grid;
 		grid-column-gap: 5px;
