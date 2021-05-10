@@ -9,10 +9,14 @@
 	export let business;
 	export let public_key;
 	export let answer_message
+	export let cid
 
 	export let active_user
 
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
+
+
+	let show_key = false
 
 	let message_type = "introduction"
 	let receiver_user_info = {
@@ -55,6 +59,12 @@
 	let know_of = ""
 	$: b_label = business ? " is a business" : " is a person"
 	$: know_of = (public_key !== false) ? " is someone I know" : " is a new introduction"
+
+	function toggle_showkey() {
+		show_key = show_key ? false : true
+		console.log(show_key)
+	}
+
 
 	let has_previous = (answer_message && (typeof answer_message === "string") && answer_message.length)
 
@@ -161,9 +171,24 @@
 		{@html contact_page}
 	</div>
 	<div id="blg-window-full-text-outgo-script" class="is-nothing" ></div>
-	<input type="hidden" id="pub-key-outgo" bind:value={public_key} />
+	<div style="background-color:whitesmoke;font-weight: 600;font-size: smaller;">
+		<span style="font-weight:bold;color:black">contact cid:</span> {cid} 
+		{#if !(show_key) }
+		<button style="float:right" on:click={toggle_showkey}>(▼)</button>
+		{:else}
+		<button style="float:right" on:click={toggle_showkey}>(^)</button>
+		{/if}
+	</div>
+	{#if show_key }
+	<div class="viz-key" style="background-color:whitesmoke;font-weight: 600;font-size: smaller;">
+		<span style="font-weight:bold;color:black">public wrapper key:</span> {public_key}
+	</div>
+	{:else}
+	<div class="hide-key" style="background-color:whitesmoke;font-weight: 600;font-size: smaller;">
+		<span style="font-weight:bold;color:black">public wrapper key:</span> {public_key}
+	</div>
+	{/if}
 </div>
-
 <style>
 
 	.blg-el-wrapper-full {
@@ -253,4 +278,14 @@
 		display: none;
 		visibility: hidden;
 	}
+
+	.viz-key {
+		visibility: visible;
+		display: block;
+	}
+	.hide-key {
+		visibility: hidden;
+		display: none;
+	}
+
 </style>

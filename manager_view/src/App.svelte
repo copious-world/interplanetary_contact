@@ -12,10 +12,9 @@
 	let cid = ""
 
 	let signup_status = "OK"
-
-
+	//
 	let start_of_messages = 0
-	let messages_per_pate = 100
+	let messages_per_page = 100
 
 	let prefix = '';
 	let man_prefix = '';
@@ -35,6 +34,9 @@
 	let c_place_of_origin = ''
 	let c_cool_public_info = ''
 	let c_business = false
+	let c_public_key = "testesttesttest"
+	let c_cid = "testesttesttest"
+	let c_answer_message = ''
 
 	let today = (new Date()).toUTCString()
 
@@ -60,25 +62,24 @@
 	//
 	let active = 'Identify';
 	let first_message = 0
-	let messages_per_page = 100
 
 	let green = false     // an indicator telling if this user ID is set
 	let todays_date = (new Date()).toLocaleString()
 
 
 	let individuals = [
-		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : true, "cid" : "4504385938", "answer_message" : ""},
+		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "cid" : "4504385938", "answer_message" : ""},
 		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "cid" : "4345687685", "answer_message" : "I got your songs"},
-		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : true, "cid" : "9i58w78ew", "answer_message" : "" }
+		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "cid" : "9i58w78ew", "answer_message" : "" }
 	];
 
 	let selected
 
 	let inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" } ]
 	let inbound_contact_messages = [
-		{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : true, "message" : "this is a message 1" },
-		{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : true, "message" : "this is a message 2"  },
-		{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : true, "message" : "this is a message 3"  }
+		{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" },
+		{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : "testesttesttest", "message" : "this is a message 2"  },
+		{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : "testesttesttest", "message" : "this is a message 3"  }
 	]
 
 	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
@@ -90,6 +91,47 @@
 	  "when"  ... whereas"date" is a human readable string...
 	*/
 
+	//
+	class Contact {
+		//
+		constructor() {
+			this.empty_identity = {
+				"name": '',
+				"DOB" : "",
+				"place_of_origin" : "", 
+				"cool_public_info" : "", 
+				"business" : false, 
+				"public_key" : false
+			}
+			this.data = this.empty_identity
+		}
+		//
+		set(name,DOB,place_of_origin,cool_public_info,business,public_key) {
+			let user_data = {
+				"name": name,
+				"DOB" : DOB,
+				"place_of_origin" : place_of_origin, 
+				"cool_public_info" : cool_public_info, 
+				"business" : (business === undefined) ? false : business, 
+				"public_key" : public_key
+			}
+			this.data = user_data
+		}
+		
+		extend_contact(field,value) {
+			this.data[field] = value;
+		}
+
+		identity() {
+			let id_obj = Object.assign(this.empty_identity,this.data)
+			return id_obj
+		}
+
+	}
+
+	let empty_identity = new Contact()
+
+	//
 	let contact_form_links = [
 		{
 			"link" : "contact_style_1.html",
@@ -129,7 +171,7 @@
 		})
 		: individuals;
 
-	$: selected = filteredIndviduals[i]
+	$: selected = (i >= 0) ? filteredIndviduals[i] : empty_identity.identity()
 
 	$: reset_inputs(selected)
 
@@ -278,17 +320,13 @@
 	// ADD PROFILE.....
 	async function add_profile() {
 		//
-		let user_data = {
-			"name": name,
-			"DOB" : DOB,
-			"place_of_origin" : place_of_origin, 
-			"cool_public_info" : cool_public_info, 
-			"business" : business === undefined ? false : business, 
-			"public_key" : false, 
-			"form_link" : selected_form_link,  // a cid to a template ??
-			"answer_message" : ""
-		}
-
+		let contact = new Contact()
+		contact.set(name,DOB,place_of_origin,cool_public_info,business,false)
+		contact.extend_contact("form_link",selected_form_link)
+		contact.extend_contact("answer_message","")
+		//
+		let user_data = contact.identity()
+		//
 		signup_status = "OK"
 		if ( !check_required_fields(user_data,g_required_user_fields) ) {
 			signup_status = missing_fields("creating contact page",g_renamed_user_fields,business)
@@ -380,7 +418,7 @@
 		let identify = active_user
 		if ( identify ) {
 			let user_info = identify.user_info
-			let all_inbound_messages = await ipfs_profiles.get_message_files(identify,start_of_messages,messages_per_pate)
+			let all_inbound_messages = await ipfs_profiles.get_message_files(identify,start_of_messages,messages_per_page)
 			inbound_contact_messages = all_inbound_messages[0]
 			inbound_solicitation_messages = all_inbound_messages[1]
 		}
@@ -397,21 +435,36 @@
 		c_place_of_origin = individual ? individual.place_of_origin : '';
 		c_cool_public_info = individual ? individual.cool_public_info : '';
 		c_business = individual ? individual.business : '';
+		c_public_key = individual ? individual.public_key : '';
+		c_answer_message = individual ? individual.answer_message : '';
 	}
 
+	let pre_clear_i = 0
+	let cleared_c_form = false
+	function clear_contact_form() {
+		pre_clear_i = i
+		i = -1
+		reset_inputs(false)
+		cleared_c_form = true
+	}
+
+	function harmonize_contact_form(ev) {
+		if ( i < 0 ) {
+			i = pre_clear_i
+			cleared_c_form = false
+		}
+	}
 
 	async function add_contact() {
-		let contact = {
-			"name": c_name,
-			"DOB" : c_DOB,
-			"place_of_origin" : c_place_of_origin, 
-			"cool_public_info" : c_cool_public_info, 
-			"business" : c_business, 
-			"public_key" : c_public_key, 
-		}
-		individuals = individuals.concat(contact);
+		let contact = new Contact()
+		contact.set(c_name,c_DOB,c_place_of_origin,c_cool_public_info,c_business,c_public_key)
+		contact.extend_contact("cid",'')
+		contact.extend_contact("answer_message",'')
+		//
+		let user_data = contact.identity()
+		//
+		individuals = individuals.concat(user_data);
 		i = individuals.length - 1;
-		first = '';
 		//
 		let identify = active_user
 		if ( identify ) {
@@ -440,11 +493,11 @@
 	}
 
 	async function remove_contact() {
+		if ( i < 0 ) return
 		// Remove selected person from the source array (people), not the filtered array
 		const index = individuals.indexOf(selected);
 		individuals = [...individuals.slice(0, index), ...individuals.slice(index + 1)];
 
-		first = last = '';
 		i = Math.min(i, filteredIndviduals.length - 2);
 		//
 		let identify = active_user
@@ -600,9 +653,50 @@
 		width: 14em;
 	}
 
+	option {
+		cursor: pointer;
+	}
+
 	.buttons {
 		clear: both;
 	}
+
+	.buttons button:disabled {
+		color:slategrey;
+	}
+
+	.buttons button:disabled:hover {
+		background-color:inherit;
+		font-size:small;
+		border-bottom-color: chartreuse;
+		border-radius: 6px;
+		font-weight: 580;
+		font-style: oblique;
+	}
+
+
+	.classy-small {
+		background-color:inherit;
+		font-size:small;
+		border-bottom-color: chartreuse;
+		border-radius: 6px;
+		font-weight: 580;
+		font-style: oblique;
+	}
+	
+
+	.long_button {
+		width:40%;
+	}
+
+	.classy-small {
+		font-size:small;
+		border-bottom-color: chartreuse;
+		border-radius: 6px;
+		font-weight: 580;
+		font-style: oblique;
+	}
+	
 
 	.inner_div {
 		padding-top: 4px;
@@ -610,8 +704,12 @@
 		min-height: 40px;
 	}
 
-	.long_button {
-		width:40%;
+
+	.top-of-contact {
+		margin-bottom: 4px;
+		background-color: rgb(252, 249, 240);
+		border: cornsilk solid 1px;
+		text-align:right;
 	}
 
 	.nice_message {
@@ -1048,19 +1146,21 @@
 	<div class="items">
 		<div class="item" >
 			<input placeholder="filter prefix" bind:value={prefix}>
-			<select bind:value={i} size={5}>
+			<select bind:value={i} size={5} >
 				{#each filteredIndviduals as individual, i}
-					<option value={i}>{individual.name}</option>
+					<option value={i}  on:click={harmonize_contact_form} >{individual.name}</option>
 				{/each}
 			</select>
 			<div class='buttons'>
-				<button on:click={add_contact} disabled="{!c_name}">add</button>
-				<button on:click={update_contact} disabled="{!c_name || !selected}">update</button>
-				<button on:click={remove_contact} disabled="{!selected}">delete</button>
+				<button class='classy-small' on:click={add_contact} disabled={!c_name}>add</button>
+				<button class='classy-small' on:click={update_contact} disabled={!c_name || !selected || cleared_c_form}>update</button>
+				<button class='classy-small' on:click={remove_contact} disabled={!selected || cleared_c_form}>delete</button>
 			</div>
 		</div>
 		<div class="item" style="border-top:darkslategrey solid 2px;">
-			<br>
+			<div class="top-of-contact">
+				<button class="long_button classy-small" on:click={clear_contact_form} >clear form</button>
+			</div>
 			<div class="inner_div" >
 				<label for="name"style="display:inline" >Name: </label>
 				<input id="name" bind:value={c_name} placeholder="Name" style="display:inline">
@@ -1088,6 +1188,11 @@
 			<div class="inner_div" >
 			<label for="self-text">Cool Public Info</label><br>
 			<textarea id="self-text" bind:value={c_cool_public_info} placeholder="Copy info given to you by your new contact" />
+			</div>
+			<div class="inner_div" >
+				<label for="CID" style="display:inline;font-size:smaller" >CID: </label><input id="CID" bind:value={c_cid} placeholder="cid" style="display:inline;width:70%" disabled >
+				<label for="PK" style="display:inline;font-size:smaller" >PK</label>
+				<input id="PK" type="checkbox" style="display:inline" checked={(c_public_key && (c_public_key.length > 0))} disabled >
 			</div>
 		</div>
 		<div class="item"  style="border-top:darkslategrey solid 2px;" >
