@@ -319,6 +319,8 @@ app.post('/get-asset/:asset',async (req, res) => {
       break;
     }
     case "manifest" : {
+      //let user_cid = body.user_cid
+      //let btype = body.b_type ? "business" : "profile"
       let file_data = await g_ipfs_profiles.fetch_cid_manifest(body)
       answer = { "status" : "OK", "manifest" : file_data }
       break;

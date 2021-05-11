@@ -1014,6 +1014,21 @@ function get_known_users() {
 }
 
 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+function identity_fn(data) {
+	return data
+}
+
+function user_decryption(user_cid,asset) {
+	return identity_fn
+}
+
+function user_encryption(user_cid,asset) {
+	return identity_fn
+}
+
 // 
 
 //>--

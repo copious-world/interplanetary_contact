@@ -53,7 +53,7 @@ function correct_server(srvr) {
 // ASSETS
 
 
-async function fetch_asset(topics_cid,user_cid,asset) {  // specifically from this user
+async function fetch_asset(topics_cid,user_cid,btype,asset) {  // specifically from this user
     let srver = location.host
     srver = correct_server(srver)
     //
@@ -62,39 +62,50 @@ async function fetch_asset(topics_cid,user_cid,asset) {  // specifically from th
     let data_stem = `get-asset/${asset}`
     let sp = '//'
     let post_data = {
+        "btype" : btype,
+        "user_cid" : user_cid,
         "cid" : topics_cid
     }
     let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( search_result ) {
-        let data = search_result.data;
-        let decryptor = window.user_decryption(user_cid,asset)
-        if ( decryptor !== undefined ) {
-            try {
-                data = decryptor(data)
-            } catch (e) {
+        if ( search_result.status === "OK" ) {
+            let data = search_result[asset];
+            if ( typeof data === 'string' ) {
+                let decryptor = window.user_decryption(user_cid,asset)      // user user cid to get the decryptor...
+                if ( decryptor !== undefined ) {
+                    try {
+                        data = decryptor(data)
+                    } catch (e) {
+                    }
+                }
+                if ( data ) {
+                    try {
+                        let data_obj = JSON.parse(data)
+                        return data_obj
+                    } catch (e) {
+                        return [false,data]
+                    }
+                }    
+            } else {
+                return data
             }
         }
-        if ( data ) {
-            let data_obj = JSON.parse(data)
-            try {
-                return data_obj
-            } catch (e) {
-            }
-        }
+    } else {
+        return [false,search_result]
     }
 }
 
 
-export async function fetch_contacts(contacts_cid,user_cid) {  // specifically from this user
-    return await fetch_asset(contacts_cid,user_cid,CONTACTS)
+export async function fetch_contacts(contacts_cid,user_cid,btype) {  // specifically from this user
+    return await fetch_asset(contacts_cid,user_cid,btype,CONTACTS)
 }
 
-export async function fetch_manifest(manifest_cid,user_cid) {  // specifically from this user
-    return await fetch_asset(manifest_cid,user_cid,MANIFEST)
+export async function fetch_manifest(manifest_cid,user_cid,btype) {  // specifically from this user
+    return await fetch_asset(manifest_cid,user_cid,btype,MANIFEST)
 }
 
-export async function fetch_topicst(topics_cid,user_cid) {  // specifically from this user
-    return await fetch_asset(topics_cid,user_cid,TOPICS)
+export async function fetch_topicst(topics_cid,user_cid,btype) {  // specifically from this user
+    return await fetch_asset(topics_cid,user_cid,btype,TOPICS)
 }
 
 
@@ -215,6 +226,9 @@ export async function add_profile(u_info) {
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( result.status === "OK" ) {
         let ipfs_identity = result.data
+        if ( typeof ipfs_identity.dir_data === 'string' ) {
+            ipfs_identity.dir_data = JSON.parse(ipfs_identity.dir_data)
+        }
         // "id" : cid with key,
         // "clear_id" : cid without key,
         // "dir_data" : user directory structure
@@ -465,15 +479,15 @@ async function get_spool_files(identity,spool_select,clear,offset,count) {
 }
 
 
-export async function get_message_files(user_info,offset,count) {
-    let expected_messages = await get_spool_files(user_info,true,false,offset,count)
-    let solicitations = await get_spool_files(user_info,true,true,offset,count)
+export async function get_message_files(identity,offset,count) {
+    let expected_messages = await get_spool_files(identity,true,false,offset,count)
+    let solicitations = await get_spool_files(identity,true,true,offset,count)
     return [expected_messages,solicitations]
 }
 
-export async function get_topic_files(user_info,offset,count) {
-    let expected_messages = await get_spool_files(user_info,false,false,offset,count)
-    let solicitations = await get_spool_files(user_info,false,true,offset,count)
+export async function get_topic_files(identity,offset,count) {
+    let expected_messages = await get_spool_files(identity,false,false,offset,count)
+    let solicitations = await get_spool_files(identity,false,true,offset,count)
     return [expected_messages,solicitations]
 }
 
