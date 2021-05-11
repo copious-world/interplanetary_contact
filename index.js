@@ -25,7 +25,11 @@ const conf = JSON.parse(config)
 // would crash if the config is bad... required.
 //
 // CONFIG PARAMETERS
-const g_streamer_port = conf.port
+//const g_streamer_port = conf.port
+let g_port = conf.port
+let g_prune_timeout = null;
+
+
 //
 let pdir = conf.play_dir
 if ( pdir && (typeof pdir === 'string') && pdir[pdir.length - 1] !== '/' ) pdir += '/'
@@ -51,9 +55,6 @@ app.register(fastify_cors, {
 })
 
 
-
-let g_port = 6111
-let g_prune_timeout = null;
 
 
 app.get('/',(req, res) => {
