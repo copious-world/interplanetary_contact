@@ -110,6 +110,21 @@ app.post('/get/user-cid',async (req, res) => {
 })
 
 
+app.post('get/user-info',async (req, res) => {
+  let body = req.body
+  let cid = body.cid
+  if ( cid ) {
+    let user_info =  await g_ipfs_profiles.get_json_from_cid(cid)
+    if ( user_info ) {
+      res.type('application/json').send({ "status" : "OK", "user_info" : user_info })  
+      return
+    }
+  }
+  //
+  res.type('application/json').send({ "status" : "fail", "reason" : "no such user" })  
+})
+
+
 app.post('/dir',async (req, res) => {
   //
   if ( !(g_ipfs_profiles) ) {
@@ -446,10 +461,12 @@ app.post('/put/template',async (req, res) => {  // narrow search by category.
     res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
     return
   }
+  let body = req.body
   //
-  let template_name = req.body.name 
-  let template_data = req.body.uri_encoded_json
-  let t_cid = await g_ipfs_profiles.add_template_json(template_name,template_data)
+  let template_name = body.name 
+  let template_data = body.uri_encoded_json
+  let btype = body.b_type ? "business" : "profile"
+  let t_cid = await g_ipfs_profiles.add_template_json(template_name,btype,template_data)
   res.type('application/json').send({ "status" : "OK", "template_cid" : t_cid })
 })
 

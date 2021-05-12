@@ -158,7 +158,7 @@ export async function update_topics_to_ipfs(user_cid,is_business,contents) {
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
 
-export async function fetch_contact_page(asset,contact_cid) {  // specifically from this user
+export async function fetch_contact_page(user_cid,asset,contact_cid) {  // specifically from this user
     let srver = location.host
     srver = correct_server(srver)
     //
@@ -246,6 +246,7 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
         if ( user_info[field] === undefined ) {
             if ( (field === "public_key") && clear ) {
                 delete user_info.public_key
+                continue;
             }
             alert_error("undefined field " + field)
             return
@@ -265,6 +266,26 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
     }
     return false
 }
+
+
+export async function fetch_contact_info(cid) {  // a user,, not the owner of the manifest, most likely a recipients
+    let srver = location.host
+    srver = correct_server(srver)
+    //
+    let prot = location.protocol  // prot for (prot)ocol
+    let data_stem = 'get/user-info'
+    let sp = '//'
+    let post_data = {
+        "cid" : cid
+    }
+    let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+    if ( result.status === "OK" ) {
+        let cid = result.cid
+        return cid
+    }
+    return false
+}
+
 
 
 

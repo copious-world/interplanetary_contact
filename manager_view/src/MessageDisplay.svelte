@@ -2,16 +2,31 @@
 
 	// `current` is updated whenever the prop value changes...
 	export let name;
+	export let user_cid;
 	export let subject;
 	export let date;
 	export let readers;
 	export let business;
 	export let public_key;
 	export let message;
+	export let is_in_contacts;
+
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
 
 	function do_reply() {
-		alert(subject)
+		dispatch('message', {
+			'cmd': 'reply',
+			'cid' : user_cid
+		});
+	}
+
+	function add_to_contacts() {
+		dispatch('message', {
+			'cmd': 'new-contact',
+			'cid' : user_cid
+		});
 	}
 
 </script>
@@ -20,11 +35,14 @@
 	<div style="padding:6px;" >
 		<span style="background-color: yellowgreen">{date}</span>
 		<h4 class="blg-item-title" style="background-color: inherit;">{name}</h4>
-		<div>
+		<div class="buttons">
 			<div class="little-info">
 				{name} is a { business ? "business" : "person" }
 			</div>
-			<button on:click={do_reply} >Reply</button>
+			{#if !(is_in_contacts) }
+			<button on:click={add_to_contacts} >Add Contact</button>
+			{/if}
+			<button on:click={do_reply} disabled={!(is_in_contacts)} >Reply</button>
 		</div>
 		<div>
 			<span style="background-color:navy">Sent to:</span>&nbsp;&nbsp;{readers}
@@ -61,11 +79,6 @@
 		border-bottom: 1px darkslateblue solid;
 	}
 
-	.blg-item-subject {
-		color:black;
-		display: unset;
-	}
-
 
 	.full-display {
 		background-color: rgba(255, 255, 255, 0.9);
@@ -77,18 +90,34 @@
 		border-bottom: solid 1px rgb(88, 4, 88);
 	}
 
-	h6 {
-		background-color: rgb(245, 245, 245);
-		border: 1px black solid;
-		border-radius: 0.2em;
-		padding: 0.2em 0.5em;
-		margin: 0 0.2em 0.2em 0;
-		color:black;
-		text-overflow: ellipsis;
-		overflow: hidden;
-		white-space: nowrap;
-		width: 200px;
+
+	.buttons {
+		clear: both;
 	}
+
+	.buttons button:disabled {
+		color:slategrey;
+		border-bottom-color: rgb(233, 237, 240);
+	}
+
+	.buttons button {
+		background-color:rgb(255, 249, 240);
+		font-size:small;
+		border-bottom-color: rgb(236, 250, 226);
+		border-radius: 6px;
+		font-weight: 580;
+		font-style: oblique;
+	}
+
+	.buttons button:disabled:hover {
+		background-color:inherit;
+		font-size:small;
+		border-bottom-color: rgb(228, 240, 247);
+		border-radius: 6px;
+		font-weight: 580;
+		font-style: oblique;
+	}
+
 
 	.little-info {
 		font-size: 0.87em;

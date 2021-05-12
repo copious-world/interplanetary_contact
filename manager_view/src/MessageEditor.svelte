@@ -8,10 +8,11 @@
 	export let cool_public_info;
 	export let business;
 	export let public_key;
-	export let answer_message
+	export let answer_message		// boolean
 	export let cid
 
-	export let active_user
+	export let reply_to;	// the source message
+	export let active_identity
 
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 
@@ -29,8 +30,13 @@
 			"name" : name
 		}
 
-	let r_cid = false
-	let r_p_cid = false 
+	let r_cid = false		// receiver's private contact cid
+	let r_p_cid = false 	// receiver's public contact cid
+	//
+	let user_cid = false	// the active user cid of sender (user of client)
+							// This is for retreiving keys, encryptors, etc. out of local storage
+
+	$: user_cid = active_identity.cid
 
 	$: {
 		receiver_user_info = {
@@ -66,7 +72,8 @@
 	}
 
 
-	let has_previous = (answer_message && (typeof answer_message === "string") && answer_message.length)
+	let previous_message = ""
+	$: previous_message = answer_message ? JSON.stringify(reply_to,null,4) : ""
 
 
 	function convert_date(secsdate) {
@@ -82,7 +89,7 @@
 
 	async function start_introduction() {
 		//
-		let contact_page_descr = await ipfs_profiles.fetch_contact_page('default',r_p_cid)
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'default',r_p_cid)
 		if ( contact_page_descr ) {
 			let html = contact_page_descr.html
 			contact_page = decodeURIComponent(html)
@@ -97,7 +104,7 @@
 
 	async function start_composing() {
 		//
-		let contact_page_descr = await ipfs_profiles.fetch_contact_page('cid',r_cid)
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'cid',r_cid)
 		if ( contact_page_descr ) {
 			let html = contact_page_descr.html
 			contact_page = decodeURIComponent(html)
@@ -158,10 +165,10 @@
 		</div>
 	</div>
 
-	{#if has_previous }
+	{#if answer_message }
 	<span class="large-text-label" >Previous Message:</span>
 	<div id="blg-window-full-text-outgo"  class="full-display" >
-		{@html answer_message}
+		{@html previous_message}
 	</div>
 	{/if}
 	<span class="large-text-label" >Compose message here:</span> 

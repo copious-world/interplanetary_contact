@@ -81,6 +81,8 @@
 		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "cid" : "9i58w78ew", "answer_message" : "" }
 	];
 
+	let cid_individuals_map = {}
+
 	let selected
 
 	let inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" } ]
@@ -92,6 +94,84 @@
 
 	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
 
+	function reinitialize_user_context() {
+		cid = ""
+		clear_cid = ""
+		dir_view = false
+
+		signup_status = "OK"
+	//
+		start_of_messages = 0
+		messages_per_page = 100
+
+		prefix = '';
+		man_prefix = '';
+		i = 0;
+		c_i = 0;
+		i_i = 0;
+		form_index = 0
+
+		c_name = ''
+		c_DOB = ''
+		c_place_of_origin = ''
+		c_cool_public_info = ''
+		c_business = false
+		c_public_key = "testesttesttest"
+		c_cid = "testesttesttest"
+		c_answer_message = ''
+		c_empty_fields = false
+
+		today = (new Date()).toUTCString()
+		adding_new = false
+		manifest_selected_entry = false
+		manifest_selected_form = false
+		manifest_contact_form_list = [false]
+		manifest_obj = {}
+		manifest_index = 0
+		man_title = ''
+		man_cid = ''
+		man_wrapped_key = ''
+		man_html = ''
+		man_max_preference = 1.0
+		man_preference = 1.0
+		man_encrypted = false
+		first_message = 0
+		green = false     // an indicator telling if this user ID is set
+		todays_date = (new Date()).toLocaleString()
+		individuals = [
+			{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "cid" : "4504385938", "answer_message" : ""},
+			{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "cid" : "4345687685", "answer_message" : "I got your songs"},
+			{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "cid" : "9i58w78ew", "answer_message" : "" }
+		];
+		cid_individuals_map = {}
+		inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" } ]
+		inbound_contact_messages = [
+			{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" },
+			{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : "testesttesttest", "message" : "this is a message 2"  },
+			{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : "testesttesttest", "message" : "this is a message 3"  }
+		]
+		message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
+	}
+
+	function handle_message(evt) {
+		let cmd = evt.detail.cmd
+		switch ( cmd ) {
+			case "new-contact" : {
+				(async () => {
+					let added = await auto_add_contact(evt.detail.cid)
+					message_selected.is_in_contacts = added
+				})()
+				break;
+			}
+			case "reply": {
+				selected.answer_message = true
+				start_floating_window(1);
+			}
+			default: {
+				console.log("message cmd not handled")
+			}
+		}
+	}
 
 	/*
       "wrapped_key" : false,
@@ -124,6 +204,14 @@
 				"public_key" : public_key
 			}
 			this.data = user_data
+		}
+
+		copy(contact_info) {
+			let data = {}
+			for ( let ky in this.empty_identity ) {
+				data[ky] = contact_info[ky]
+			}
+			this.data = data
 		}
 		
 		extend_contact(field,value) {
@@ -160,15 +248,6 @@
 	}
 
 
-	function find_contact_from_message(message) {
-		for ( let contact of individuals ) {
-			if ( (contact.name == message.name) && (message.user_cid === contact.cid) ) {
-				return contact
-			}
-		}
-		return false
-	}
-
 
 	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -204,6 +283,7 @@
 	}
 
 	$: {
+		reinitialize_user_context()
 		load_user_info(active_identity)
 	}
 
@@ -361,8 +441,9 @@
 		cid = identity.cid
 		clear_cid = identity.clear_cid
 
+		await fetch_contacts(identity)
+		//
 		fetch_messages(identity)
-		fetch_contacts(identity)
 		fetch_manifest(identity)
 
 		/*
@@ -409,6 +490,7 @@
 
 
 	function pop_editor() {
+		selected.answer_message = false
 		start_floating_window(1);
 	}
 
@@ -449,12 +531,76 @@
 			let all_inbound_messages = await ipfs_profiles.get_message_files(identify,start_of_messages,messages_per_page)
 			inbound_contact_messages = all_inbound_messages[0]
 			inbound_solicitation_messages = all_inbound_messages[1]
+			//
+			inbound_solicitation_messages = []
+			inbound_solicitation_messages.push(
+			{ "name": 'Hans Solo', "is_in_contacts" : false, "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" }
+			)
+
+			check_contacts(inbound_contact_messages)
+			check_contacts(inbound_solicitation_messages)
+	
+		}
+	}
+
+	function messages_update_contacts(cid,bval) {
+		if ( Array.isArray(inbound_contact_messages) ) {
+			for ( let m of inbound_contact_messages ) {
+				if ( m.user_cid === cid ) {
+					m.is_in_contacts = bval
+				}
+			}
+		}
+		if ( Array.isArray(inbound_contact_messages) ) {
+			for ( let m of inbound_solicitation_messages ) {
+				if ( m.user_cid === cid ) {
+					m.is_in_contacts = bval
+				}
+			}
+		}
+	}
+
+// CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
+// CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
+
+	function make_individuals_map(indivs) {
+		for ( let ind of indivs ) {
+			let cid = ind.cid
+			cid_individuals_map[cid] = ind
+		}
+		
+	}
+
+	function find_contact_from_message(message) {
+		for ( let contact of individuals ) {
+			if ( (contact.name == message.name) && (message.user_cid === contact.cid) ) {
+				return contact
+			}
+		}
+		return false
+	}
+
+	function check_contacts(message_list) {
+		if ( Array.isArray(message_list) ) {
+			for ( let m of message_list ) { 
+				let is = (cid_individuals_map[m.user_cid] !== undefined)
+				m.is_in_contacts = is
+			}
 		}
 	}
 
 
-// CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
-// CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
+	async function get_contact_info(cid) {
+		let faux = { "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "cid" : "4504385938", "answer_message" : ""}
+		return faux
+		/*
+		let user_info = ipfs_profiles.fetch_contact_info(cid)
+		if ( !user_info ) {
+			alert("get_contact_info: user does not exist")
+		}
+		return user_info
+		*/
+	}
 
 
 	function reset_inputs(individual) {
@@ -465,6 +611,7 @@
 		c_business = individual ? individual.business : '';
 		c_public_key = individual ? individual.public_key : '';
 		c_answer_message = individual ? individual.answer_message : '';
+		c_cid = individual ? individual.cid : '';
 	}
 
 	let pre_clear_i = 0
@@ -485,6 +632,42 @@
 		}
 	}
 
+
+	async function auto_add_contact(cid) {
+		let contact = new Contact()
+		let contact_info = await get_contact_info(cid)
+		if ( contact_info ) {
+			contact.copy(contact_info)
+			contact.extend_contact("cid",cid)
+			contact.extend_contact("answer_message",'')
+			//
+			let user_data = contact.identity()
+			//
+			let b = individuals
+			if ( individuals[0] === empty_identity.identity() ) {
+				b[0] = user_data
+			} else {
+				b = individuals.concat(user_data);
+			}
+			individuals = b
+			i = individuals.length - 1;
+			//
+			cid_individuals_map[cid] = user_data
+			messages_update_contacts(cid,false)
+			//
+			/*
+			let identify = active_user
+			if ( identify ) {
+				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+				identify.files.contacts = update_cid
+				update_identity(identify)
+			}
+			*/
+			return true
+		}
+		return false
+	}
+
 	async function add_contact() {
 		let contact = new Contact()
 		contact.set(c_name,c_DOB,c_place_of_origin,c_cool_public_info,c_business,c_public_key)
@@ -493,10 +676,22 @@
 		//
 		let user_data = contact.identity()
 		//
-		individuals = individuals.concat(user_data);
+		let cid = await ipfs_profiles.fetch_contact_cid(user_data)
+		user_data.cid = cid
+		contact.extend_contact("cid",cid)
+		//
+		if ( individuals[0] === empty_identity.identity() ) {
+			individuals[0] = user_data
+		} else {
+			individuals = individuals.concat(user_data);
+		}
+		//
 		i = individuals.length - 1;
 		//
-		let identify = active_user
+		cid_individuals_map[cid] = user_data
+		messages_update_contacts(cid,true)
+		//
+		let identify = active_user  // write to client user dir
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
 			identify.files.contacts = update_cid
@@ -513,6 +708,14 @@
 		selected.business = c_business;
 		selected.public_key = c_public_key;
 		//
+		let cid = selected.cid
+		delete cid_individuals_map[cid]
+		messages_update_contacts(cid,false)
+		cid = await ipfs_profiles.fetch_contact_cid(selected)
+		selected.cid = cid
+		cid_individuals_map[cid] = user_data
+		messages_update_contacts(cid,true)
+		//
 		let identify = active_user
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
@@ -522,6 +725,8 @@
 		//
 	}
 
+
+
 	async function remove_contact() {
 		if ( i < 0 ) return
 		// Remove selected person from the source array (people), not the filtered array
@@ -529,6 +734,10 @@
 		individuals = [...individuals.slice(0, index), ...individuals.slice(index + 1)];
 
 		i = Math.min(i, filteredIndviduals.length - 2);
+
+		let cid = selected.cid
+		delete cid_individuals_map[cid]
+		messages_update_contacts(cid,false)
 		//
 		let identify = active_user
 		if ( identify ) {
@@ -553,6 +762,7 @@
 			} else {
 				individuals = indivs
 			}
+			make_individuals_map(individuals)
 		}
 	}
 
@@ -1477,9 +1687,9 @@
   </div>
 
 <FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>
-	<MessageDisplay {...message_selected}  />
+	<MessageDisplay {...message_selected} on:message={handle_message} />
 </FloatWindow>
 
 <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
-	<MessageEditor {...selected} active_user={active_user} />
+	<MessageEditor {...selected} reply_to={message_selected} active_identity={active_identity} />
 </FloatWindow>
