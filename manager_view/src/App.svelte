@@ -75,6 +75,22 @@
 	let todays_date = (new Date()).toLocaleString()
 
 
+	// This is just a default... It will be used until the user picks something else 
+	// when editing the manifest.
+	let selected_form_link_types = {
+		"business" : {
+			"link" : "latest-contact",
+			"from_cid" : false
+		},
+		"profile" : {
+			"link" : "latest-contact",
+			"from_cid" : false
+		}
+	}
+
+	let selected_form_link = selected_form_link_types["profile"]
+
+	//
 	let individuals = [
 		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "cid" : "4504385938", "answer_message" : ""},
 		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "cid" : "4345687685", "answer_message" : "I got your songs"},
@@ -98,19 +114,18 @@
 		cid = ""
 		clear_cid = ""
 		dir_view = false
-
 		signup_status = "OK"
 	//
 		start_of_messages = 0
 		messages_per_page = 100
-
+		//
 		prefix = '';
 		man_prefix = '';
 		i = 0;
 		c_i = 0;
 		i_i = 0;
 		form_index = 0
-
+		//
 		c_name = ''
 		c_DOB = ''
 		c_place_of_origin = ''
@@ -120,7 +135,7 @@
 		c_cid = "testesttesttest"
 		c_answer_message = ''
 		c_empty_fields = false
-
+		//
 		today = (new Date()).toUTCString()
 		adding_new = false
 		manifest_selected_entry = false
@@ -151,6 +166,8 @@
 			{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : "testesttesttest", "message" : "this is a message 3"  }
 		]
 		message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
+
+		update_selected_form_links()
 	}
 
 	function handle_message(evt) {
@@ -228,25 +245,6 @@
 	let empty_identity = new Contact()
 
 	//
-	let contact_form_links = [
-		{
-			"link" : "contact_style_1.html",
-			"html" : "some stuff that goes here"
-		},
-		{
-			"link" : "contact_style_2.html",
-			"html" : `
-			<div style="border:solid 1px green; padding: 7px; background-color:lightyellow;text-align:center;" >
-				This is a test of showing forms
-			</div>`
-		},
-	]
-
-	let selected_form_link = {
-		"link" : "contact_style_1.html",
-		"html" : `some stuff that goes here`
-	}
-
 
 
 	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -262,9 +260,7 @@
 
 	$: reset_inputs(selected)
 
-	// 
-	$: selected_form_link = contact_form_links[form_index]
-
+	//
 	//
 	$: active_user = known_users[u_index]
 	$: active_identity = known_identities[u_index]
@@ -372,9 +368,21 @@
 
 		await startup()
 			// initialize
-		await get_active_users()
+		await get_active_users()  // updates login page and initializes the view of this user.
 	})
 
+	async function update_selected_form_link(type) {
+		let form_link = selected_form_link_types[type]
+		let template_name = form_link.link
+		let cid = await ipfs_profiles.get_named_contact_template_cid(template_name,type)
+		form_link.from_cid = cid
+	}
+
+
+	async function update_selected_form_links() {
+		await update_selected_form_link("profile")
+		await update_selected_form_link("business")
+	}
 
 
 // PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE 
@@ -415,6 +423,8 @@
 		//
 		let contact = new Contact()
 		contact.set(name,DOB,place_of_origin,cool_public_info,business,false)
+		//
+		selected_form_link = selected_form_link_types[ (business ? "business" : "profile") ]
 		contact.extend_contact("form_link",selected_form_link)
 		contact.extend_contact("answer_message","")
 		//
@@ -426,14 +436,14 @@
 			return;
 		}
 
-		await gen_public_key(user_data) // by ref
+		await gen_public_key(user_data) // by ref  // stores keys in DB
 		try {
-			green = await ipfs_profiles.add_profile(user_data)
+			green = await ipfs_profiles.add_profile(user_data)  // will fetch the key (it is not riding along yet.)
 		} catch (e) {
 		}
 		//
-		await get_active_users()
-		u_index = (known_users.length - 1)
+		await get_active_users()  // updates login page and initializes the view of this user.
+		u_index = (known_users.length - 1)	// user was added to the end...
 		//
 	}
 
@@ -1447,21 +1457,6 @@
 						<button>▼ identity</button>
 						<button>▲ identity</button>
 					</div>	
-				</div>
-			</div>
-			<div>
-				<div class="contact_form_list">Select a contact from</div>
-				<div>
-					<div class="selected_form_link-display">
-						{@html selected_form_link.html }
-					</div>
-					<div class="tableFixHead" >
-						<select bind:value={form_index} size={10} style="width:100%;height:90px;padding-left:4px;">
-							{#each contact_form_links as form_link, form_index}
-								<option value={form_index}>{form_link.link}</option>
-							{/each}
-						</select>
-					</div>
 				</div>
 			</div>
 		</div>

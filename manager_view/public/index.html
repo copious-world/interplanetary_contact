@@ -933,7 +933,6 @@ function update_identity(identify) {
 	}
 }
 
-
 function identify_from_user(user_info) {
 	let name_key = name_key_of(user_info)
 	if ( !name_key ) return(false)
@@ -1189,7 +1188,14 @@ function addscript(script,whereScipt,remove_old) {
 // fetch with GET method
 async function fetchEndPoint(endpoint,port) {
 	port = !(port) ? '' : ( port.length ? `:${port}`   : '')
-	let myRequest = new Request(`${location.protocol}//${g_siteURL}${port}/${endpoint}`);
+	let site = g_siteURL
+	if ( site.length ) {
+		if ( site.indexOf(':') > 0 ) {
+			let site_port = site.split(':')
+			site = site_port[0]
+		}
+	}
+	let myRequest = new Request(`${location.protocol}//${site}${port}/${endpoint}`);
 	try {
 		const body = await fetch(myRequest, {
 									method: 'GET', // *GET, POST, PUT, DELETE, etc.

@@ -203,7 +203,7 @@ export async function add_profile(u_info) {
     for ( let field of g_user_fields ) {
         if ( user_info[field] === undefined ) {
             if ( field ===  "public_key" ) {
-                let p_key = get_user_public_wrapper_key(`${user_info.name}-${user_info.DOB}`)
+                let p_key = get_user_public_wrapper_key(`${user_info.name}-${user_info.DOB}`)   // out of DB (index.html)
                 if ( p_key ) {
                     user_info[field] = p_key
                     continue
@@ -553,7 +553,7 @@ export async function get_template_list(offset,count,category) {
 
 export async function get_contact_template(template_cid) {
     //
-    let data_stem = `get/template/${template_cid}`
+    let data_stem = `get/template-cid/${template_cid}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
         let contact_template = result.data
@@ -564,6 +564,33 @@ export async function get_contact_template(template_cid) {
     }
     return false
 }
+
+
+export async function get_named_contact_template(template_name,biz) {
+    //
+    let biz_t = biz ? "business" : "profile"
+    let data_stem = `get/template-name/${biz_t}/${template_name}`
+    let result = await fetchEndPoint(data_stem,g_profile_port)
+    if ( result.status === "OK" ) {
+        let contact_template = result.data
+        try {
+            t_list = JSON.parse(contact_template)
+            return contact_template
+        } catch (e) {}
+    }
+    return false
+}
+
+export async function get_named_contact_template_cid(template_name,biz) {
+    let data_stem = `get/template-cid-from-name/${biz}/${template_name}`
+    let result = await fetchEndPoint(data_stem,g_profile_port)
+    if ( result.status === "OK" ) {
+        let cid = result.cid
+        return cid
+    }
+    return false
+}
+
 
 export async function put_contact_template(name,data) {
     //
