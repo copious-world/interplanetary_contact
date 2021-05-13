@@ -43,7 +43,7 @@ function gen_unique_id() {
 
 var g_profile_port = '6111'
 function correct_server(srvr) {
-    srvr = srvr.replace('5111','6111')   /// CHANGE ...
+    srvr = srvr.replace('5112','6111')   /// CHANGE ...
     return srvr
 }
 
@@ -518,7 +518,6 @@ export async function get_topic_files(identity,offset,count) {
 //  PUBLIC TEMPLATES AVAILABLE FROM DESIGNERS....
 //
 
-
 export async function get_template_list(offset,count,category,btype) {
     //
     if ( category === undefined ) {
@@ -547,7 +546,6 @@ export async function get_template_list(offset,count,category,btype) {
     }
     return false
 }
-
 
 
 export async function get_contact_template(template_cid) {
