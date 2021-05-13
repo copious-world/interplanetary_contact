@@ -19,8 +19,22 @@
 
 	const dispatch = createEventDispatcher();
 
+	let updated_when
+	let created_when
+
+	$: updated_when = convert_date(Date.now())
+	$: created_when = convert_date(Date.now())
+
+
+	let key_entry = ""
+	let key_str = ""
+	$: key_str = key_entry
+
+	
 	//
-	let store_template = {
+	let store_template = {}
+
+	$: store_template = {
 		"dates" : {
 			"created" : created_when,
 			"updated" : updated_when
@@ -41,9 +55,6 @@
 
 
 
-	let key_entry = ""
-	$: key_str = key_entry
-
 	function convert_date(secsdate) {
 		if ( secsdate === 'never' ) {
 			return 'never';
@@ -54,12 +65,7 @@
 		}
 	}
 
-	let updated_when
-	let created_when
 
-	$: updated_when = convert_date(Date.now())
-	$: created_when = convert_date(Date.now())
-	
 
 </script>
  
