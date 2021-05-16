@@ -924,11 +924,25 @@ function store_user(user_information,identity_files) {
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
 //		update_identity
 //
-function update_identity(identify) {
+async function update_identity(identify) {
 	try {
+		let u_info = identify.user_info
+		let storage_obj = await identify_from_user(u_info)
+		for ( let ky in storage_obj ) {
+			if ( (ky == "dirs") || (ky === "files") ) {
+				storage_obj[ky] = identify[ky]
+			}
+		}
 		let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 		let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
-		userStore.put(storage_obj)           // information create by 
+		//
+		let p = new Promise((resolve,reject) => {
+			const updateUserRequest =  userStore.put(storage_obj)           // information create by 
+			updateUserRequest.onsuccess = () => {
+				resolve(true)
+			};
+		})
+		return p
 	} catch (e) {
 	}
 }

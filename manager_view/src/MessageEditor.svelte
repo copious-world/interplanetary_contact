@@ -103,6 +103,11 @@
 		return(message)
 	}
 
+	async function init_contact_form_cids(r_info) {
+		r_cid =  await ipfs_profiles.fetch_contact_cid(r_info,false)  // established contact
+		r_p_cid = await ipfs_profiles.fetch_contact_cid(r_info,true)	// introduction or no privacy intended
+	}
+
 	let r_cid = false		// receiver's private contact cid
 	let r_p_cid = false 	// receiver's public contact cid
 	//
@@ -120,12 +125,10 @@
 			"business" : business,
 			"public_key" : public_key
 		}
+
+		init_contact_form_cids(receiver_user_info)
 	}
 
-	(async () => {
-			r_cid =  await ipfs_profiles.fetch_contact_cid(receiver_user_info,false)  // established contact
-			r_p_cid = await ipfs_profiles.fetch_contact_cid(receiver_user_info,true)	// introduction or no privacy intended
-	})()
 
 	let todays_date = ''
 	$: 	{
@@ -163,10 +166,13 @@
 	async function start_introduction() {
 		introduction = true
 		//
+		// the user cid (active identity) gets any services for handling encryption locally.
+		// The receiver information will be stored as part of the data if encryption is required
 		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'default',r_p_cid)
 		if ( contact_page_descr ) {
-			let html = contact_page_descr.html
-			contact_page = decodeURIComponent(html)
+			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.txt_full
+			contact_page = html // decodeURIComponent(html)
+			//
 			let script = contact_page_descr.script
 			script = decodeURIComponent(script)
 			script = script.replace("{{when}}",Date.now())
@@ -179,10 +185,13 @@
 	async function start_composing() {
 		introduction = false
 		//
+		// the user cid (active identity) gets any services for handling encryption locally.
+		// The receiver information will be stored as part of the data if encryption is required
 		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'cid',r_cid)
 		if ( contact_page_descr ) {
-			let html = contact_page_descr.html
-			contact_page = decodeURIComponent(html)
+			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.txt_full
+			contact_page = html // decodeURIComponent(html)
+			//
 			let script = contact_page_descr.script
 			script = decodeURIComponent(script)
 			script = script.replace("{{when}}",Date.now())

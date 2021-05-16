@@ -365,11 +365,11 @@ app.post('/get-contact-page/:asset',async (req, res) => {
     } else {
       cid = g_ipfs_profiles.default_contact_form
     }
-    let contact_file = await this.get_complete_file_from_cid(cid)
+    let contact_file = await g_ipfs_profiles.get_complete_file_from_cid(cid)
     answer = { "status" : "OK", "contact" : contact_file }
   } else if ( asset === 'cid' ) {
     let cid = body.cid // from the manifest (by way of previous introduction (at least) from the recipient)
-    let contact_file = await this.get_complete_file_from_cid(cid)
+    let contact_file = await g_ipfs_profiles.get_complete_file_from_cid(cid)
     answer = { "status" : "OK", "contact" : contact_file }
   }
   res.type('application/json').send(answer)

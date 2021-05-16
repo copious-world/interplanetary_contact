@@ -9,7 +9,7 @@
 	import MessageEditor from './MessageEditor.svelte'
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	//
-	let cid = ""
+	let active_cid = ""
 	let clear_cid = ""
 	let dir_view = false
 
@@ -113,7 +113,7 @@
 	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
 
 	function reinitialize_user_context() {
-		cid = ""
+		active_cid = ""
 		clear_cid = ""
 		dir_view = false
 		signup_status = "OK"
@@ -452,7 +452,7 @@
 	}
 
 	async function load_user_info(identity) {
-		cid = identity.cid
+		active_cid = identity.cid
 		clear_cid = identity.clear_cid
 
 		await fetch_contacts(identity)
@@ -577,12 +577,8 @@
 // CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
 // CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
 
-	function make_individuals_map(indivs) {
-		for ( let ind of indivs ) {
-			let cid = ind.cid
-			cid_individuals_map[cid] = ind
-		}
-		
+	function make_individuals_map(indivs_map) {
+		cid_individuals_map = Object.assign(cid_individuals_map,indivs_map)
 	}
 
 	function find_contact_from_message(message) {
@@ -668,9 +664,10 @@
 			let identify = active_identity
 			if ( identify ) {
 				let act_cid = identify.cid
-				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
-				identify.files.contacts = update_cid
-				update_identity(identify)
+				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+				identify.files.contacts.cid = update_cid
+				await update_identity(identify)
+				await get_active_users()
 			}
 			return true
 		}
@@ -703,9 +700,10 @@
 		let identify = active_identity  // write to client user dir
 		if ( identify ) {
 			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
-			identify.files.contacts = update_cid
-			update_identity(identify)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+			identify.files.contacts.cid = update_cid
+			await update_identity(identify)
+			await get_active_users()
 		}
 		//
 	}
@@ -729,9 +727,10 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
-			identify.files.contacts = update_cid
-			update_identity(identify)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+			identify.files.contacts.cid = update_cid
+			await update_identity(identify)
+			await get_active_users()
 		}
 		//
 	}
@@ -753,9 +752,10 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
-			identify.files.contacts = update_cid
-			update_identity(identify)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+			identify.files.contacts.cid = update_cid
+			await update_identity(identify)
+			await get_active_users()
 		}
 		//
 	}
@@ -775,7 +775,7 @@
 				} else {
 					individuals = indivs
 				}
-				make_individuals_map(individuals)
+				make_individuals_map(contacts_data)
 			}
 		}
 	}
@@ -908,7 +908,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
-			identify.files.contacts = update_cid
+			identify.files.contacts.cid = update_cid
 			update_identity(identify)
 		}
 		//
@@ -950,7 +950,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
-			identify.files.contacts = update_cid
+			identify.files.contacts.cid = update_cid
 			update_identity(identify)
 		}
 		//
@@ -967,7 +967,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
-			identify.files.contacts = update_cid
+			identify.files.contacts.cid = update_cid
 			update_identity(identify)
 		}
 		//

@@ -163,9 +163,6 @@ export async function fetch_contact_page(user_cid,asset,contact_cid) {  // speci
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    if ( contact_cid !== undefined ) {
-        asset = 'cid'
-    }
     let data_stem = `get-contact-page/${asset}`
     let sp = '//'
 
@@ -174,22 +171,27 @@ export async function fetch_contact_page(user_cid,asset,contact_cid) {  // speci
     }
     let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( search_result ) {
-        let data = search_result.data;
+        let contact = search_result.contact;
         let decryptor = window.user_decryption(user_cid,asset)
         if ( decryptor !== undefined ) {
             try {
-                data = decryptor(data)
+                contact = decryptor(contact)
             } catch (e) {
             }
         }
-        if ( data ) {
-            let data_obj = JSON.parse(data)
-            try {
-                return data_obj
-            } catch (e) {
+        if ( contact ) {
+            if ( typeof contact === "string" ) {
+                let data_obj = JSON.parse(contact)
+                try {
+                    return data_obj
+                } catch (e) {
+                }
+            } else {
+                return contact
             }
         }
     }
+    return false
 }
 
 // // 
