@@ -11,13 +11,17 @@
 	export let abstract;
 	export let txt_full;
 
+	export let cid;
+
 	export let updating;
 
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
-	import { createEventDispatcher } from 'svelte';
+	import * as utils from './utilities.js'
 
+	//import { createEventDispatcher } from 'svelte';
 
-	const dispatch = createEventDispatcher();
+	let required_fields_needed = true
+	//const dispatch = createEventDispatcher();
 
 	let updated_when
 	let created_when
@@ -30,7 +34,11 @@
 	let key_str = ""
 	$: key_str = key_entry
 
-	
+	$: required_fields_needed = ((txt_full.length < 3)
+									|| (subject.length === 0)
+									|| (txt_full.length < 20)
+									|| (key_str.length < 4))
+
 	//
 	let store_template = {}
 
@@ -44,13 +52,27 @@
 		"subject" : subject,
 		"title" : title,
 		"txt_full" : txt_full,
+		"var_map" :  utils.unload_html_vars(txt_full) 
 	}
 
 	function do_save_template(event) {
+		store_to_ipfs(store_template)
+		/*
 		dispatch('message', {
 			type: 'save-template',
 			template: store_template
 		});
+		*/
+	}
+
+	async function store_to_ipfs(template_descr) {
+		// This is a test
+		let tname = template_descr.title
+		if ( tname.indexOf(' ') ) {
+			tname = encodeURIComponent(tname)
+		}
+		let t_cid = await ipfs_profiles.put_contact_template(tname,template_descr)
+		cid = t_cid
 	}
 
 
@@ -70,17 +92,20 @@
 </script>
  
 <div class="blg-el-wrapper-full">
-	<div style="padding:6px;" >
+	<div style="padding:6px;width:100%" >
 		<div class="buttons form-holder">
 			<span style="background-color: yellowgreen">{created_when}</span>
 			<span style="background-color: lightblue">{updated_when}</span>
-			<button on:click={do_save_template}>save</button>
+			<button on:click={do_save_template} disabled={required_fields_needed}>save</button>
 
 			{#if updating }
 			<span style="background-color: yellowgreen">changing existing template</span>
 			{:else}
 			<span style="background-color: lightblue">adding new template</span>
 			{/if}
+		</div>
+		<div class="form-holder" >
+			<span style="background-color:midnightblue">cid:</span> {cid}
 		</div>
 		<div class="form-holder">
 			<span style="background-color:darkslateblue">Title</span>&nbsp;&nbsp;
@@ -115,12 +140,14 @@
 <style>
 
 	.form-holder {
-		margin-bottom: 1.05em;
-		margin-top: 1.0em;
-		width:100%
+		margin-bottom: 0.8em;
+		margin-top: 0.4em;
+		width:100%;
+		color : black;
+		background-color: inherit;
+		border-bottom: 1px lightblue solid;
 	}
 
-	textarea { width: 100%; height: 200px; }
 	.content-title {
 		font-weight: bold;
 		color:rgb(75, 18, 18)
@@ -135,6 +162,7 @@
 	.blg-el-wrapper-full {
 		overflow-y: hidden;
 		height:inherit;
+		width: 100%;
 	}
 	span {
 		padding: 0.2em 0.5em;
@@ -164,14 +192,20 @@
 	}
 
 
+	textarea { width: 100%; height: 80px; }
+
 	.full-display {
 		background-color: rgba(255, 255, 255, 0.9);
 		color: rgb(73, 1, 1);
 		border-top: solid 2px rgb(88, 4, 88);
 		padding: 6px 4px 6px 4px;
 		overflow-y: scroll;
-		height: 100px;
+		height: calc(30vh - 80px);
 		border-bottom: solid 1px rgb(88, 4, 88);
+	}
+
+	.cid-embedded-form {
+		height:inherit
 	}
 
 	.keystr-display {

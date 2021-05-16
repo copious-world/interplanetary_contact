@@ -65,6 +65,8 @@
 	let man_max_preference = 1.0
 	let man_preference = 1.0
 	//
+	let man_sel_not_customized = true
+	//
 	let man_encrypted = false
 
 	//
@@ -80,11 +82,11 @@
 	let selected_form_link_types = {
 		"business" : {
 			"link" : "latest-contact",
-			"from_cid" : false
+			"from_cid" : "QmTfD2LyTy8WGgdUkKE1Z1vAfb6HwNgmZA5kMaFAiy4fuz"
 		},
 		"profile" : {
 			"link" : "latest-contact",
-			"from_cid" : false
+			"from_cid" : "QmTfD2LyTy8WGgdUkKE1Z1vAfb6HwNgmZA5kMaFAiy4fuz"
 		}
 	}
 
@@ -292,7 +294,7 @@
 
 	$: {
 		manifest_selected_entry = filtered_manifest_contact_form_list[manifest_index]
-		if ( manifest_selected_entry !== undefined ) {
+		if ( (manifest_selected_entry !== undefined) && manifest_selected_entry ) {
 			manifest_selected_form = manifest_selected_entry.html
 			man_title = manifest_selected_entry.info
 			man_max_preference = manifest_obj.max_preference
@@ -373,9 +375,11 @@
 
 	async function update_selected_form_link(type) {
 		let form_link = selected_form_link_types[type]
-		let template_name = form_link.link
-		let cid = await ipfs_profiles.get_named_contact_template_cid(template_name,type)
-		form_link.from_cid = cid
+		if ( !(form_link.from_cid) ) {
+			let template_name = form_link.link
+			let cid = await ipfs_profiles.get_named_contact_template_cid(template_name,type)
+			form_link.from_cid = cid
+		}
 	}
 
 
@@ -601,15 +605,11 @@
 
 
 	async function get_contact_info(cid) {
-		let faux = { "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "cid" : "4504385938", "answer_message" : ""}
-		return faux
-		/*
 		let user_info = ipfs_profiles.fetch_contact_info(cid)
 		if ( !user_info ) {
 			alert("get_contact_info: user does not exist")
 		}
 		return user_info
-		*/
 	}
 
 
@@ -665,14 +665,13 @@
 			cid_individuals_map[cid] = user_data
 			messages_update_contacts(cid,false)
 			//
-			/*
-			let identify = active_user
+			let identify = active_identity
 			if ( identify ) {
-				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+				let act_cid = identify.cid
+				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
 				identify.files.contacts = update_cid
 				update_identity(identify)
 			}
-			*/
 			return true
 		}
 		return false
@@ -701,9 +700,10 @@
 		cid_individuals_map[cid] = user_data
 		messages_update_contacts(cid,true)
 		//
-		let identify = active_user  // write to client user dir
+		let identify = active_identity  // write to client user dir
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+			let act_cid = identify.cid
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
 			identify.files.contacts = update_cid
 			update_identity(identify)
 		}
@@ -726,9 +726,10 @@
 		cid_individuals_map[cid] = user_data
 		messages_update_contacts(cid,true)
 		//
-		let identify = active_user
+		let identify = active_identity
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+			let act_cid = identify.cid
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
 			identify.files.contacts = update_cid
 			update_identity(identify)
 		}
@@ -749,9 +750,10 @@
 		delete cid_individuals_map[cid]
 		messages_update_contacts(cid,false)
 		//
-		let identify = active_user
+		let identify = active_identity
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(cid,business,individuals)
+			let act_cid = identify.cid
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,individuals)
 			identify.files.contacts = update_cid
 			update_identity(identify)
 		}
@@ -759,20 +761,22 @@
 	}
 
 	async function fetch_contacts(identify) {
-		if ( identify ) {
-			let contacts_cid = identify.files.contacts.cid
-			let user_cid = identify.cid
-			let contacts_data = await ipfs_profiles.fetch_contacts(contacts_cid,user_cid)
-			let indivs = []
-			for ( let ky in contacts_data ) {
-				indivs.push(contacts_data[ky])
+		if ( identify && identify.files ) {
+			if ( identify.files.contacts ) {
+				let contacts_cid = identify.files.contacts.cid
+				let user_cid = identify.cid
+				let contacts_data = await ipfs_profiles.fetch_contacts(contacts_cid,user_cid)
+				let indivs = []
+				for ( let ky in contacts_data ) {
+					indivs.push(contacts_data[ky])
+				}
+				if ( indivs.length === 0 ) {
+					individuals = [ empty_identity.identity() ]
+				} else {
+					individuals = indivs
+				}
+				make_individuals_map(individuals)
 			}
-			if ( indivs.length === 0 ) {
-				individuals = [ empty_identity.identity() ]
-			} else {
-				individuals = indivs
-			}
-			make_individuals_map(individuals)
 		}
 	}
 
@@ -783,6 +787,8 @@
 
 
 // MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST 
+
+	let cache_contact_form_vars = []
 
 	function expand_el(el) {
 		let str = ""
@@ -870,6 +876,20 @@
 	}
 
 
+	async function view_contact_form() {
+		let t_cid = man_cid
+		if ( t_cid ) {
+			let tmplt = await ipfs_profiles.get_contact_template(t_cid)	// we have to get the actaul data, what came in was {name,size,cid}
+			if ( tmplt ) {
+				dir_view = false
+				//
+				tmplt.cid = t_cid // 
+				manifest_selected_entry.html = tmplt.txt_full
+			}
+
+		}
+	}
+
 
 	async function man_add_contact_form() {
 		//
@@ -885,7 +905,7 @@
 		//
 		manifest_obj.custom_contact_forms = manifest_contact_form_list
 		//
-		let identify = active_user
+		let identify = active_identity
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
 			identify.files.contacts = update_cid
@@ -894,14 +914,40 @@
 		//
 	}
 
+	async function populate_manifest(evt) {
+		let cid = man_cid
+		let contact_form = await ipfs_profiles.get_contact_template(cid)
+		/*
+		"dates" : {
+			"created" : created_when,
+			"updated" : updated_when
+		},
+		"keys" : key_str.split(',').map(ky => { return ky.trim() }),
+		"score" : 1.0,
+		"subject" : subject,
+		"title" : title,
+		"txt_full" : txt_full,
+		"var_map" :  utils.unload_html_vars(txt_full) 
+		*/
+
+		man_sel_not_customized = true
+
+		man_title = contact_form.title
+		man_wrapped_key = ""		// has to be specified
+		man_html = contact_form.txt_full
+		cache_contact_form_vars = contact_form.var_map
+	}
+
 	async function man_update_contact_form() {
+		//
+		// open up some controls for populating vars, creating security on-offs, etc.
 		//
 		manifest_selected_entry.title = man_title;
 		manifest_selected_entry.cid = man_cid;
 		manifest_selected_entry.wrapped_key = man_wrapped_key;
 		manifest_selected_entry.html = man_html;
 		//
-		let identify = active_user
+		let identify = active_identity
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
 			identify.files.contacts = update_cid
@@ -918,7 +964,7 @@
 		//
 		manifest_obj.custom_contact_forms = manifest_contact_form_list
 		//
-		let identify = active_user
+		let identify = active_identity
 		if ( identify ) {
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
 			identify.files.contacts = update_cid
@@ -928,19 +974,6 @@
 	}
 
 
-	async function fetch_manifest(identify) {
-		if ( identify ) {
-			let manifest_cid = identify.files.manifest.cid
-			let user_cid = identify.cid
-			manifest_obj = await ipfs_profiles.fetch_manifest(manifest_cid,user_cid)
-
-			let m_list = []
-			for ( let ky in manifest_obj.custom_contact_forms ) {
-				let mm = manifest_obj.custom_contact_forms[ky]
-				mm.cid = ky
-				m_list.push(mm)
-			}
-			manifest_contact_form_list = m_list
 
 
 /*
@@ -959,6 +992,22 @@
 	"op_history":[]
 }
 */
+
+	async function fetch_manifest(identify) {
+		if ( identify && identify.files ) {
+			if ( identify.files.manifest ) {
+				let manifest_cid = identify.files.manifest.cid
+				let user_cid = identify.cid
+				manifest_obj = await ipfs_profiles.fetch_manifest(manifest_cid,user_cid)
+
+				let m_list = []
+				for ( let ky in manifest_obj.custom_contact_forms ) {
+					let mm = manifest_obj.custom_contact_forms[ky]
+					mm.cid = ky
+					m_list.push(mm)
+				}
+				manifest_contact_form_list = m_list
+			}
 		}
 	}
 
@@ -1587,23 +1636,24 @@
 							<button on:click={view_user_dir} >directory</button>
 							<button on:click={view_user_contacts} >contacts file</button>
 							<button on:click={view_user_manifest} >manifest file</button>
+							<button on:click={view_contact_form} >view contact form</button>
 						</div>
 					</div>
 					<div class='buttons'>
 						<button on:click={man_add_contact_form} disabled="{!man_title}">add</button>
-						<button on:click={man_update_contact_form} disabled="{!man_title || !manifest_selected_entry}">update</button>
 						<button on:click={man_remove_contact_form} disabled="{!manifest_selected_entry}">delete</button>
+						<button on:click={man_update_contact_form} disabled="{!man_title || !manifest_selected_entry}">customize</button>
 					</div>		
 				</div>
 				<div class="inner_div" >
 					<label for="name"style="display:inline" >Name: </label>
-					<input id="name" bind:value={man_title} placeholder="Name" style="display:inline">
+					<input id="name" bind:value={man_title} placeholder="Name" style="display:inline" disabled={man_sel_not_customized}>
 					<br>
 					<label for="preference"style="display:inline" >Max Preference Level: </label>
-					<input id="preference" bind:value={man_max_preference} placeholder="Name" style="display:inline" disabled >
+					<input id="preference" bind:value={man_max_preference} placeholder="Preference Number" style="display:inline" disabled >
 					<br>
 					<label for="man_cid"style="display:inline" >Manifest IPFS Link: </label>
-					<input id="man_cid" bind:value={man_cid} placeholder="cid" style="display:inline" disabled >
+					<input id="man_cid" bind:value={man_cid} placeholder="cid" style="display:inline" on:blur={populate_manifest} >
 					<br>
 					<label for="man_sel_pref" >Contact Form Preference: </label>
 					<input id="man_sel_pref" bind:value={man_preference} placeholder="Name" style="display:inline" >
@@ -1616,18 +1666,18 @@
 				
 				</div>
 			</div>
-			{#if manifest_selected_form }
-			<div class="manifester">
-				{@html manifest_selected_form}
-			</div>
-			{:else if (dir_view !== false) }
+			{#if (dir_view !== false) }
 				<div class="manifester">
 					{@html dir_view}
 				</div>
+			{:else if manifest_selected_form }
+				<div class="manifester">
+					{@html manifest_selected_form}
+				</div>
 			{:else}
-			<div class="manifester">
-				No form defined.
-			</div>
+				<div class="manifester">
+					No form defined.
+				</div>
 			{/if}
 		</div>
 	</div>

@@ -33,7 +33,7 @@
  
 <div class="blg-el-wrapper-full" >
 	<div style="padding:6px;" >
-		<span style="background-color: yellowgreen">{date}</span>
+		<span class="cool-label"  style="background-color: yellowgreen">{date}</span>
 		<h4 class="blg-item-title" style="background-color: inherit;">{name}</h4>
 		<div class="buttons">
 			<div class="little-info">
@@ -45,10 +45,10 @@
 			<button on:click={do_reply} disabled={!(is_in_contacts)} >Reply</button>
 		</div>
 		<div>
-			<span style="background-color:navy">Sent to:</span>&nbsp;&nbsp;{readers}
+			<span class="cool-label"  style="background-color:navy">Sent to:</span>&nbsp;&nbsp;{readers}
 		</div>
 		<div>
-			<span style="background-color:navy">subject</span>&nbsp;&nbsp;{subject}
+			<span class="cool-label" style="background-color:navy">subject</span>&nbsp;&nbsp;{subject}
 		</div>
 	</div>
 	<span>Compose message here</span>
@@ -64,7 +64,9 @@
 		overflow-y: hidden;
 		height:inherit;
 	}
-	span {
+
+
+	.cool-label {
 		display: inline-block;
 		padding: 0.2em 0.5em;
 		margin: 0 0.2em 0.2em 0;

@@ -12,8 +12,7 @@
 	export let title;
 	export let txt_full;
 
-	let truncated
-	$: truncated = txt_full.substr(0,250) + "&#8230;"
+	export let cid;
 
 	$: key_str = keys.join(', ')
 
@@ -48,20 +47,19 @@
 
 {#if dates.created != 'never' }
 <div class="blg-el-wrapper" >
-	
-	<span style="background-color: {color}">{entry}</span>
-	<span style="background-color: yellowgreen">{created_when}</span>
-	<span style="background-color: lightblue">{updated_when}</span>
-	<h4 class="blg-item-title" style="background-color: inherit;">{short_title}</h4>
-	<h6>{key_str}</h6>
+	<div style="font-size:small">
+		<span style="background-color: yellowgreen">{created_when}</span>
+		<span style="background-color: lightblue">{updated_when}</span>
+		<h4 class="blg-item-title" style="background-color: inherit;">{short_title}</h4>
+		<h6>{key_str}</h6>	
+	</div>
 	<div>
 	<span class="thng-score">{score_rounded}</span><span style="background-color:navy">subject</span>&nbsp;&nbsp;<h5 class="blg-item-subject" >{short_subject}</h5>
 	</div>
-	<div class="teaser">
-		{@html truncated}
+	<div class="teaser">  <!-- shrink this down to size -->
+		{@html txt_full}
 	</div>	
 </div>
-
 {:else}
 <div class="blg-el-wrapper">
 	<h4 class="blg-item-title" style="background-color: lightgrey;color:darkgrey">End of Content</h4>
@@ -113,7 +111,6 @@
 		text-overflow: ellipsis;
 	}
 
-
 	h6 {
 		background-color: rgb(245, 245, 245);
 		border: 1px black solid;
@@ -156,4 +153,5 @@
 			max-height: 40px;
 		}
 	}
+
 </style>

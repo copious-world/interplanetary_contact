@@ -14,10 +14,17 @@
 	export let reply_to;	// the source message
 	export let active_identity
 
+	export let encrypting = false
+	export let selected_contact_cid = 'default'
+
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
+	import * as utils from './utilities.js'
 
 
 	let show_key = false
+	let introduction = false
+
+	let attachments = []
 
 	let message_type = "introduction"
 	let receiver_user_info = {
@@ -30,6 +37,72 @@
 			"name" : name
 		}
 
+	// "name": 'Hans Solo', "user_cid" : "4504385938", 
+	// "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry",
+	// "business" : false, "public_key" : false, "message" : "this is a message 1"
+
+	let conmmon_contact_vars = {
+		"{{contact-top}}" : utils.cvar_factory("promail-mes-ed-contact",''),
+		"{{id-to-" : utils.cvar_factory("promail-recipient","name"),
+		"{{id-cid-" : utils.cvar_factory("promail-recipient","user_cid"),
+		"{{id-date-" : utils.cvar_factory("promail-date","date"),
+		"{{id-cc-" : utils.cvar_factory("promail-readers","readers"),
+		"{{id-business-" : utils.cvar_factory("promail-business","business"),
+		"{{id-subject-" : utils.cvar_factory("promail-subject"),
+		"{{id-message-" : utils.cvar_factory("promail-message"),
+		"{{id-sender_key-" : utils.cvar_factory("promail-sender_key","public_key"),
+		"{{id-wrapped_key-" : utils.cvar_factory("promail-wrapped_key","wrapped_key"),
+		"{{id-attached-" : utils.cvar_factory("promail-attachments","attachments"),
+	}
+
+
+	let cform_var_supply = {
+		"{{to}}" : name,
+		"{{DOB}}" : DOB,
+		"{{date}}" : (new Date()).toISOString(),
+		"{{place_of_origin}}" : place_of_origin,
+		"{{cool_public_info}}" : cool_public_info,
+		"{{business}}" : business ? "business" : "profile",
+		"{{public_key}}" : JSON.stringify(public_key),
+		"{{cid}}" : JSON.stringify(active_identity.cid),
+		"{{from}}" : active_identity.user_info ? active_identity.user_info.name : "",
+		"{{clear_cid}}" : JSON.stringify(active_identity.clear_cid)
+	}
+
+	// "name": 'Hans Solo', "user_cid" : "4504385938", 
+	// "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry",
+	// "business" : false, "public_key" : false, "message" : "this is a message 1"
+	function message_object_on_send() {
+		let message_object = {
+			"name" : active_identity.user_info.name,
+			"user_cid" : active_identity.cid,
+			"subject" : conmmon_contact_vars["{{id-subject-"].extract_value(),
+			"date" : Date.now(),
+			"readers" : conmmon_contact_vars["{{id-cc-"].extract_value(),
+			"business" : business,
+			"public_key" : active_identity.user_info.public_key,
+			"message" :  conmmon_contact_vars["{{id-message-"].extract_value(),
+			"attachments" : attachments,
+			"reply_with" : selected_contact_cid
+		}
+
+		let message = message_object
+
+		if ( !(introduction) && encrypting ) {
+			if ( encrypting ) {
+				message = {
+					"name" : active_identity.user_info.name,
+					"user_cid" : active_identity.cid
+				}
+				let [wrapped, aes_key] = get_wrapped_aes_key(public_key)  // recipient's public wrapper key
+				message.wrapped_key = wrapped
+				message.ctext = get_encipherd_message(JSON.stringify(message_object),aes_key)
+			}
+		}
+
+		return(message)
+	}
+
 	let r_cid = false		// receiver's private contact cid
 	let r_p_cid = false 	// receiver's public contact cid
 	//
@@ -41,7 +114,7 @@
 	$: {
 		receiver_user_info = {
 			"name" : name,
-			"DOB" : Date.now(),
+			"DOB" : DOB,
 			"place_of_origin" : place_of_origin,
 			"cool_public_info" : cool_public_info,
 			"business" : business,
@@ -88,6 +161,7 @@
 
 
 	async function start_introduction() {
+		introduction = true
 		//
 		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'default',r_p_cid)
 		if ( contact_page_descr ) {
@@ -103,6 +177,7 @@
 
 
 	async function start_composing() {
+		introduction = false
 		//
 		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'cid',r_cid)
 		if ( contact_page_descr ) {
@@ -125,7 +200,6 @@
 				if ( identify ) {
 					let user_info = identify.user_info
 					await ipfs_profiles.send_introduction(receiver_user_info,user_info,message)
-
 				}
 				break;
 			}
@@ -149,12 +223,55 @@
 	})
 
 
+	function drop(ev) {
+		ev.preventDefault();
+		if ( ev.dataTransfer.items ) {
+			// Use DataTransferItemList interface to access the file(s)
+			for (let i = 0; i < ev.dataTransfer.items.length; i++) {
+				if (ev.dataTransfer.items[i].kind === 'file') {
+					let file = ev.dataTransfer.items[i].getAsFile();
+					let fname = file.name
+					let mtype = file.mime_type
+					var reader = new FileReader();
+						reader.onload = async (e) => {
+							let blob64 = e.target.result
+							let fcid = ipfs_profiles.upload_data_file(blob64)
+							attachments.push(fcid)
+							conmmon_contact_vars["{{id-attached-"].set_el_hmtl(attachments.join(','))
+						};
+						reader.readAsDataURL(file)
+					break
+				}
+			}
+		} else {
+			// Use DataTransfer interface to access the file(s)
+			for (let i = 0; i < ev.dataTransfer.files.length; i++) {
+				let file = ev.dataTransfer.files[i].getAsFile();
+				let fname = file.name
+				reader.onload = (e) => {
+					let blob64 = e.target.result
+					let fcid = ipfs_profiles.upload_data_file(blob64)
+					attachments.push(fcid)
+				};
+				reader.readAsDataURL(file)
+				break
+			}
+		}
+	}
+
+
+	function dragover(event) {
+		ev.preventDefault();
+	}
+
+
+
 
 </script>
  
 <div class="blg-el-wrapper-full" >
 	<div style="padding:6px;" >
-		<span style="background-color: yellowgreen">{todays_date}</span>
+		<span class="cool-label" style="background-color: yellowgreen">{todays_date}</span>
 		<span class="message_indicator">Sending a message to:</span>
 		<div>
 			<span class="name">{name},</span>
@@ -162,6 +279,9 @@
 		</div>
 		<div class="cool-stuff">
 			{name} comes from {place_of_origin} and wants you to know that: &quot;{cool_public_info}&quot;
+		</div>
+		<div>
+			Requesting response through contact form <span> <span style="font-weight: bold;">{selected_contact_cid}</span>
 		</div>
 	</div>
 
@@ -171,9 +291,10 @@
 		{@html previous_message}
 	</div>
 	{/if}
-	<span class="large-text-label" >Compose message here:</span> 
+	<span class="large-text-label" >Compose message here:</span>
 	<button class="medium_button" on:click={start_composing}>begin compositions</button>
 	<button class="medium_button" on:click={start_introduction}>begin introduction</button>
+	<span class="add-attachemnt" on:drop={drop} on:dragover={dragover} >Drop attachment here (&#128206;)</span>
 	<div id="blg-window-full-text-outgo"  class="full-display-bottom" >
 		{@html contact_page}
 	</div>
@@ -181,9 +302,9 @@
 	<div style="background-color:whitesmoke;font-weight: 600;font-size: smaller;">
 		<span style="font-weight:bold;color:black">contact cid:</span> {cid} 
 		{#if !(show_key) }
-		<button style="float:right" on:click={toggle_showkey}>(▼)</button>
+			<button style="float:right" on:click={toggle_showkey}>(▼)</button>
 		{:else}
-		<button style="float:right" on:click={toggle_showkey}>(^)</button>
+			<button style="float:right" on:click={toggle_showkey}>(^)</button>
 		{/if}
 	</div>
 	{#if show_key }
@@ -202,13 +323,25 @@
 		overflow-y: hidden;
 		height:inherit;
 	}
-	span {
+
+
+	.cool-label {
 		display: inline-block;
 		padding: 0.2em 0.5em;
 		margin: 0 0.2em 0.2em 0;
 		text-align: center;
 		border-radius: 0.2em;
 		color: white;
+	}
+
+
+	.add-attachemnt {
+		display: inline-block;
+		padding: 0.2em 0.5em;
+		margin: 0 0.2em 0.2em 0;
+		text-align: center;
+		border-radius: 0.2em;
+		color: rgb(19, 68, 6);		
 	}
 
 	.blg-item-title {

@@ -12,6 +12,8 @@
 	export let keys;
 	export let txt_full;
 
+	export let cid
+
 	$: key_str = keys.join(', ')
 
 	function convert_date(secsdate) {
@@ -35,10 +37,13 @@
  
 <div class="blg-el-wrapper-full">
 	<div style="padding:6px;" >
-		<span style="background-color: {color}">{entry}</span>
 		<span style="background-color: yellowgreen">{created_when}</span>
 		<span style="background-color: lightblue">{updated_when}</span>
 		<h4 class="blg-item-title" style="background-color: inherit;">{title}</h4>
+		<div>
+			<span style="background-color: navy;font-size:small" >{cid}</span> 
+			&#9754; Copy to your manifest manager.
+		</div>
 		<h6>{key_str}</h6>
 		<div>
 			<span style="background-color:navy">subject</span>&nbsp;&nbsp;<h5 class="blg-item-subject" >{subject}</h5>

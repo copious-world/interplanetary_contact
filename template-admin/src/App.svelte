@@ -7,13 +7,8 @@
 	import TemplateEditor from './TemplateEditor.svelte'
 
 	import { onMount } from 'svelte';
-
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 
-
-	import {get_search} from "./search_box.js"
-
-	const appsearch = 'search'  //   search later translated to songsearch (nginx conf by url)
 
 	let qlist_ordering = [
 		{ id: 1, text: `update_date` },
@@ -48,6 +43,8 @@
 		"subject" : "",
 		"title" : "no content",
 		"txt_full" : "no content",
+		"var_map" : {},
+		"cid" : ""
 	}
 
 	let current_thing = Object.assign({ "id" : 0, "entry" : 0 },thing_template)
@@ -121,8 +118,8 @@
 		template_update = false
 		//
 		current_thing = Object.assign({ "id" : 0, "entry" : 0 },thing_template)
-		current_thing.title = "type here to replace this text"
-		current_thing.subject = "type here to replace this text"
+		current_thing.title = ""
+		current_thing.subject = ""
 		start_floating_window(1)
 		//
 	}
@@ -136,25 +133,28 @@
 
 	}
 
-
-	function unload_data(data) {		// retun the same object with all its fields only changing ones tranported encoded
-		let usable_data = data.map(datum => {
-						datum.subject = decodeURIComponent(datum.subject)
-						datum.title = decodeURIComponent(datum.title)
-						datum.txt_full = decodeURIComponent(datum.txt_full)
-						datum.abstract = decodeURIComponent(datum.abstract)
-						datum.keys = datum.keys.map(key => {
-							return(decodeURIComponent(key))
-						})
-						return datum
-					})
+	//
+	async function unload_data(data) {		// retun the same object with all its fields only changing ones tranported encoded
+		//
+		let usable_data = []
+		for ( let datum of data ) {
+			// file name, cid, size
+			let t_cid = datum.cid
+			let tmplt = await ipfs_profiles.get_contact_template(t_cid)	// we have to get the actaul data, what came in was {name,size,cid}
+			//
+			if ( tmplt ) {
+				tmplt.cid = t_cid // 
+				usable_data.push(tmplt)
+			}
+		}
+		//
 		return usable_data
 	}
 
 
 	function handleMessage(event) {
 		if ( event.detail.type === 'save-template' ) {
-			store_to_ipfs(event.detail.template)
+			//store_to_ipfs(event.detail.template)
 		} else {
 			let key = "xy_"
 			let txt = event.detail.text;
@@ -335,17 +335,17 @@
 			let data = await ipfs_profiles.get_template_list(stindex,l,qry,is_bus)
 			//
 			if ( data ) {
-				data = unload_data(data)
+				data = await unload_data(data)
 				if ( qstart === undefined ) {	// used the search button
 					other_things = data;		// replace data
 					article_index = 1
-					let lo = search_result.count;
+					let lo = data.length;
 					article_count = lo;
 					if ( lo > other_things.length ) {
 						padd_other_things(lo)
 					}
 				} else {
-					let lo = search_result.count;
+					let lo = data.length;
 					article_count = lo;
 					if ( lo > other_things.length ) {
 						padd_other_things(lo)
@@ -362,11 +362,6 @@
 		} catch (e) {
 			alert(e.message)
 		}
-	}
-
-
-	async function store_to_ipfs(template_descr) {
-		// This is a test
 	}
 
 	
@@ -509,8 +504,6 @@
 		font-size:0.75em;
 		margin: 6px;
 	}
-
-
 
 	.buttons {
 		clear: both;

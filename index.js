@@ -39,19 +39,18 @@ if ( pdir && (typeof pdir === 'string') && pdir[pdir.length - 1] !== '/' ) pdir 
 
 //let g_ctypo_M = new CryptoManager(crypto_conf)
 
-
-
-
 app.register(fastify_cors, {
   origin : (origin, cb) => {
-      if(/localhost/.test(origin)){
-        //  Request from localhost will pass
-        cb(null, true)
-        return
-      }
-      // Generate an error on other origins, disabling access
-      cb(new Error("Not allowed"))
+    //
+    //
+    if(/localhost/.test(origin)){
+      //  Request from localhost will pass
+      cb(null, true)
+      return
     }
+    // Generate an error on other origins, disabling access
+    cb(new Error("Not allowed"))
+  }
 })
 
 
@@ -366,11 +365,11 @@ app.post('/get-contact-page/:asset',async (req, res) => {
     } else {
       cid = g_ipfs_profiles.default_contact_form
     }
-    let contact_file = this.get_complete_file_from_cid(cid)
+    let contact_file = await this.get_complete_file_from_cid(cid)
     answer = { "status" : "OK", "contact" : contact_file }
   } else if ( asset === 'cid' ) {
     let cid = body.cid // from the manifest (by way of previous introduction (at least) from the recipient)
-    let contact_file = this.get_complete_file_from_cid(cid)
+    let contact_file = await this.get_complete_file_from_cid(cid)
     answer = { "status" : "OK", "contact" : contact_file }
   }
   res.type('application/json').send(answer)
@@ -390,20 +389,6 @@ app.post('/put-asset/:asset',async (req, res) => {
   }
   //
   let body = req.body
-  let message = body.message
-  for ( let fld of g_message_fields ) {
-    if ( message[fld] === undefined ) {
-      res.type('application/json').send({ "status" : "fail", "reason" : "missing fields"})
-      return
-    }
-  }
-  let receiver = body.receiver
-  for ( let fld of g_user_fields ) {
-    if ( receiver[fld] === undefined ) {
-      res.type('application/json').send({ "status" : "fail", "reason" : "missing fields"})
-      return
-    }
-  }
   let asset = req.params.asset
   if ( g_asset_typtes.indexOf(asset) < 0 ) {
     res.type('application/json').send({ "status" : "fail", "reason" : "unknown asset"})
@@ -429,7 +414,15 @@ app.post('/template-list/:narrow_search',async (req, res) => {  // narrow search
   //
   let category = req.params.narrow_search
   let body = req.body
-  let btype = body.business_types   // may be an array or just a string
+  let btype = body.business_types   // may be an array or just a 
+  if ( typeof btype === 'string' ) {
+    if ( btype !== "profile" ) {
+      btype = "business"
+    }
+  } else {
+    btype = ( btype === undefined || btype === false ) ? "profile" : "business"
+  }
+  //
   let start = body.start
   let count = body.count
   let t_list
@@ -438,6 +431,7 @@ app.post('/template-list/:narrow_search',async (req, res) => {  // narrow search
   } else {
     t_list = await g_ipfs_profiles.get_template_files(btype,category,start,count)
   }
+  t_list = JSON.stringify(t_list)
   res.type('application/json').send({ "status" : "OK", "templates" : t_list })
 })
 
@@ -451,7 +445,11 @@ app.get('/get/template-cid/:cid',async (req, res) => {  // narrow search by cate
   //
   let a_cid = req.params.cid
   let template_obj = await g_ipfs_profiles.get_json_from_cid(a_cid)
-  res.type('application/json').send({ "status" : "OK", "template" : template_obj })
+  if ( template_obj ) {
+    res.type('application/json').send({ "status" : "OK", "template" : template_obj })
+  } else {
+    res.type('application/json').send({ "status" : "fail", "reason" : "no template"})
+  }
 })
 
 
@@ -482,6 +480,7 @@ app.get('/get/template-cid-from-name/:biz/:name',async (req, res) => {  // narro
   //
   let cid = await g_ipfs_profiles.get_template_cid(a_file,biz_t)
   res.type('application/json').send({ "status" : "OK", "cid" : cid })
+  //
 })
 
 
@@ -501,6 +500,7 @@ app.post('/put/template',async (req, res) => {  // narrow search by category.
   let btype = body.b_type ? "business" : "profile"
   let t_cid = await g_ipfs_profiles.add_template_data(template_name,btype,template_data)
   res.type('application/json').send({ "status" : "OK", "template_cid" : t_cid })
+  //
 })
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------

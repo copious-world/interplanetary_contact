@@ -518,6 +518,7 @@ export async function get_topic_files(identity,offset,count) {
 //  PUBLIC TEMPLATES AVAILABLE FROM DESIGNERS....
 //
 
+
 export async function get_template_list(offset,count,category,btype) {
     //
     if ( category === undefined ) {
@@ -532,13 +533,13 @@ export async function get_template_list(offset,count,category,btype) {
     let sp = '//'
     let post_data = {
         'category' : category,
-        'business' : btype ? "business" : "profile",
+        'business_types' : btype ? "business" : "profile",
         'start' : offset,
         'count' : count
     }
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( result.status === "OK" ) {
-        let t_list = result.data
+        let t_list = result.templates
         try {
             t_list = JSON.parse(t_list)
             return t_list
@@ -548,16 +549,21 @@ export async function get_template_list(offset,count,category,btype) {
 }
 
 
+
 export async function get_contact_template(template_cid) {
     //
     let data_stem = `get/template-cid/${template_cid}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
-        let contact_template = result.data
-        try {
-            t_list = JSON.parse(contact_template)
+        let contact_template = result.template
+        if ( typeof contact_template === "string" ) {
+            try {
+                contact_template = JSON.parse(contact_template)
+                return contact_template
+            } catch (e) {}    
+        } else {
             return contact_template
-        } catch (e) {}
+        }
     }
     return false
 }
@@ -594,8 +600,12 @@ export async function put_contact_template(name,data) {
     let srver = location.host
     srver = correct_server(srver)
     //
+    if ( typeof data !== 'string' ) {
+        data = JSON.stringify(data)
+    }
+    //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'put/template/${template_cid}'
+    let data_stem = 'put/template'
     let sp = '//'
     let post_data = {
         'name' : name,
