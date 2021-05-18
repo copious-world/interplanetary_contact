@@ -121,6 +121,11 @@
 	}
 
 
+	button:disabled {
+		cursor:not-allowed;
+	}
+
+
 	.little-info {
 		font-size: 0.87em;
 		display: inline-block;

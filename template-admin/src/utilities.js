@@ -42,7 +42,7 @@ class ContactVar {
         return(value)
     }
 
-    set_el_hmtl(txt) {
+    set_el_html(txt) {
         let domel = document.getElementById(this.id)
         if ( domel ) domel.innerHTML = txt
     }
@@ -74,20 +74,16 @@ export function unload_html_vars(html) {
 
 
 // // 
-export function subst_vars_app_ids(uenc_html) {
-    let html = decodeURIComponent(uenc_html)
-    let html_vars = unload_html_vars(html)
+export function subst_vars_app_ids(html,html_vars,ccvars) {
     for ( let ky in html_vars ) {
         let hyph = ky.lastIndexOf('-') + 1
         if ( hyph > 0 ) {
             let match_key = ky.substr(0,hyph)
-            let cvar = conmmon_contact_vars[match_key]
+            let cvar = ccvars[match_key]
             if ( cvar ) {
                 cvar.add_matches(ky,html_vars[ky])
                 html = cvar.subst(html)
             }
-        } else {
-            html = subst(html,cform_var_supply[ky],html_vars[ky])
         }
     }
     return html

@@ -362,8 +362,13 @@ app.post('/get-contact-page/:asset',async (req, res) => {
       if ( cid === undefined ) {
         cid = g_ipfs_profiles.default_contact_form
       }
-    } else {
-      cid = g_ipfs_profiles.default_contact_form
+    } else {    // asset === "default"
+      try {
+        cid = await g_ipfs_profiles.get_default_contact_page_user_path(body)
+      } catch (e) {}
+      if ( !(cid) ) {
+        cid = g_ipfs_profiles.default_contact_form
+      }
     }
     let contact_file = await g_ipfs_profiles.get_complete_file_from_cid(cid)
     answer = { "status" : "OK", "contact" : contact_file }
@@ -393,6 +398,9 @@ app.post('/put-asset/:asset',async (req, res) => {
   if ( g_asset_typtes.indexOf(asset) < 0 ) {
     res.type('application/json').send({ "status" : "fail", "reason" : "unknown asset"})
     return
+  }
+  if ( asset === 'manifest' ) {
+    await g_ipfs_profiles.output_default_contact(body.business,body.contents)
   }
   //
   let update_cid = await g_ipfs_profiles.write_to_profile_path(body,asset)

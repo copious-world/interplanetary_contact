@@ -1758,6 +1758,33 @@ async function post_submit(fields) {
 	}
 }
 
+
+var g_ccvars = false
+var g_cform_vars = false
+var g_message_object_constructor = false
+var g_sender = false
+var g_message_in_transit = false
+function _app_set_default_message_sender(ccvars,cform_vars,message_object_constructor,sender) {
+	g_ccvars = ccvars
+	g_cform_vars = cform_vars
+	g_message_object_constructor = message_object_constructor
+	g_sender = sender
+}
+
+function remap(id_top_level) {
+	if ( g_message_object_constructor ) {
+		let sendable = g_message_object_constructor(id_top_level)
+		if ( sendable ) g_message_in_transit = sendable
+	}
+}
+
+function mailer() {
+	if ( g_message_in_transit !== false) {
+		sender(g_message_in_transit)
+		g_message_in_transit = false
+	}
+}
+
 //  === ---------------------------------------  === ---------------------------------------  === --------------------------------------- 
 
 // independent floating box..

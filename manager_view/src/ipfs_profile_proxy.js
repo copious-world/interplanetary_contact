@@ -157,17 +157,20 @@ export async function update_topics_to_ipfs(user_cid,is_business,contents) {
 // // contact page
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
-
-export async function fetch_contact_page(user_cid,asset,contact_cid) {  // specifically from this user
+//
+// fetch_contact_page
+//
+export async function fetch_contact_page(user_cid,business,asset,contact_cid) {  // specifically from this user
     let srver = location.host
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = `get-contact-page/${asset}`
+    let data_stem = `get-contact-page/${asset}`     // asset as parameter
     let sp = '//'
 
     let post_data = {
-        "cid" : contact_cid
+        "cid" : contact_cid,     //
+        "business" : business
     }
     let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( search_result ) {

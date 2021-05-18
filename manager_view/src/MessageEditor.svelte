@@ -1,13 +1,13 @@
 <script>
 	import { onMount } from 'svelte';
 
-	// `current` is updated whenever the prop value changes...
+	// selected...  A contact either from the contact list or from the message (and already there)
 	export let name;
 	export let DOB;
 	export let place_of_origin;
 	export let cool_public_info;
 	export let business;
-	export let public_key;
+	export let public_key;			// this may be empty... can add a contact without the key (message should have key)
 	export let answer_message		// boolean
 	export let cid
 
@@ -15,7 +15,10 @@
 	export let active_identity
 
 	export let encrypting = false
-	export let selected_contact_cid = 'default'
+	export let contact_form_list
+
+	let selected_contact_cid = 'default'
+	let sender_pub_key = false
 
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	import * as utils from './utilities.js'
@@ -37,11 +40,59 @@
 			"name" : name
 		}
 
+
+	let cform_index = 0
+	//
+	let reply_with = "default"
+	//
+	let augmented_contact_form_list = [{ "cid" : "default", "info" : "default "}]
+	$: augmented_contact_form_list = [{ "cid" : "default", "info" : "default "}].concat(contact_form_list)
+
+	$: {
+		if ( cform_index >= 0 ) {
+			selected_contact_cid = augmented_contact_form_list[cform_index].cid
+		}
+	}
+
+	$: {
+		if ( reply_to !== undefined ) {
+			selected_contact_cid = reply_to.reply_with
+			sender_pub_key = reply_to.public_key
+			if ( (typeof public_key === "string" ) && (typeof sender_pub_key === "string" ) ) {
+				if ( public_key !== sender_pub_key ) {
+					sender_pub_key = false
+				}
+			}
+		}
+	}
+
+
 	// "name": 'Hans Solo', "user_cid" : "4504385938", 
 	// "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry",
 	// "business" : false, "public_key" : false, "message" : "this is a message 1"
 
-	let conmmon_contact_vars = {
+	/*
+
+"{
+0: Array [ "{{contact-top}}", "contact-top" ]
+1: Array [ "{{contact-top}}", "contact-top" ]
+
+"{{date}}":[ "{{date}}", "date" ]
+"{{id-attachment-innerHTML}}" : [ "{{id-attachment-innerHTML}}", "id-attachment-innerHTML" ]
+"{{id-attachment-value}}" : [ "{{id-attachment-value}}", "id-attachment-value" ]
+
+"{{id-cc-innerHTML}}":  [ "{{id-cc-innerHTML}}", "id-cc-innerHTML" ]
+"{{id-date-innerHTML}}" : "{{id-date-innerHTML}}", "id-date-innerHTML" ]
+​​
+"{{id-message-value}}" : [[ "{{id-message-value}}", "id-message-value" ] [ "{{id-message-value}}", "id-message-value" ]]
+
+"{{id-subject-innerHTML}}" : [ "{{id-subject-innerHTML}}", "id-subject-innerHTML" ]​
+"{{id-to-innerHTML}}" : [ "{{id-to-innerHTML}}", "id-to-innerHTML" ]
+​​
+	*/
+
+
+	let common_contact_vars = {
 		"{{contact-top}}" : utils.cvar_factory("promail-mes-ed-contact",''),
 		"{{id-to-" : utils.cvar_factory("promail-recipient","name"),
 		"{{id-cid-" : utils.cvar_factory("promail-recipient","user_cid"),
@@ -52,7 +103,7 @@
 		"{{id-message-" : utils.cvar_factory("promail-message"),
 		"{{id-sender_key-" : utils.cvar_factory("promail-sender_key","public_key"),
 		"{{id-wrapped_key-" : utils.cvar_factory("promail-wrapped_key","wrapped_key"),
-		"{{id-attached-" : utils.cvar_factory("promail-attachments","attachments"),
+		"{{id-attachment-" : utils.cvar_factory("promail-attachments","attachments"),
 	}
 
 
@@ -69,19 +120,36 @@
 		"{{clear_cid}}" : JSON.stringify(active_identity.clear_cid)
 	}
 
+	function process_variables(html,vars) {
+		console.log(Object.keys(vars))
+		for ( let cform_v in cform_var_supply ) {
+			let instances = vars[cform_v]
+			if ( instances !== undefined ) {
+				let n = instances.length
+				let value = cform_var_supply[cform_v]
+				for ( let i = 0; i < n; i++ ) {
+					html = html.replace(cform_v,value)
+				}
+			}
+		}
+		//
+		html = utils.subst_vars_app_ids(html,vars,common_contact_vars)
+		return(html)
+	}
+
 	// "name": 'Hans Solo', "user_cid" : "4504385938", 
 	// "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry",
 	// "business" : false, "public_key" : false, "message" : "this is a message 1"
-	function message_object_on_send() {
+	function message_object_on_send(top_level_id) {
 		let message_object = {
 			"name" : active_identity.user_info.name,
 			"user_cid" : active_identity.cid,
-			"subject" : conmmon_contact_vars["{{id-subject-"].extract_value(),
+			"subject" : common_contact_vars["{{id-subject-"].extract_value(),
 			"date" : Date.now(),
-			"readers" : conmmon_contact_vars["{{id-cc-"].extract_value(),
+			"readers" : common_contact_vars["{{id-cc-"].extract_value(),
 			"business" : business,
 			"public_key" : active_identity.user_info.public_key,
-			"message" :  conmmon_contact_vars["{{id-message-"].extract_value(),
+			"message" :  common_contact_vars["{{id-message-"].extract_value(),
 			"attachments" : attachments,
 			"reply_with" : selected_contact_cid
 		}
@@ -125,10 +193,21 @@
 			"business" : business,
 			"public_key" : public_key
 		}
-
 		init_contact_form_cids(receiver_user_info)
 	}
 
+	$: cform_var_supply = {
+		"{{to}}" : name,
+		"{{DOB}}" : DOB,
+		"{{date}}" : (new Date()).toISOString(),
+		"{{place_of_origin}}" : place_of_origin,
+		"{{cool_public_info}}" : cool_public_info,
+		"{{business}}" : business ? "business" : "profile",
+		"{{public_key}}" : JSON.stringify(public_key),
+		"{{cid}}" : JSON.stringify(active_identity.cid),
+		"{{from}}" : active_identity.user_info ? active_identity.user_info.name : "",
+		"{{clear_cid}}" : JSON.stringify(active_identity.clear_cid)
+	}
 
 	let todays_date = ''
 	$: 	{
@@ -152,31 +231,24 @@
 	$: previous_message = answer_message ? JSON.stringify(reply_to,null,4) : ""
 
 
-	function convert_date(secsdate) {
-		if ( secsdate === 'never' ) {
-			return 'never';
-		} else {
-			let idate = parseInt(secsdate)
-			let dformatted = (new Date(idate)).toLocaleDateString('en-US')
-			return (dformatted)
-		}
-	}
-
-
 	async function start_introduction() {
 		introduction = true
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
-		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'default',r_p_cid)
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'default',r_p_cid)
 		if ( contact_page_descr ) {
 			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.txt_full
-			contact_page = html // decodeURIComponent(html)
+			contact_page = process_variables(html,contact_page_descr.var_map) // decodeURIComponent(html)
 			//
 			let script = contact_page_descr.script
-			script = decodeURIComponent(script)
-			script = script.replace("{{when}}",Date.now())
-			addscript(script,"blg-window-full-text-outgo-script",true)
+			if ( script ) {
+				script = decodeURIComponent(script)
+				script = script.replace("{{when}}",Date.now())
+				addscript(script,"blg-window-full-text-outgo-script",true)
+			}
+
+			console.log(contact_page_descr.var_map)
 		}
 		//
 	}
@@ -187,7 +259,12 @@
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
-		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,'cid',r_cid)
+		let special_contact_form_cid = false  // figure out how to get custom cids from inbound messages...
+		let contact_asset_cid = r_cid
+		if ( !special_contact_form_cid ) {
+			contact_asset_cid = special_contact_form_cid
+		}
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'cid',contact_asset_cid)
 		if ( contact_page_descr ) {
 			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.txt_full
 			contact_page = html // decodeURIComponent(html)
@@ -203,6 +280,9 @@
 	// // // // // // 
 	//
 	async function ipfs_sender(message) {
+
+		// message_object_on_send()
+
 		switch ( message_type ) {
 			case "introduction" : {
 				let identify = active_user
@@ -227,7 +307,7 @@
 	//
 	onMount(() => {
 		if ( window._app_set_default_message_sender !== undefined ) {
-			window._app_set_default_message_sender(ipfs_sender)
+			window._app_set_default_message_sender(common_contact_vars,cform_var_supply,message_object_on_send,ipfs_sender)
 		}
 	})
 
@@ -246,7 +326,7 @@
 							let blob64 = e.target.result
 							let fcid = ipfs_profiles.upload_data_file(blob64)
 							attachments.push(fcid)
-							conmmon_contact_vars["{{id-attached-"].set_el_hmtl(attachments.join(','))
+							common_contact_vars["{{id-attachment-"].set_el_html(attachments.join(','))
 						};
 						reader.readAsDataURL(file)
 					break
@@ -268,29 +348,34 @@
 		}
 	}
 
-
 	function dragover(event) {
 		ev.preventDefault();
 	}
-
-
-
 
 </script>
  
 <div class="blg-el-wrapper-full" >
 	<div style="padding:6px;" >
 		<span class="cool-label" style="background-color: yellowgreen">{todays_date}</span>
-		<span class="message_indicator">Sending a message to:</span>
+		<span class="message_indicator">Sending a message to:</span> <span class="name">{name},</span>
 		<div>
-			<span class="name">{name},</span>
-			<span class="about_name">who {b_label} and {know_of}.</span>	
+			<span class="about_name">Who {b_label} and {know_of}.</span>	
+			<div class="cool-stuff">
+				{name} comes from {place_of_origin} and wants you to know that: &quot;{cool_public_info}&quot;
+			</div>
 		</div>
-		<div class="cool-stuff">
-			{name} comes from {place_of_origin} and wants you to know that: &quot;{cool_public_info}&quot;
-		</div>
+
 		<div>
-			Requesting response through contact form <span> <span style="font-weight: bold;">{selected_contact_cid}</span>
+			Requesting your response through contact form <span> <span style="font-weight: bold;">{reply_with}</span>
+			<br>
+			You may request response through your custom contact:
+				<select bind:value={cform_index}>
+					{#each augmented_contact_form_list as contact_item, cform_index}
+						<option value={cform_index}>{contact_item.info}</option>
+					{/each}
+				</select>
+			<br>
+			<span style="font-size:65%">{selected_contact_cid}</span>
 		</div>
 	</div>
 
@@ -301,7 +386,9 @@
 	</div>
 	{/if}
 	<span class="large-text-label" >Compose message here:</span>
+	{#if sender_pub_key !== false }
 	<button class="medium_button" on:click={start_composing}>begin compositions</button>
+	{/if}
 	<button class="medium_button" on:click={start_introduction}>begin introduction</button>
 	<span class="add-attachemnt" on:drop={drop} on:dragover={dragover} >Drop attachment here (&#128206;)</span>
 	<div id="blg-window-full-text-outgo"  class="full-display-bottom" >
@@ -350,7 +437,13 @@
 		margin: 0 0.2em 0.2em 0;
 		text-align: center;
 		border-radius: 0.2em;
+		border: solid 1px darkslategray;
 		color: rgb(19, 68, 6);		
+	}
+
+	.add-attachemnt:hover {
+		background-color:rgb(244, 252, 244);
+		cursor:copy;
 	}
 
 	.blg-item-title {
@@ -409,10 +502,13 @@
 	}
 	.about_name {
 		color:rgb(88, 4, 88);
+		border-bottom: 1px solid deepskyblue;
+		margin-bottom:6px;
 	}
 	.cool-stuff {
 		font-weight: bold;
 		color:rgb(29, 73, 75);
+		display:inline-block;
 	}
 
 	.large-text-label {
@@ -435,6 +531,10 @@
 	.hide-key {
 		visibility: hidden;
 		display: none;
+	}
+
+	button:disabled {
+		cursor:not-allowed;
 	}
 
 </style>

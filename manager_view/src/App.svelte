@@ -66,6 +66,8 @@
 	let man_preference = 1.0
 	//
 	let man_sel_not_customized = true
+	let man_contact_is_default = false
+
 	//
 	let man_encrypted = false
 
@@ -103,7 +105,7 @@
 
 	let selected
 
-	let inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" } ]
+	let inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" , "reply_with" : "default"} ]
 	let inbound_contact_messages = [
 		{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" },
 		{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : "testesttesttest", "message" : "this is a message 2"  },
@@ -301,6 +303,7 @@
 			man_preference = manifest_selected_entry.preference
 			man_cid = manifest_selected_entry.cid
 
+			man_contact_is_default = ( man_cid === manifest_obj.default_contact_form)
 		}
 	}
 
@@ -870,7 +873,7 @@
 				let user_cid = identify.cid
 				let btype = business
 				let c_data = await ipfs_profiles.fetch_manifest(manifest_cid,user_cid,btype)
-				dir_view = JSON.stringify(c_data)
+				dir_view = JSON.stringify(c_data,false,2)
 			}
 		}
 	}
@@ -890,67 +893,77 @@
 		}
 	}
 
-
+	//
 	async function man_add_contact_form() {
-		//
-		let a_contact_form = {
-			"title" :  man_title,
-			"cid" : man_cid,
-			"wrapped_key" : man_wrapped_key,
-			"html" : man_html
-		}
-		//
-		manifest_contact_form_list = manifest_contact_form_list.concat(a_contact_form);
-		manifest_index = manifest_contact_form_list.length - 1;
 		//
 		manifest_obj.custom_contact_forms = manifest_contact_form_list
 		//
 		let identify = active_identity
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
-			identify.files.contacts.cid = update_cid
+			let act_cid = identify.cid
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			identify.files.manifest.cid = update_cid
 			update_identity(identify)
 		}
 		//
 	}
 
-	async function populate_manifest(evt) {
-		let cid = man_cid
-		let contact_form = await ipfs_profiles.get_contact_template(cid)
-		/*
-		"dates" : {
-			"created" : created_when,
-			"updated" : updated_when
-		},
-		"keys" : key_str.split(',').map(ky => { return ky.trim() }),
-		"score" : 1.0,
-		"subject" : subject,
-		"title" : title,
-		"txt_full" : txt_full,
-		"var_map" :  utils.unload_html_vars(txt_full) 
-		*/
+	async function man_prefer_contact_form() {
+		//
+		manifest_obj.custom_contact_forms = manifest_contact_form_list
+		manifest_obj.default_contact_form = man_cid
+		//
+		let identify = active_identity
+		if ( identify ) {
+			let act_cid = identify.cid
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			identify.files.manifest.cid = update_cid
+			update_identity(identify)
+		}
+		//
+	}
 
-		man_sel_not_customized = true
-
-		man_title = contact_form.title
-		man_wrapped_key = ""		// has to be specified
-		man_html = contact_form.txt_full
-		cache_contact_form_vars = contact_form.var_map
+	async function reset_man_cid(evt) {
+		//
+		let paste_cid = evt.clipboardData.getData('text/plain')
+		//
+		let a_contact_form = {
+			"info" :  "",
+			"cid" : paste_cid,
+			"wrapped_key" : "",
+			"html" : ""
+		}
+		//
+		let tmplt = await ipfs_profiles.get_contact_template(paste_cid)	// we have to get the actaul data, what came in was {name,size,cid}
+		//
+		if ( tmplt ) {
+			tmplt.cid = paste_cid //
+			a_contact_form.info = tmplt.title
+			a_contact_form.html = tmplt.txt_full
+			//
+			man_sel_not_customized = true
+			cache_contact_form_vars = tmplt.var_map
+					//
+			manifest_contact_form_list = manifest_contact_form_list.concat(a_contact_form);
+			manifest_index = manifest_contact_form_list.length - 1;
+		}
+		//
 	}
 
 	async function man_update_contact_form() {
 		//
 		// open up some controls for populating vars, creating security on-offs, etc.
 		//
-		manifest_selected_entry.title = man_title;
+		manifest_selected_entry.info = man_title;
 		manifest_selected_entry.cid = man_cid;
 		manifest_selected_entry.wrapped_key = man_wrapped_key;
 		manifest_selected_entry.html = man_html;
 		//
 		let identify = active_identity
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
-			identify.files.contacts.cid = update_cid
+			let act_cid = identify.cid
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			identify.files.manifest.cid = update_cid
 			update_identity(identify)
 		}
 		//
@@ -966,15 +979,13 @@
 		//
 		let identify = active_identity
 		if ( identify ) {
-			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(cid,business,manifest_obj)
-			identify.files.contacts.cid = update_cid
+			let act_cid = identify.cid
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			identify.files.manifest.cid = update_cid
 			update_identity(identify)
 		}
 		//
 	}
-
-
-
 
 /*
 {
@@ -999,13 +1010,21 @@
 				let manifest_cid = identify.files.manifest.cid
 				let user_cid = identify.cid
 				manifest_obj = await ipfs_profiles.fetch_manifest(manifest_cid,user_cid)
-
-				let m_list = []
-				for ( let ky in manifest_obj.custom_contact_forms ) {
-					let mm = manifest_obj.custom_contact_forms[ky]
-					mm.cid = ky
-					m_list.push(mm)
+				if ( manifest_obj.clear_cid === undefined ) {
+					manifest_obj.clear_cid = identify.clear_cid
 				}
+				//
+				let m_list = []
+				if ( Array.isArray(manifest_obj.custom_contact_forms) ) {
+					m_list = manifest_obj.custom_contact_forms
+				} else {
+					for ( let ky in manifest_obj.custom_contact_forms ) {
+						let mm = manifest_obj.custom_contact_forms[ky]
+						mm.cid = ky
+						m_list.push(mm)
+					}
+				}
+				//
 				manifest_contact_form_list = m_list
 			}
 		}
@@ -1083,6 +1102,7 @@
 	.buttons button:disabled {
 		color:slategrey;
 		border-bottom-color: rgb(233, 237, 240);
+		cursor:not-allowed;
 	}
 
 	.buttons button {
@@ -1101,6 +1121,7 @@
 		border-radius: 6px;
 		font-weight: 580;
 		font-style: oblique;
+		cursor:not-allowed;
 	}
 
 
@@ -1121,9 +1142,14 @@
 
 
 	.inner_div {
+		padding-left: 2px;
 		padding-top: 4px;
 		border-bottom: 1px lightgray solid;
 		min-height: 40px;
+	}
+
+	.inner_div label {
+		font-size:smaller;
 	}
 
 
@@ -1279,6 +1305,12 @@
 		overflow:auto;
 	}
 
+	#man_cid {
+		font-size:smaller;
+		min-width:100%;
+		font-weight:bold;
+	}
+
 	.signup-status {
 		color: black;
 		background-color: rgb(254, 252, 245);
@@ -1373,6 +1405,24 @@
 		color: rgb(1, 10, 1);
 	}
 
+	.manifest-contact-entry-instruct {
+		font-weight: 540;
+		font-style:oblique;
+		padding-right:3px;
+		color:tomato;
+		background-color: rgba(235, 225, 235, 0.61);
+	}
+
+	.man-default-selected {
+		color:rgb(56, 156, 81);
+		background-color:rgb(231, 243, 231);
+		font-weight: bold;
+		border: 1x solid rgb(7, 78, 7);
+	}
+	.man-default-not-selected {
+		color:navy;
+	}
+
 </style>
 
 <div>
@@ -1437,7 +1487,8 @@
 			</div>
 			<br>
 			<div class="inner_div" >
-				<label for="name"style="display:inline" >Name: </label>
+				<label for="name"style="
+				display:inline" >Name: </label>
 				<input id="name" bind:value={name} placeholder="Name" style="display:inline">
 				<input bind:checked={business}  type="checkbox" style="display:inline" ><span>Business (if checked)</span>
 			</div>
@@ -1622,41 +1673,53 @@
 		</blockquote>
 		<div class="manifest-grid-container" >
 			<div class="manifester">
-				<div>
-					<div>
-						<div style="display:inline;float:left">
-							<input placeholder="filter prefix" bind:value={man_prefix}>
-							<select bind:value={manifest_index} size={5}>
-								{#each filtered_manifest_contact_form_list as contact_item, manifest_index}
-									<option value={manifest_index}>{contact_item.info}</option>
-								{/each}
-							</select>	
+				<div  style="display:block" >
+					<div style="display:inline;float:left">
+						<input placeholder="filter prefix" bind:value={man_prefix}>
+						<select bind:value={manifest_index} size={5}>
+							{#each filtered_manifest_contact_form_list as contact_item, manifest_index}
+								<option value={manifest_index}>{contact_item.info}</option>
+							{/each}
+						</select>
+					</div>
+					<div class='buttons' style="display:inline;float:clear" >
+						<button on:click={view_user_dir} >directory</button>
+						<button on:click={view_user_contacts} >contacts file</button>
+						<button on:click={view_user_manifest} >manifest file</button>
+						<button on:click={view_contact_form} >view contact form</button>
+					</div>
+				</div>
+				<div class="inner_div" style="background-color:beige;border:solid 1px grey" >
+					<div style="height:fit-content" >
+						<div class="manifest-contact-entry-instruct" >
+							Use the contact form explorer "Contact Template Management" to find IPFS Links to enter in the field below.
 						</div>
-						<div class='buttons' style="display:inline;float:clear" >
-							<button on:click={view_user_dir} >directory</button>
-							<button on:click={view_user_contacts} >contacts file</button>
-							<button on:click={view_user_manifest} >manifest file</button>
-							<button on:click={view_contact_form} >view contact form</button>
-						</div>
+						<label for="man_cid"style="display:inline" >Manifest IPFS Link: </label>
+						<input id="man_cid" bind:value={man_cid} placeholder="cid" style="display:inline" on:paste={reset_man_cid} >
 					</div>
 					<div class='buttons'>
-						<button on:click={man_add_contact_form} disabled="{!man_title}">add</button>
+						<button on:click={man_add_contact_form} disabled="{!man_title}">sync</button>
+						<button class={man_contact_is_default ?  "man-default-selected" : "man-default-not-selected"} on:click={man_prefer_contact_form} disabled="{!man_title}">
+							{#if man_contact_is_default }
+								default
+							{:else}
+								set default
+							{/if}
+						</button>
 						<button on:click={man_remove_contact_form} disabled="{!manifest_selected_entry}">delete</button>
 						<button on:click={man_update_contact_form} disabled="{!man_title || !manifest_selected_entry}">customize</button>
-					</div>		
+					</div>	
 				</div>
 				<div class="inner_div" >
+					<div style="background-color:beige;border-bottom: darkgreen 1px solid;margin-bottom: 4px;">
+						<label for="preference"style="display:inline" >Max Preference All Forms: </label>
+						<input id="preference" bind:value={man_max_preference} placeholder="Preference Number" style="display:inline" disabled >	
+					</div>
 					<label for="name"style="display:inline" >Name: </label>
 					<input id="name" bind:value={man_title} placeholder="Name" style="display:inline" disabled={man_sel_not_customized}>
 					<br>
-					<label for="preference"style="display:inline" >Max Preference Level: </label>
-					<input id="preference" bind:value={man_max_preference} placeholder="Preference Number" style="display:inline" disabled >
-					<br>
-					<label for="man_cid"style="display:inline" >Manifest IPFS Link: </label>
-					<input id="man_cid" bind:value={man_cid} placeholder="cid" style="display:inline" on:blur={populate_manifest} >
-					<br>
-					<label for="man_sel_pref" >Contact Form Preference: </label>
-					<input id="man_sel_pref" bind:value={man_preference} placeholder="Name" style="display:inline" >
+					<label for="man_sel_pref" >Selected Form Preference: </label>
+					<input id="man_sel_pref" bind:value={man_preference} placeholder="1.0" style="display:inline" >
 					<div>
 						<label for="man_sel_pref" >Wrapped Key: </label><br>
 						<textarea id="man_contact_key" bind:value={man_wrapped_key} style="display:inline" disabled />
@@ -1736,5 +1799,7 @@
 </FloatWindow>
 
 <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
-	<MessageEditor {...selected} reply_to={message_selected} active_identity={active_identity} />
+	<MessageEditor {...selected} reply_to={message_selected}
+									active_identity={active_identity} 
+									contact_form_list={filtered_manifest_contact_form_list}/>
 </FloatWindow>
