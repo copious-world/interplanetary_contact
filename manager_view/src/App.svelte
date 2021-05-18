@@ -8,6 +8,8 @@
 	import MessageDisplay from './MessageDisplay.svelte'
 	import MessageEditor from './MessageEditor.svelte'
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
+	import * as utils from './utilities.js'
+
 	//
 	let active_cid = ""
 	let clear_cid = ""
@@ -793,6 +795,7 @@
 
 	let cache_contact_form_vars = []
 
+
 	function expand_el(el) {
 		let str = ""
 		for ( let ky in el ) {
@@ -887,7 +890,7 @@
 				dir_view = false
 				//
 				tmplt.cid = t_cid // 
-				manifest_selected_entry.html = tmplt.txt_full
+				manifest_selected_entry.html = utils.clear_char(tmplt.txt_full,'\n')
 			}
 
 		}
@@ -901,6 +904,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
+			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)
@@ -916,6 +920,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
+			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)
@@ -962,6 +967,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
+			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)
@@ -980,6 +986,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
+			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)

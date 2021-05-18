@@ -626,6 +626,39 @@ export async function put_contact_template(name,data) {
 
 
 
+export function dont_store_html(manifest_obj) {
+    //
+    let cc_forms = manifest_obj.custom_contact_forms
+    //
+    let cids = []
+    let cid_map = {}
+    if ( Array.isArray(cc_forms) ) {
+        for ( let entry of cc_forms ) {
+            delete entry.html;
+            let cid = entry.cid
+            if ( entry.preference === undefined ) {
+                entry.preference = 1.0
+            }
+            cids.push(entry.cid)
+            cid_map[cid] = entry
+        }
+    } else {
+        cid_map = cc_forms
+        for ( let cid in cc_forms ) {
+            let entry = cc_forms[cid]
+            delete entry.html;
+            entry.cid = cid
+            cids.push(cid)
+        }
+    }
+
+    manifest_obj.custom_contact_forms = cid_map
+    manifest_obj.sorted_cids = cids.sort((a,b) => {
+        return(cid_map[a].preference - cid_map[b].preference)
+    })
+}
+
+
 
 /*		MANIFEST EDITING
 //

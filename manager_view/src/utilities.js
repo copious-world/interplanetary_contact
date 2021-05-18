@@ -99,3 +99,10 @@ export function subst_vars_app_ids(html,html_vars,ccvars) {
     }
     return html
 }
+
+
+export function clear_char(str,char) {
+    let split_up = str.split(char)
+    let back_together = split_up.join('')
+    return back_together
+}
