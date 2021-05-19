@@ -164,7 +164,7 @@ let body = {
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
 
-let g_message_fields = ["name", "user_cid", "subject", "readers", "date", "when", "business", "public_key", "wrapped_key", "encoding","message"]
+let g_message_fields = ["name", "user_cid", "subject", "readers", "date", "business", "public_key","message"]
 app.post('/send/message',async (req, res) => {
   //
   if ( !(g_ipfs_profiles) ) {
@@ -208,19 +208,19 @@ app.post('/send/introduction',async (req, res) => {
       return
     }
   }
-  let receiver = body.receiver
+  let receiver = {}
   for ( let fld of g_user_fields ) {
     if ( fld === "public_key"  || fld === "wrapped_key" ) {  // neither key is used in establishing the identity of the recipient
-      receiver[fld] !== undefined
-      delete receiver[fld]
       continue;
     }
-    if ( receiver[fld] === undefined ) {
+    if ( body.receiver[fld] === undefined ) {
       res.type('application/json').send({ "status" : "fail", "reason" : "missing fields"})
       return
     }
+    receiver[fld] = body.receiver[fld]
   }
   //
+  body.receiver = receiver
   let message_cid = g_ipfs_profiles.add_profile_message(body,"spool")
   res.type('application/json').send({ "status" : "OK", "message_cid" : message_cid })
 })
@@ -285,7 +285,6 @@ app.post('/send/topic_offer',async (req, res) => {
 
 
 
-
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
 
@@ -308,6 +307,8 @@ app.post('/get-spool',async (req, res) => {
   //
   res.type('application/json').send(answer)
 })
+
+
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
@@ -510,6 +511,47 @@ app.post('/put/template',async (req, res) => {  // narrow search by category.
   res.type('application/json').send({ "status" : "OK", "template_cid" : t_cid })
   //
 })
+
+
+
+
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+// BLOB
+
+
+var g_blob_keeper = {}
+
+app.post('/put/blob',async (req, res) => {  // narrow search by category.
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  let body = req.body
+  //
+  let file_name = body.name 
+  let tstamp = body.tstamp
+  let template_data = body.chunk
+
+  let key = file_name + '-' + tstamp
+  let blob_holder = g_blob_keeper[key]
+  if ( blob_holder === undefined ) {
+    blob_holder = Object.assign({},body)
+    g_blob_keeper[key] = blob_holder
+  } else {
+    blob_holder.chunk += body.chunk
+  }
+
+  if ( body.end_of_file ) {
+    let cid = await g_ipfs_profiles.add_data(blob_holder)
+    res.type('application/json').send({ "status" : "OK", "end_of_data" : true, "cid" : cid })
+  } else {
+    res.type('application/json').send({ "status" : "OK", "end_of_data" : false })
+  }
+
+  //
+})
+
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 //// //// ////  ////  ////  ////  ////  ////  ////  ////  ////  ////  //// 

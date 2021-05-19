@@ -1778,10 +1778,12 @@ function remap(id_top_level) {
 	}
 }
 
-function mailer() {
+async function mailer() {
 	if ( g_message_in_transit !== false) {
-		sender(g_message_in_transit)
-		g_message_in_transit = false
+		if ( g_sender ) {
+			await g_sender(g_message_in_transit)
+			g_message_in_transit = false
+		}
 	}
 }
 

@@ -39,7 +39,9 @@
 			"public_key" : public_key,
 			"name" : name
 		}
+		
 
+	$: message_type = introduction ? "introduction" : "message"
 
 	let cform_index = 0
 	//
@@ -280,24 +282,35 @@
 	// // // // // // 
 	//
 	async function ipfs_sender(message) {
-
 		// message_object_on_send()
-
 		switch ( message_type ) {
 			case "introduction" : {
-				let identify = active_user
+				let identify = active_identity
 				if ( identify ) {
 					let user_info = identify.user_info
-					await ipfs_profiles.send_introduction(receiver_user_info,user_info,message)
+					let i_cid = await ipfs_profiles.send_introduction(receiver_user_info,user_info,message)
+					if ( i_cid ) {
+						if ( identify.introductions === undefined ) {
+							identify.introductions = []
+						}
+						identify.introductions.push(i_cid)
+						update_identity(identify)
+					}
 				}
 				break;
 			}
 			default: {
-				let identify = active_user
+				let identify = active_identity
 				if ( identify ) {
 					let user_info = identify.user_info
-					await ipfs_profiles.send_message(receiver_user_info,user_info,message)
-
+					let m_cid = await ipfs_profiles.send_message(receiver_user_info,user_info,message)
+					if ( m_cid ) {
+						if ( identify.messages === undefined ) {
+							identify.messages = []
+						}
+						identify.introductions.push(m_cid)
+						update_identity(identify)
+					}
 				}
 				break;
 			}
@@ -316,15 +329,15 @@
 		ev.preventDefault();
 		if ( ev.dataTransfer.items ) {
 			// Use DataTransferItemList interface to access the file(s)
-			for (let i = 0; i < ev.dataTransfer.items.length; i++) {
-				if (ev.dataTransfer.items[i].kind === 'file') {
+			for ( let i = 0; i < ev.dataTransfer.items.length; i++ ) {
+				if ( ev.dataTransfer.items[i].kind === 'file' ) {
 					let file = ev.dataTransfer.items[i].getAsFile();
 					let fname = file.name
 					let mtype = file.mime_type
 					var reader = new FileReader();
 						reader.onload = async (e) => {
 							let blob64 = e.target.result
-							let fcid = ipfs_profiles.upload_data_file(blob64)
+							let fcid = ipfs_profiles.upload_data_file(fname,blob64)
 							attachments.push(fcid)
 							common_contact_vars["{{id-attachment-"].set_el_html(attachments.join(','))
 						};
@@ -334,13 +347,13 @@
 			}
 		} else {
 			// Use DataTransfer interface to access the file(s)
-			for (let i = 0; i < ev.dataTransfer.files.length; i++) {
+			for ( let i = 0; i < ev.dataTransfer.files.length; i++ ) {
 				let file = ev.dataTransfer.files[i].getAsFile();
-				let fname = file.name
 				reader.onload = (e) => {
 					let blob64 = e.target.result
-					let fcid = ipfs_profiles.upload_data_file(blob64)
+					let fcid = ipfs_profiles.upload_data_file(fname,blob64)
 					attachments.push(fcid)
+					common_contact_vars["{{id-attachment-"].set_el_html(attachments.join(','))
 				};
 				reader.readAsDataURL(file)
 				break

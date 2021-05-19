@@ -10,6 +10,7 @@
 	export let public_key;
 	export let message;
 	export let is_in_contacts;
+	export let attachments
 
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
@@ -27,6 +28,19 @@
 			'cmd': 'new-contact',
 			'cid' : user_cid
 		});
+	}
+
+	let attachments_display = ""
+	$: {
+		if ( attachments !== undefined ) {
+			if ( Array.isArray(attachments) ) {
+				if ( attachments.length ) {
+					attachments_display = attachments.join(',')
+				} else {
+					attachments_display = "none"
+				}
+			}
+		}
 	}
 
 </script>
@@ -51,7 +65,13 @@
 			<span class="cool-label" style="background-color:navy">subject</span>&nbsp;&nbsp;{subject}
 		</div>
 	</div>
-	<span>Compose message here</span>
+	<div style="border-bottom: slategrey solid 1px;margin-bottom: 4px;background-color:snow;">
+		<span class="useful-label" >Attachments:</span>
+		<div style="display:inline-block;color:darkgreen">{attachments_display}</div>
+	</div>
+	<div class="message-header">
+		<span class="useful-label" style="font-size: small;">Message:</span>
+	</div>
 	<div id="blg-window-full-text"  class="full-display" >
 		{@html message}
 	</div>
@@ -63,6 +83,7 @@
 	.blg-el-wrapper-full {
 		overflow-y: hidden;
 		height:inherit;
+		padding:4px;
 	}
 
 
@@ -73,6 +94,15 @@
 		text-align: center;
 		border-radius: 0.2em;
 		color: white;
+	}
+
+	.useful-label {
+		font-weight: bold;
+		color:rgb(36, 71, 51)
+	}
+
+	.message-header {
+		background-color: rgb(247, 247, 224);
 	}
 
 	.blg-item-title {

@@ -165,7 +165,16 @@
 			{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "cid" : "9i58w78ew", "answer_message" : "" }
 		];
 		cid_individuals_map = {}
-		inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" } ]
+		inbound_solicitation_messages = [ { 
+			"name": 'Darth Vadar', 
+			"user_cid" : "869968609", 
+			"subject" : "Hans Solo is Mean", 
+			"date" : todays_date, 
+			"readers" : "luke,martha,chewy", 
+			"business" : false, 
+			"public_key" : false, 
+			"message" : "this is a message 4",
+			"reply_with" : "default" } ]
 		inbound_contact_messages = [
 			{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" },
 			{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : "testesttesttest", "message" : "this is a message 2"  },
@@ -551,14 +560,8 @@
 			inbound_contact_messages = all_inbound_messages[0]
 			inbound_solicitation_messages = all_inbound_messages[1]
 			//
-			inbound_solicitation_messages = []
-			inbound_solicitation_messages.push(
-			{ "name": 'Hans Solo', "is_in_contacts" : false, "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" }
-			)
-
 			check_contacts(inbound_contact_messages)
 			check_contacts(inbound_solicitation_messages)
-	
 		}
 	}
 

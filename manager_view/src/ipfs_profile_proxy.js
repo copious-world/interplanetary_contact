@@ -366,7 +366,7 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
 
     let sendable_message = {}
     sendable_message.when = Date.now()
-    sendable_message.date = (new Date(message.when)).toISOString()
+    sendable_message.date = (new Date(sendable_message.when)).toISOString()
     //
 
     sendable_message.name = user_info.name       // from
@@ -417,14 +417,14 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
 
 
 export async function send_message(recipient_info,user_info,message) {
-    let m_path = '/send/message'
+    let m_path = 'send/message'
     let result = await send_kind_of_message(m_path,recipient_info,user_info,message,false)
     return result
 }
 
 
 export async function send_introduction(recipient_info,user_info,message) {
-    let m_path = '/send/introduction'
+    let m_path = 'send/introduction'
     let result = await send_kind_of_message(m_path,recipient_info,user_info,message,true)
     return result
 }
@@ -456,7 +456,7 @@ async function* message_decryptor(messages,identity) {
     }
 }
 
-async function clarify_message(messages) {
+async function clarify_message(messages,identity) {
     let clear_messages = []
     try {
         for await (let message of message_decryptor(messages,identity) ) {
@@ -494,7 +494,20 @@ async function get_spool_files(identity,spool_select,clear,offset,count) {
     if ( result.status === "OK" ) {
         let messages = result.data
         try {
-            messages = JSON.parse(messages)
+            if ( Array.isArray(messages) ) {
+                messages = messages.map(msg => {
+                    if ( typeof msg === "string" ) {
+                        try {
+                            let obj = JSON.parse(msg)
+                            return obj
+                        } catch(e) {
+                            return msg
+                        }
+                    }
+                })
+            } else if ( typeof messages === 'string' ) {
+                messages = JSON.parse(messages)
+            }
             if ( !clear ) {
                 messages = await clarify_message(messages,identity)
             }
@@ -589,6 +602,8 @@ export async function get_named_contact_template(template_name,biz) {
     return false
 }
 
+
+
 export async function get_named_contact_template_cid(template_name,biz) {
     let data_stem = `get/template-cid-from-name/${biz}/${template_name}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
@@ -624,8 +639,58 @@ export async function put_contact_template(name,data) {
     return false
 }
 
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+//
 
 
+const CHUNK_SIZE = 1000000
+// upload_data_file
+export async function upload_data_file(name,blob64) {
+    //
+    let srver = location.host
+    srver = correct_server(srver)
+    //
+    if ( typeof data !== 'string' ) {
+        data = JSON.stringify(data)
+    }
+    //
+    let prot = location.protocol  // prot for (prot)ocol
+    let data_stem = 'put/blob'
+    let sp = '//'
+    let len = blob64.length
+    let post_data = {
+        "name" : name,
+        "tstamp" : Date.now(),
+        "offset" : i,
+        "chunk" : "",
+        "end" : false
+    }
+    for ( let i = 0; i < len; i += CHUNK_SIZE ) {
+        let chunk = blob64.substr(i,CHUNK_SIZE)
+        post_data.chunk = chunk
+        post_data.offset = i
+        if ( (i + CHUNK_SIZE ) > len ) {
+            post_data.end = true
+        }
+        let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+        if ( result.status === "OK" ) {
+            if ( result.end_of_data ) {
+                let f_cid = result.cid
+                return f_cid    
+            }
+        }
+    }
+
+    return false
+    //
+}
+
+
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+//
+
+
+// dont_store_html
 export function dont_store_html(manifest_obj) {
     //
     let cc_forms = manifest_obj.custom_contact_forms
@@ -657,6 +722,8 @@ export function dont_store_html(manifest_obj) {
         return(cid_map[a].preference - cid_map[b].preference)
     })
 }
+
+
 
 
 
