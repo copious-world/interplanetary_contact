@@ -245,6 +245,16 @@
 			}
 			this.data = data
 		}
+
+		match(contact_info) {
+			let f_match = true
+			f_match = f_match && ( this.data.name === contact_info.name )
+			f_match = f_match && ( this.data.DOB === contact_info.DOB )
+			f_match = f_match && ( this.data.place_of_origin === contact_info.place_of_origin )
+			f_match = f_match && ( this.data.cool_public_info === contact_info.cool_public_info )
+			f_match = f_match && ( this.data.business === contact_info.business )
+			return f_match
+		}
 		
 		extend_contact(field,value) {
 			this.data[field] = value;
@@ -281,6 +291,8 @@
 	$: active_identity = known_identities[u_index]
 	$: green = ( active_identity ) ? active_identity.stored_externally : false
 
+	let current_index = -1
+
 
 	$: {
 		if ( (active_user !== undefined) && active_user ) {
@@ -294,7 +306,10 @@
 	}
 
 	$: {
-		reinitialize_user_context()
+		if ( current_index !== u_index ) {
+			current_index = u_index
+			reinitialize_user_context()
+		}
 		load_user_info(active_identity)
 	}
 
@@ -609,7 +624,7 @@
 
 
 	async function get_contact_info(cid) {
-		let user_info = ipfs_profiles.fetch_contact_info(cid)
+		let user_info = await ipfs_profiles.fetch_contact_info(cid)
 		if ( !user_info ) {
 			alert("get_contact_info: user does not exist")
 		}
@@ -647,11 +662,27 @@
 	}
 
 
+	function exising_contact(contact) {
+		//
+		for ( let cid in cid_individuals_map ) {
+			let user_info = cid_individuals_map[cid]
+			if ( contact.match(user_info) ) {
+				return cid
+			}
+		}
+		//
+		return false
+	}
+
 	async function auto_add_contact(cid) {
-		let contact = new Contact()
 		let contact_info = await get_contact_info(cid)
 		if ( contact_info ) {
+			let contact = new Contact()
 			contact.copy(contact_info)
+			let old_cid = exising_contact(contact)
+			if ( old_cid !== false ) {
+				delete cid_individuals_map[old_cid]
+			}
 			contact.extend_contact("cid",cid)
 			contact.extend_contact("answer_message",'')
 			//
@@ -1586,7 +1617,7 @@
 							<tr on:click={full_message} id="m_contact_{c_i}" class="element-poster"  on:mouseover="{show_subject}">
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
-								<td class="subject" style="width:60%">{a_message.subject}</td>
+								<td class="subject" style="width:60%">{@html a_message.subject}</td>
 							</tr>
 						{/each}
 						{/if}
@@ -1608,7 +1639,7 @@
 							<tr on:click={full_message} id="m_intro_{i_i}" class="element-poster"  on:mouseover="{show_subject}">
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
-								<td class="subject" style="width:60%">{a_message.subject}</td>
+								<td class="subject" style="width:60%">{@html a_message.subject}</td>
 							</tr>
 						{/each}
 					{/if}

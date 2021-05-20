@@ -188,7 +188,7 @@ app.post('/send/message',async (req, res) => {
     }
   }
   //
-  let message_cid = g_ipfs_profiles.add_profile_message(body,"spool")
+  let message_cid = await g_ipfs_profiles.add_profile_message(body,"spool")
   res.type('application/json').send({ "status" : "OK", "message_cid" : message_cid })
 })
 
@@ -221,7 +221,7 @@ app.post('/send/introduction',async (req, res) => {
   }
   //
   body.receiver = receiver
-  let message_cid = g_ipfs_profiles.add_profile_message(body,"spool")
+  let message_cid = await g_ipfs_profiles.add_profile_message(body,"spool")
   res.type('application/json').send({ "status" : "OK", "message_cid" : message_cid })
 })
 
@@ -242,7 +242,7 @@ app.post('/send/topic',async (req, res) => {
     }
   }
   //
-  let topic_cid = g_ipfs_profiles.add_profile_message(body,"topic_spool")
+  let topic_cid = await g_ipfs_profiles.add_profile_message(body,"topic_spool")
   res.type('application/json').send({ "status" : "OK", "topic_cid" : topic_cid })
 })
 
@@ -275,11 +275,11 @@ app.post('/send/topic_offer',async (req, res) => {
     }
   }
   //
-  let offer_template_cid = g_ipfs_profiles.write_to_profile_path(body,"topic_spool")
+  let offer_template_cid = await g_ipfs_profiles.write_to_profile_path(body,"topic_spool")
   body.template_cid = offer_template_cid
   delete body.contents
   //
-  let topic_cid = g_ipfs_profiles.add_profile_message(body,"topic_spool")
+  let topic_cid = await g_ipfs_profiles.add_profile_message(body,"topic_spool")
   res.type('application/json').send({ "status" : "OK", "topic_cid" : topic_cid })
 })
 

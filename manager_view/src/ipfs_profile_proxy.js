@@ -285,8 +285,8 @@ export async function fetch_contact_info(cid) {  // a user,, not the owner of th
     }
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( result.status === "OK" ) {
-        let cid = result.cid
-        return cid
+        let user_info = result.user_info
+        return user_info
     }
     return false
 }
@@ -365,35 +365,41 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
     }
 
     let sendable_message = {}
-    sendable_message.when = Date.now()
-    sendable_message.date = (new Date(sendable_message.when)).toISOString()
-    //
-
-    sendable_message.name = user_info.name       // from
-    sendable_message.user_cid = user_info.cid    // cid of from
-    sendable_message.public_key = user_info.public_key  // basically says we know the recipient (we have talked)
                                                         // the recipient will wrap key with this (so refresh his memory)
     if ( clear ) {
         sendable_message = message
         // the id of the clear directory ignores the key.
         // the identity of established contact messages requires the public (so it stays for not clear)
         delete recipient.public_key  // this has to do with the identiy and the directory where introductions go.
-    }
-
-    if ( !clear ) {
+    } else  {
+        //
+        sendable_message.when = Date.now()
+        sendable_message.date = (new Date(sendable_message.when)).toISOString()
+        //
+        let user_cid = user_info.cid
+        //
+        sendable_message.name = user_info.name       // from
+        sendable_message.user_cid = user_cid    // cid of from
+        sendable_message.public_key = user_info.public_key  // basically says we know the recipient (we have talked)
+        //
         let key_to_wrap = window.gen_cipher_key(user_info)
-        if ( key_to_wrap === undefined ) {
+        if ( key_to_wrap === undefined || !(key_to_wrap) ) {
             alert_error("could not get key ")
+            alert("no cipher key")
             return
         } else {
             sendable_message.message = JSON.stringify(message)
             let encryptor = window.user_encryption(user_cid,"message")
             let encoded_contents = sendable_message.message 
             if ( encryptor !== undefined ) {
-                encoded_contents = encryptor(contents,key_to_wrap)
+                encoded_contents = encryptor(encoded_contents,key_to_wrap)
             }
             sendable_message.message = encoded_contents
             sendable_message.wrapped_key = window.key_wrapper(key_to_wrap,recipient.public_key)
+            //
+            sendable_message.subject = message.subject
+            sendable_message.readers = message.subject
+            sendable_message.business = message.business
         }
     }
     //
@@ -414,6 +420,20 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
     }
     return false
 }
+
+/*
+if ( !(introduction) && encrypting ) {
+    if ( encrypting ) {
+        message = {
+            "name" : active_identity.user_info.name,
+            "user_cid" : active_identity.cid
+        }
+        let [wrapped, aes_key] = get_wrapped_aes_key(public_key)  // recipient's public wrapper key
+        message.wrapped_key = wrapped
+        message.ctext = get_encipherd_message(JSON.stringify(message_object),aes_key)
+    }
+}
+*/
 
 
 export async function send_message(recipient_info,user_info,message) {
@@ -460,7 +480,12 @@ async function clarify_message(messages,identity) {
     let clear_messages = []
     try {
         for await (let message of message_decryptor(messages,identity) ) {
-            clear_messages.push(message)
+            try {
+                let cmessage = JSON.parse(message)
+                clear_messages.push(cmessage)
+            } catch (e) {
+                clear_messages.push(message)
+            }
         }
     } catch (e) {
         console.log('caught', e)

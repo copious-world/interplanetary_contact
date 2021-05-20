@@ -158,18 +158,6 @@
 
 		let message = message_object
 
-		if ( !(introduction) && encrypting ) {
-			if ( encrypting ) {
-				message = {
-					"name" : active_identity.user_info.name,
-					"user_cid" : active_identity.cid
-				}
-				let [wrapped, aes_key] = get_wrapped_aes_key(public_key)  // recipient's public wrapper key
-				message.wrapped_key = wrapped
-				message.ctext = get_encipherd_message(JSON.stringify(message_object),aes_key)
-			}
-		}
-
 		return(message)
 	}
 
@@ -240,7 +228,7 @@
 		// The receiver information will be stored as part of the data if encryption is required
 		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'default',r_p_cid)
 		if ( contact_page_descr ) {
-			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.txt_full
+			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.html
 			contact_page = process_variables(html,contact_page_descr.var_map) // decodeURIComponent(html)
 			//
 			let script = contact_page_descr.script
@@ -268,13 +256,15 @@
 		}
 		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'cid',contact_asset_cid)
 		if ( contact_page_descr ) {
-			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.txt_full
-			contact_page = html // decodeURIComponent(html)
+			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.html
+			contact_page = process_variables(html,contact_page_descr.var_map) // decodeURIComponent(html)
 			//
 			let script = contact_page_descr.script
-			script = decodeURIComponent(script)
-			script = script.replace("{{when}}",Date.now())
-			addscript(script,"blg-window-full-text-outgo-script",true)
+			if ( script ) {
+				script = decodeURIComponent(script)
+				script = script.replace("{{when}}",Date.now())
+				addscript(script,"blg-window-full-text-outgo-script",true)
+			}
 		}
 		//
 	}
@@ -308,7 +298,7 @@
 						if ( identify.messages === undefined ) {
 							identify.messages = []
 						}
-						identify.introductions.push(m_cid)
+						identify.messages.push(m_cid)
 						update_identity(identify)
 					}
 				}

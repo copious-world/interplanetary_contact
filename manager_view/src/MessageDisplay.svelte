@@ -10,11 +10,12 @@
 	export let public_key;
 	export let message;
 	export let is_in_contacts;
-	export let attachments
+	export let attachments;
 
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
+	import * as utils from "./utilities.js"
 
 	function do_reply() {
 		dispatch('message', {
@@ -40,6 +41,31 @@
 					attachments_display = "none"
 				}
 			}
+			attachments_display = utils.clear_char(attachments_display,"&nbsp;")
+			attachments_display = utils.clear_char(attachments_display,"\n")
+			attachments_display = utils.clear_char(attachments_display,"\t")
+			attachments_display = utils.clear_char(attachments_display," ")
+		} else {
+			attachments_display = "none"
+		}
+	}
+
+	let readers_display = ""
+	$: {
+		if ( readers !== undefined ) {
+			if ( Array.isArray(attachments) ) {
+				if ( readers.length ) {
+					readers_display = attachments.join(',')
+				} else {
+					readers_display = "none"
+				}
+			}
+			readers_display = utils.clear_char(attachments_display,"&nbsp;")
+			readers_display = utils.clear_char(attachments_display,"\n")
+			readers_display = utils.clear_char(attachments_display,"\t")
+			readers_display = utils.clear_char(attachments_display," ")
+		} else {
+			readers_display = "none"
 		}
 	}
 
@@ -47,8 +73,10 @@
  
 <div class="blg-el-wrapper-full" >
 	<div style="padding:6px;" >
-		<span class="cool-label"  style="background-color: yellowgreen">{date}</span>
+		<span class="cool-label"  style="background-color: darkgreen">{date}</span>
+		<span class="cool-label"  style="background-color: limegreen">From:</span>
 		<h4 class="blg-item-title" style="background-color: inherit;">{name}</h4>
+		<span class="show-cid">{user_cid}</span>
 		<div class="buttons">
 			<div class="little-info">
 				{name} is a { business ? "business" : "person" }
@@ -59,10 +87,10 @@
 			<button on:click={do_reply} disabled={!(is_in_contacts)} >Reply</button>
 		</div>
 		<div>
-			<span class="cool-label"  style="background-color:navy">Sent to:</span>&nbsp;&nbsp;{readers}
+			<span class="cool-label"  style="background-color:navy">CC:</span>{readers_display}
 		</div>
 		<div>
-			<span class="cool-label" style="background-color:navy">subject</span>&nbsp;&nbsp;{subject}
+			<span class="cool-label" style="background-color:navy">subject</span>&nbsp;&nbsp;{@html subject}
 		</div>
 	</div>
 	<div style="border-bottom: slategrey solid 1px;margin-bottom: 4px;background-color:snow;">
@@ -109,6 +137,7 @@
 		color:black;
 		display: unset;
 		border-bottom: 1px darkslateblue solid;
+		font-size: large;
 	}
 
 
@@ -159,5 +188,11 @@
 	.little-info {
 		font-size: 0.87em;
 		display: inline-block;
+	}
+
+	.show-cid {
+		font-weight: bold;
+		font-size:x-small;
+		font-style: oblique;
 	}
 </style>
