@@ -73,6 +73,8 @@
 	//
 	let man_encrypted = false
 
+	let message_edit_from_contact = false
+
 	//
 	let active = 'Identify';
 	let first_message = 0
@@ -197,6 +199,7 @@
 			}
 			case "reply": {
 				selected.answer_message = true
+				message_edit_from_contact = false
 				start_floating_window(1);
 			}
 			default: {
@@ -533,12 +536,26 @@
 
 
 	function pop_editor() {
+		message_edit_from_contact = true
 		selected.answer_message = false
 		start_floating_window(1);
 	}
 
 	function show_subject() {
 
+	}
+
+	function check_box_block(ev) {
+		ev.stopPropagation()
+	}
+
+
+	function doops_messages(ev) {
+		alert("message operations")
+	}
+
+	function doops_intros(ev) {
+		alert("introduction operations")
 	}
 
 	function full_message(ev) {
@@ -1181,6 +1198,15 @@
 	}
 
 
+	.button-header {
+		color:rgb(104, 51, 14);
+	}
+
+	.button-header:hover {
+		color:rgb(15, 92, 34);
+		background-color: rgba(242, 242, 210, 0.3);
+	}
+
 
 	.inner_div {
 		padding-left: 2px;
@@ -1609,15 +1635,18 @@
 				<table style="width:100%">
 					<thead>
 						<tr>
-							<th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:60%;text-align: left;">Subject</th>
+							<th on:click={doops_messages} class="button-header"  style="width:5%">Op</th><th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:55%;text-align: left;">Subject</th>
 						</tr>
 					</thead>
 					{#if inbound_contact_messages.length }
 						{#each inbound_contact_messages as a_message, c_i }
 							<tr on:click={full_message} id="m_contact_{c_i}" class="element-poster"  on:mouseover="{show_subject}">
+								<td on:click={check_box_block} class="op-select"style="width:5%;text-align:center">
+									<input id="doop-m_contact_{c_i}" type="checkbox" >
+								</td>
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
-								<td class="subject" style="width:60%">{@html a_message.subject}</td>
+								<td class="subject" style="width:55%">{@html a_message.subject}</td>
 							</tr>
 						{/each}
 						{/if}
@@ -1631,12 +1660,15 @@
 				<table style="width:100%">
 					<thead>
 						<tr>
-							<th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:60%;text-align: left;">Subject</th>
+							<th on:click={doops_intros} class="button-header"  style="width:5%">Op</th><th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:55%;text-align: left;">Subject</th>
 						</tr>
 					</thead>
 					{#if inbound_solicitation_messages.length }
 						{#each inbound_solicitation_messages as a_message, i_i }
 							<tr on:click={full_message} id="m_intro_{i_i}" class="element-poster"  on:mouseover="{show_subject}">
+								<td on:click={check_box_block} class="op-select"style="width:5%;text-align:center">
+									<input id="doop-m_intro_{i_i}" type="checkbox" >
+								</td>
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
 								<td class="subject" style="width:60%">{@html a_message.subject}</td>
@@ -1840,7 +1872,7 @@
 </FloatWindow>
 
 <FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
-	<MessageEditor {...selected} reply_to={message_selected}
+	<MessageEditor {...selected} reply_to={message_selected} from_contact={message_edit_from_contact}
 									active_identity={active_identity} 
 									contact_form_list={filtered_manifest_contact_form_list}/>
 </FloatWindow>

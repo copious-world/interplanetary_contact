@@ -1,5 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
+	import * as ipfs_profiles from './ipfs_profile_proxy.js'
+	import * as utils from './utilities.js'
 
 	// selected...  A contact either from the contact list or from the message (and already there)
 	export let name;
@@ -14,18 +16,15 @@
 	export let reply_to;	// the source message
 	export let active_identity
 
-	export let encrypting = false
+	export let from_contact = false
 	export let contact_form_list
 
 	let selected_contact_cid = 'default'
-	let sender_pub_key = false
-
-	import * as ipfs_profiles from './ipfs_profile_proxy.js'
-	import * as utils from './utilities.js'
-
+	let receiver_pub_key = false
 
 	let show_key = false
 	let introduction = false
+	let message_was_sent = false
 
 	let attachments = []
 
@@ -40,6 +39,7 @@
 			"name" : name
 		}
 		
+	let use_previous = answer_message
 
 	$: message_type = introduction ? "introduction" : "message"
 
@@ -57,14 +57,17 @@
 	}
 
 	$: {
-		if ( reply_to !== undefined ) {
+		if ( (reply_to !== undefined) && !(from_contact) ) {
 			selected_contact_cid = reply_to.reply_with
-			sender_pub_key = reply_to.public_key
-			if ( (typeof public_key === "string" ) && (typeof sender_pub_key === "string" ) ) {
-				if ( public_key !== sender_pub_key ) {
-					sender_pub_key = false
+			receiver_pub_key = reply_to.public_key
+			if ( (typeof public_key === "string" ) && (typeof receiver_pub_key === "string" ) ) {
+				if ( public_key !== receiver_pub_key ) {
+					receiver_pub_key = false
 				}
 			}
+		} else {
+			receiver_pub_key = public_key ? public_key : false
+			console.log(receiver_pub_key)
 		}
 	}
 
@@ -158,6 +161,11 @@
 
 		let message = message_object
 
+		if ( use_previous ) {
+			message.message += "<br><br><br>=====================================================<br>"
+			message.message += previous_message
+		}
+
 		return(message)
 	}
 
@@ -223,6 +231,7 @@
 
 	async function start_introduction() {
 		introduction = true
+		message_was_sent = false
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
@@ -246,6 +255,7 @@
 
 	async function start_composing() {
 		introduction = false
+		message_was_sent = false
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
@@ -285,6 +295,7 @@
 						}
 						identify.introductions.push(i_cid)
 						update_identity(identify)
+						message_was_sent = true
 					}
 				}
 				break;
@@ -300,6 +311,7 @@
 						}
 						identify.messages.push(m_cid)
 						update_identity(identify)
+						message_was_sent = true
 					}
 				}
 				break;
@@ -372,28 +384,32 @@
 			Requesting your response through contact form <span> <span style="font-weight: bold;">{reply_with}</span>
 			<br>
 			You may request response through your custom contact:
-				<select bind:value={cform_index}>
-					{#each augmented_contact_form_list as contact_item, cform_index}
-						<option value={cform_index}>{contact_item.info}</option>
-					{/each}
-				</select>
+			<select bind:value={cform_index}>
+				{#each augmented_contact_form_list as contact_item, cform_index}
+					<option value={cform_index}>{contact_item.info}</option>
+				{/each}
+			</select>
 			<br>
 			<span style="font-size:65%">{selected_contact_cid}</span>
 		</div>
 	</div>
 
 	{#if answer_message }
-	<span class="large-text-label" >Previous Message:</span>
-	<div id="blg-window-full-text-outgo"  class="full-display" >
-		{@html previous_message}
-	</div>
+		<span class="large-text-label" >Previous Message:</span>
+		<span>include</span><input type="checkbox" bind:checked={use_previous}  >
+		<div id="blg-window-full-text-previous"  class="full-display" >
+			{@html previous_message}
+		</div>
 	{/if}
-	<span class="large-text-label" >Compose message here:</span>
-	{#if sender_pub_key !== false }
-	<button class="medium_button" on:click={start_composing}>begin compositions</button>
+	{#if !(message_was_sent) } 
+		<span class="large-text-label" >Compose message here:</span>
+		{#if receiver_pub_key !== false }
+			<button class="medium_button" on:click={start_composing}>begin composition</button>
+		{:else}
+			<button class="medium_button" on:click={start_introduction}>begin introduction</button>
+		{/if}
+		<span class="add-attachemnt" on:drop={drop} on:dragover={dragover} >Drop attachment here (&#128206;)</span>
 	{/if}
-	<button class="medium_button" on:click={start_introduction}>begin introduction</button>
-	<span class="add-attachemnt" on:drop={drop} on:dragover={dragover} >Drop attachment here (&#128206;)</span>
 	<div id="blg-window-full-text-outgo"  class="full-display-bottom" >
 		{@html contact_page}
 	</div>

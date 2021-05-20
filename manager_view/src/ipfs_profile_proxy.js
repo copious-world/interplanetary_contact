@@ -398,7 +398,7 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
             sendable_message.wrapped_key = window.key_wrapper(key_to_wrap,recipient.public_key)
             //
             sendable_message.subject = message.subject
-            sendable_message.readers = message.subject
+            sendable_message.readers = message.readers
             sendable_message.business = message.business
         }
     }
@@ -481,7 +481,7 @@ async function clarify_message(messages,identity) {
     try {
         for await (let message of message_decryptor(messages,identity) ) {
             try {
-                let cmessage = JSON.parse(message)
+                let cmessage = JSON.parse(message.message)
                 clear_messages.push(cmessage)
             } catch (e) {
                 clear_messages.push(message)
