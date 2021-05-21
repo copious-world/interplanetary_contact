@@ -410,6 +410,38 @@ app.post('/put-asset/:asset',async (req, res) => {
 })
 
 
+app.post('/message-list-op/:op',async (req, res) => {
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
+  let body = req.body
+  let operation = req.params.op
+  //
+  let biz_t = body.business
+  let parameter = body.param
+  let user_cid = body.user_cid
+  let message_list = body.message_list.split(',')
+
+  switch ( operation ) {
+    case 'delete' : {
+      await g_ipfs_profiles.remove_messages(user_cid,biz_t,message_list)
+      break;
+    }
+    case 'move' : {
+      await g_ipfs_profiles.move_messages_to_dir(user_cid,biz_t,parameter,message_list)
+      break;
+    }
+  }
+
+  res.type('application/json').send({ "status" : "OK" })
+})
+
+
+
+
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 // TEMPLATES
 

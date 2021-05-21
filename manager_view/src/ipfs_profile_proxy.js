@@ -667,6 +667,35 @@ export async function put_contact_template(name,data) {
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 //
 
+export async function message_list_ops(user_cid,op,param,biz_t,message_list) {
+    //
+    let srver = location.host
+    srver = correct_server(srver)
+    //
+    if ( typeof data !== 'string' ) {
+        data = JSON.stringify(data)
+    }
+    //
+    let prot = location.protocol  // prot for (prot)ocol
+    let data_stem = `message-list-op/${op}`
+    let sp = '//'
+    let post_data = {
+        'user_cid' : user_cid,
+        'param' : param,
+        'business' : biz_t,
+        'message_list' : message_list.join(',')
+    }
+    let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+    if ( result.status === "OK" ) {
+        let t_cid = result.template_cid
+        return t_cid
+    }
+    return false
+}
+
+
+// -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
+//
 
 const CHUNK_SIZE = 1000000
 // upload_data_file

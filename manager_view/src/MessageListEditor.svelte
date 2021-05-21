@@ -3,6 +3,8 @@
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 
 	export let message_edit_list;
+	export let active_identity;
+	export let message_edit_type;
 
 
 	function convert_date(secsdate) {
@@ -43,12 +45,23 @@
 		}
 	]
 
-	function do_delete() {
-
+	async function do_delete() {
+		let user_cid = active_identity.cid
+		if ( message_edit_type === 'introduction' ) {
+			user_cid = active_identity.clear_cid
+		}
+		let business = active_identity.user_info.business
+		await ipfs_profiles.message_list_ops(user_cid,'delete',false,business,message_edit_list)
 	}
 
-	function do_move() {
-
+	async function do_move() {
+		let user_cid = active_identity.cid
+		if ( message_edit_type === 'introduction' ) {
+			user_cid = active_identity.clear_cid
+		}
+		let business = active_identity.user_info.business
+		let cat = categories[c_index].name
+		await ipfs_profiles.message_list_ops(user_cid,'move',cat,business,message_edit_list)
 	}
 
 </script>

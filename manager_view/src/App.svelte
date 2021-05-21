@@ -122,6 +122,7 @@
 	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
 
 	let message_edit_list_name = ""
+	let message_edit_type = "message"
 	let message_edit_list = []
 
 	function reinitialize_user_context() {
@@ -581,6 +582,7 @@
 	function doops_messages(ev) {
 		//
 		message_edit_list_name = "Message Ops"
+		message_edit_type = "message"
 		message_edit_list = []
 		//
 		let n = inbound_contact_messages.length
@@ -600,6 +602,7 @@
 
 	function doops_intros(ev) {
 		message_edit_list_name = "Introduction Ops"
+		message_edit_type = "introduction"
 		message_edit_list = []
 		//
 		let n = inbound_solicitation_messages.length
@@ -1934,6 +1937,6 @@
 </FloatWindow>
 
 <FloatWindow title={message_edit_list_name} scale_size_array={all_window_scales} index={2} use_smoke={false}>
-	<MessageListEdit message_edit_list={message_edit_list} />
+	<MessageListEdit message_edit_list={message_edit_list} message_edit_type={message_edit_type} active_identity={active_identity} />
 </FloatWindow>
 
