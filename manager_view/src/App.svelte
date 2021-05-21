@@ -7,6 +7,7 @@
 	import FloatWindow from './FloatWindow.svelte';
 	import MessageDisplay from './MessageDisplay.svelte'
 	import MessageEditor from './MessageEditor.svelte'
+	import MessageListEdit from './MessageListEditor.svelte'
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	import * as utils from './utilities.js'
 
@@ -82,6 +83,7 @@
 	let green = false     // an indicator telling if this user ID is set
 	let todays_date = (new Date()).toLocaleString()
 
+	let filtered_cc_list = []
 
 	// This is just a default... It will be used until the user picks something else 
 	// when editing the manifest.
@@ -97,6 +99,7 @@
 	}
 
 	let selected_form_link = selected_form_link_types["profile"]
+	
 
 	//
 	let individuals = [
@@ -117,6 +120,9 @@
 	]
 
 	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
+
+	let message_edit_list_name = ""
+	let message_edit_list = []
 
 	function reinitialize_user_context() {
 		active_cid = ""
@@ -288,6 +294,13 @@
 
 	$: reset_inputs(selected)
 
+	$: filtered_cc_list = individuals.filter(ident => {
+		if ( ident.cid !== active_identity.cid ) {
+			return true
+		}
+		return false
+	})
+
 	//
 	//
 	$: active_user = known_users[u_index]
@@ -346,6 +359,13 @@
  
 
 	let window_scale = { "w" : 0.4, "h" : 0.8 }
+	let edit_popup_scale = { "w" : 0.45, "h" : 0.3}
+
+	let all_window_scales = []
+	all_window_scales.push(window_scale)
+	all_window_scales.push(window_scale)
+	all_window_scales.push(edit_popup_scale)
+
 
 	function popup_size() {
 		let smallest_w = 200   // smallest and bigget willing to accomodate
@@ -388,6 +408,9 @@
 
 	//
 	window_scale = popup_size()
+	all_window_scales[0] = window_scale
+	all_window_scales[1] = window_scale
+
 	//
 	onMount(async () => {
 		//
@@ -397,6 +420,8 @@
 			//
 			window_scale.h = scale.h; 
 			window_scale.w = scale.w;
+			all_window_scales[0] = window_scale
+			all_window_scales[1] = window_scale
 			//
 		})
 
@@ -538,6 +563,9 @@
 	function pop_editor() {
 		message_edit_from_contact = true
 		selected.answer_message = false
+		filtered_cc_list = filtered_cc_list.filter(ident => {
+			return ident.cid !== selected.cid
+		})
 		start_floating_window(1);
 	}
 
@@ -551,11 +579,42 @@
 
 
 	function doops_messages(ev) {
-		alert("message operations")
+		//
+		message_edit_list_name = "Message Ops"
+		message_edit_list = []
+		//
+		let n = inbound_contact_messages.length
+		for ( let i = 0; i < n; i++ ) {
+			let check_el_id = `doop-m_contact_${i}`
+			let check_el = document.getElementById(check_el_id)
+			if ( check_el ) {
+				if ( check_el.checked ) {
+					let m = inbound_contact_messages[i]
+					message_edit_list.push(m)
+				}
+			}
+		}
+		//
+		start_floating_window(2);
 	}
 
 	function doops_intros(ev) {
-		alert("introduction operations")
+		message_edit_list_name = "Introduction Ops"
+		message_edit_list = []
+		//
+		let n = inbound_solicitation_messages.length
+		for ( let i = 0; i < n; i++ ) {
+			let check_el_id = `doop-doop-m_intro_${i}`
+			let check_el = document.getElementById(check_el_id)
+			if ( check_el ) {
+				if ( check_el.checked ) {
+					let m = inbound_solicitation_messages[i]
+					message_edit_list.push(m)
+				}
+			}
+		}
+		//
+		start_floating_window(2);
 	}
 
 	function full_message(ev) {
@@ -837,10 +896,6 @@
 	}
 
 	// ---- ---- ---- ---- ---- ---- ----
-	function preview_contact_form(ev) {
-		// start_floating_window(2);
-	}
-
 
 // MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST 
 
@@ -1867,12 +1922,18 @@
 	{/if}
   </div>
 
-<FloatWindow title={message_selected.name} scale_size={window_scale} index={0} use_smoke={false}>
+<FloatWindow title={message_selected.name} scale_size_array={all_window_scales} index={0} use_smoke={false}>
 	<MessageDisplay {...message_selected} on:message={handle_message} />
 </FloatWindow>
 
-<FloatWindow title={selected.name} scale_size={window_scale} index={1} use_smoke={false}>
+<FloatWindow title={selected.name} scale_size_array={all_window_scales} index={1} use_smoke={false}>
 	<MessageEditor {...selected} reply_to={message_selected} from_contact={message_edit_from_contact}
-									active_identity={active_identity} 
+									active_identity={active_identity}
+									cc_list={filtered_cc_list}
 									contact_form_list={filtered_manifest_contact_form_list}/>
 </FloatWindow>
+
+<FloatWindow title={message_edit_list_name} scale_size_array={all_window_scales} index={2} use_smoke={false}>
+	<MessageListEdit message_edit_list={message_edit_list} />
+</FloatWindow>
+

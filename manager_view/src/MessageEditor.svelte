@@ -18,13 +18,21 @@
 
 	export let from_contact = false
 	export let contact_form_list
+	export let cc_list = []
 
+	//
 	let selected_contact_cid = 'default'
 	let receiver_pub_key = false
 
 	let show_key = false
 	let introduction = false
 	let message_was_sent = false
+
+
+	let cc_index = cc_list.length > 0 ? 0 : -1
+	let cc_cid = -1
+	let cc_read_list = []
+	let cc_select_list = []
 
 	let attachments = []
 
@@ -53,6 +61,33 @@
 	$: {
 		if ( cform_index >= 0 ) {
 			selected_contact_cid = augmented_contact_form_list[cform_index].cid
+			reply_with = augmented_contact_form_list[cform_index].info
+		}
+	}
+
+	$: {
+		if ( cc_list.length === 0 ) {
+			cc_select_list = [{ "name" : "no cc", }]
+		} else {
+			cc_select_list = [{ "name" : "no cc", }]
+			cc_select_list = cc_select_list.concat(cc_list)
+		}
+	}
+
+	$: {
+		if ( cc_index > 0 ) {
+			let cc_item = cc_list[cc_index-1]
+			if ( cc_item ) {
+				cc_cid = cc_item.cid
+				cc_read_list.push(cc_cid)
+				common_contact_vars["{{id-cc-"].set_el_html(cc_read_list.join(','))
+			} else {
+				cc_read_list = []
+				common_contact_vars["{{id-cc-"].set_el_html("")
+			}
+		} else {
+			cc_read_list = []
+			common_contact_vars["{{id-cc-"].set_el_html("")
 		}
 	}
 
@@ -76,25 +111,6 @@
 	// "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry",
 	// "business" : false, "public_key" : false, "message" : "this is a message 1"
 
-	/*
-
-"{
-0: Array [ "{{contact-top}}", "contact-top" ]
-1: Array [ "{{contact-top}}", "contact-top" ]
-
-"{{date}}":[ "{{date}}", "date" ]
-"{{id-attachment-innerHTML}}" : [ "{{id-attachment-innerHTML}}", "id-attachment-innerHTML" ]
-"{{id-attachment-value}}" : [ "{{id-attachment-value}}", "id-attachment-value" ]
-
-"{{id-cc-innerHTML}}":  [ "{{id-cc-innerHTML}}", "id-cc-innerHTML" ]
-"{{id-date-innerHTML}}" : "{{id-date-innerHTML}}", "id-date-innerHTML" ]
-​​
-"{{id-message-value}}" : [[ "{{id-message-value}}", "id-message-value" ] [ "{{id-message-value}}", "id-message-value" ]]
-
-"{{id-subject-innerHTML}}" : [ "{{id-subject-innerHTML}}", "id-subject-innerHTML" ]​
-"{{id-to-innerHTML}}" : [ "{{id-to-innerHTML}}", "id-to-innerHTML" ]
-​​
-	*/
 
 
 	let common_contact_vars = {
@@ -232,6 +248,8 @@
 	async function start_introduction() {
 		introduction = true
 		message_was_sent = false
+		cc_read_list = []
+		cc_index = 0
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
@@ -256,6 +274,8 @@
 	async function start_composing() {
 		introduction = false
 		message_was_sent = false
+		cc_read_list = []
+		cc_index = 0
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
@@ -264,7 +284,7 @@
 		if ( !special_contact_form_cid ) {
 			contact_asset_cid = special_contact_form_cid
 		}
-		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'cid',contact_asset_cid)
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'default',r_cid)
 		if ( contact_page_descr ) {
 			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.html
 			contact_page = process_variables(html,contact_page_descr.var_map) // decodeURIComponent(html)
@@ -373,17 +393,18 @@
 	<div style="padding:6px;" >
 		<span class="cool-label" style="background-color: yellowgreen">{todays_date}</span>
 		<span class="message_indicator">Sending a message to:</span> <span class="name">{name},</span>
-		<div>
+		<div class="tool-holder" >
 			<span class="about_name">Who {b_label} and {know_of}.</span>	
 			<div class="cool-stuff">
 				{name} comes from {place_of_origin} and wants you to know that: &quot;{cool_public_info}&quot;
 			</div>
 		</div>
 
-		<div>
-			Requesting your response through contact form <span> <span style="font-weight: bold;">{reply_with}</span>
-			<br>
-			You may request response through your custom contact:
+		<div class="tool-holder" >
+			<div class="subline">
+			You are requesting a response through contact form: <span style="font-weight: bold;">{reply_with}</span>
+			</div>
+			Custom contact form choices:
 			<select bind:value={cform_index}>
 				{#each augmented_contact_form_list as contact_item, cform_index}
 					<option value={cform_index}>{contact_item.info}</option>
@@ -395,13 +416,15 @@
 	</div>
 
 	{#if answer_message }
+	<div class="tool-holder">
 		<span class="large-text-label" >Previous Message:</span>
-		<span>include</span><input type="checkbox" bind:checked={use_previous}  >
+		<span  class="small-text-label" >include</span><input type="checkbox" bind:checked={use_previous}  >
 		<div id="blg-window-full-text-previous"  class="full-display" >
 			{@html previous_message}
 		</div>
+	</div>
 	{/if}
-	{#if !(message_was_sent) } 
+	<div class="tool-holder">
 		<span class="large-text-label" >Compose message here:</span>
 		{#if receiver_pub_key !== false }
 			<button class="medium_button" on:click={start_composing}>begin composition</button>
@@ -409,7 +432,16 @@
 			<button class="medium_button" on:click={start_introduction}>begin introduction</button>
 		{/if}
 		<span class="add-attachemnt" on:drop={drop} on:dragover={dragover} >Drop attachment here (&#128206;)</span>
-	{/if}
+		<span>CC</span> 
+		<select bind:value={cc_index}>
+			{#each cc_select_list as cc_item, cc_index}
+				<option value={cc_index}>{cc_item.name}</option>
+			{/each}
+		</select>
+		{#if message_was_sent } 
+			<span class="message-sent">Message was sent</span>
+		{/if}
+	</div>
 	<div id="blg-window-full-text-outgo"  class="full-display-bottom" >
 		{@html contact_page}
 	</div>
@@ -483,7 +515,7 @@
 		border-top: solid 2px rgb(88, 4, 88);
 		padding: 6px 4px 6px 4px;
 		overflow-y: scroll;
-		height: 100px;
+		height: 60px;
 		border-bottom: solid 1px rgb(88, 4, 88);
 	}
 
@@ -493,7 +525,7 @@
 		border-top: solid 2px rgb(88, 4, 88);
 		padding: 6px 4px 6px 4px;
 		overflow-y: scroll;
-		height: calc(80vh - 260px);
+		height: calc(75vh - 300px);
 		border-bottom: solid 1px rgb(88, 4, 88);
 	}
 
@@ -531,7 +563,19 @@
 	}
 
 	.large-text-label {
-		color:rgb(36, 2, 2)
+		color:rgb(33, 7, 95);
+		font-weight: bold;
+		font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+		font-style: oblique;
+		font-style: 105%;
+		margin:2px
+	}
+
+	.small-text-label {
+		color:rgb(33, 7, 95);
+		font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+		padding:2px;
+		margin:2px
 	}
 
 	.medium_button {
@@ -554,6 +598,36 @@
 
 	button:disabled {
 		cursor:not-allowed;
+	}
+
+	@keyframes blink {
+		50% { border-color: #ff0000; } 
+	}
+	
+	.message-sent {
+		color: rgb(221, 131, 12);
+		background-color: rgb(223, 240, 223);
+		font-weight: bold;
+		border: solid 2px firebrick;
+		padding: 4px;
+		animation: blink .5s step-end infinite alternate;
+	}
+
+	.tool-holder {
+		width: 100%;
+		border: solid 1px burlywood;
+		padding:4px;
+		margin-top:0px;
+		margin-bottom:2px;
+		background-color: rgb(255, 253, 247);
+	}
+
+	.tool-holder .subline {
+		font-style:oblique;
+		color:rgb(46, 7, 73);
+		background-color: rgba(249, 255, 240, 0.877);
+		border-bottom: lightsteelblue 1px solid;
+		width:100%;
 	}
 
 </style>

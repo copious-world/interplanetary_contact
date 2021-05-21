@@ -4,7 +4,7 @@
 	// `current` is updated whenever the prop value changes...
 
 	export let title;
-	export let scale_size;
+	export let scale_size_array;
 	export let use_smoke = true;
 	export let index = 0;
 
@@ -16,6 +16,8 @@
 
 	//-- let the popup make draggable & movable.
 	var offset = { x: 0, y: 0 };
+
+	let scale_size_custom = scale_size_array
 
 	onMount(() => {
 		//
@@ -80,8 +82,8 @@
 		if ( popup.style.display !== 'block') {
 			popup.style.top = "4px";
 			popup.style.left = "4px";
-			popup.style.width = (window.innerWidth*scale_size.w) - SCROLL_WIDTH + "px";
-			popup.style.height = (window.innerHeight*scale_size.h) - SCROLL_WIDTH + "px";
+			popup.style.width = (window.innerWidth*scale_size_custom[ii].w) - SCROLL_WIDTH + "px";
+			popup.style.height = (window.innerHeight*scale_size_custom[ii].h) - SCROLL_WIDTH + "px";
 			popup.style.display = "block";
 			setTimeout(() => { fix_height(ii,4); },40)
 		}
