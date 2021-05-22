@@ -106,3 +106,63 @@ export function clear_char(str,char) {
     let back_together = split_up.join('')
     return back_together
 }
+
+
+	/*
+	// FILE
+	lastModified
+	lastModifiedDate
+	name
+	size
+	type --- mime/type
+	......
+	slice(start,end,contentType)
+	stream
+	text
+	arrayBuffer	
+
+	DataTransfer items
+	kind  (string or file)
+	type
+	getAsFile
+	getAsString
+
+	*/
+
+export function drop(items,files) {
+    //
+    let p = new Promise((resolve,reject) => {
+        if ( items ) {
+            // Use DataTransferItemList interface to access the file(s)
+            for ( let i = 0; i < items.length; i++ ) {
+                if ( items[i].kind === 'file' ) {
+                    let file = items[i].getAsFile();
+                    let fname = file.name
+                    var reader = new FileReader();
+                        reader.onload = async (e) => {
+                            let blob64 = e.target.result
+                            resolve([fname,blob64])
+                        };
+                        reader.readAsDataURL(file)
+                    break
+                }
+            }
+        } else if ( files ) {
+            // Use DataTransfer interface to access the file(s)
+            for ( let i = 0; i < files.length; i++ ) {
+                let file = files[i].getAsFile();
+                let fname = file.name
+                reader.onload = (e) => {
+                    let blob64 = e.target.result
+                    resolve([fname,blob64])
+                };
+                reader.readAsDataURL(file)
+                break
+            }
+        } else {
+            reject(false)
+        }
+    })
+    return p
+}
+

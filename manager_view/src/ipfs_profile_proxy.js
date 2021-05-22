@@ -740,6 +740,76 @@ export async function upload_data_file(name,blob64) {
 }
 
 
+
+const CHUNK_SIZE = 1000000
+// upload_profile_data_file
+export async function upload_profile_data_file(user_cid,biz_t,name,blob64) {
+    //
+    let srver = location.host
+    srver = correct_server(srver)
+    //
+    if ( typeof data !== 'string' ) {
+        data = JSON.stringify(data)
+    }
+    //
+    let prot = location.protocol  // prot for (prot)ocol
+    let data_stem = 'put/profile-blob'
+    let sp = '//'
+    let len = blob64.length
+    let post_data = {
+        "user_cid" : user_cid,
+        "business" : biz_t,
+        "name" : name,
+        "tstamp" : Date.now(),
+        "offset" : i,
+        "chunk" : "",
+        "end" : false
+    }
+    for ( let i = 0; i < len; i += CHUNK_SIZE ) {
+        let chunk = blob64.substr(i,CHUNK_SIZE)
+        post_data.chunk = chunk
+        post_data.offset = i
+        if ( (i + CHUNK_SIZE ) > len ) {
+            post_data.end = true
+        }
+        let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+        if ( result.status === "OK" ) {
+            if ( result.end_of_data ) {
+                let f_cid = result.cid
+                return f_cid    
+            }
+        }
+    }
+
+    return false
+    //
+}
+
+
+export async function load_blob_as_url(blob_cid) {
+    let srver = location.host
+    srver = correct_server(srver)
+    //
+    if ( typeof data !== 'string' ) {
+        data = JSON.stringify(data)
+    }
+    //
+    let prot = location.protocol  // prot for (prot)ocol
+    let data_stem = 'get/profile-blob'
+    let sp = '//'
+    let post_data = {
+        "cid" : blob_cid
+    }
+    let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
+    if ( result.status === "OK" ) {
+        let data = result.data
+        return data    
+    }
+    //
+    return false
+}
+
+
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 //
 

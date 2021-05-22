@@ -19,10 +19,11 @@
 	export let from_contact = false
 	export let contact_form_list
 	export let cc_list = []
+	let selected_contact_cid = 'default'
 
 	//
-	let selected_contact_cid = 'default'
 	let receiver_pub_key = false
+	let special_contact_form_cid = false
 
 	let show_key = false
 	let introduction = false
@@ -93,7 +94,7 @@
 
 	$: {
 		if ( (reply_to !== undefined) && !(from_contact) ) {
-			selected_contact_cid = reply_to.reply_with
+			special_contact_form_cid = reply_to.reply_with
 			receiver_pub_key = reply_to.public_key
 			if ( (typeof public_key === "string" ) && (typeof receiver_pub_key === "string" ) ) {
 				if ( public_key !== receiver_pub_key ) {
@@ -102,7 +103,7 @@
 			}
 		} else {
 			receiver_pub_key = public_key ? public_key : false
-			console.log(receiver_pub_key)
+			special_contact_form_cid = 'default'
 		}
 	}
 
@@ -279,12 +280,18 @@
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
-		let special_contact_form_cid = false  // figure out how to get custom cids from inbound messages...
+		// figure out how to get custom cids from inbound messages...
+		let contact_page_descr = false
 		let contact_asset_cid = r_cid
 		if ( !special_contact_form_cid ) {
 			contact_asset_cid = special_contact_form_cid
+			contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'cid',contact_asset_cid)
 		}
-		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'default',r_cid)
+		//
+		if ( !contact_page_descr ) {
+			contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'default',r_cid)
+		}
+		//
 		if ( contact_page_descr ) {
 			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.html
 			contact_page = process_variables(html,contact_page_descr.var_map) // decodeURIComponent(html)
@@ -346,44 +353,21 @@
 		}
 	})
 
-
-	function drop(ev) {
+	async function drop(ev) {
 		ev.preventDefault();
-		if ( ev.dataTransfer.items ) {
-			// Use DataTransferItemList interface to access the file(s)
-			for ( let i = 0; i < ev.dataTransfer.items.length; i++ ) {
-				if ( ev.dataTransfer.items[i].kind === 'file' ) {
-					let file = ev.dataTransfer.items[i].getAsFile();
-					let fname = file.name
-					let mtype = file.mime_type
-					var reader = new FileReader();
-						reader.onload = async (e) => {
-							let blob64 = e.target.result
-							let fcid = ipfs_profiles.upload_data_file(fname,blob64)
-							attachments.push(fcid)
-							common_contact_vars["{{id-attachment-"].set_el_html(attachments.join(','))
-						};
-						reader.readAsDataURL(file)
-					break
-				}
-			}
-		} else {
-			// Use DataTransfer interface to access the file(s)
-			for ( let i = 0; i < ev.dataTransfer.files.length; i++ ) {
-				let file = ev.dataTransfer.files[i].getAsFile();
-				reader.onload = (e) => {
-					let blob64 = e.target.result
-					let fcid = ipfs_profiles.upload_data_file(fname,blob64)
-					attachments.push(fcid)
-					common_contact_vars["{{id-attachment-"].set_el_html(attachments.join(','))
-				};
-				reader.readAsDataURL(file)
-				break
-			}
-		}
+		try {
+			let files = ev.dataTransfer.files ? ev.dataTransfer.files : false
+			let items = ev.dataTransfer.items ? ev.dataTransfer.items : false
+			let [fname,blob64] = await utils.drop(items,files)
+			//
+			let fcid = await ipfs_profiles.upload_data_file(fname,blob64)
+			attachments.push(fcid)
+			common_contact_vars["{{id-attachment-"].set_el_html(attachments.join(','))
+
+		} catch (e) {}
 	}
 
-	function dragover(event) {
+	function dragover(ev) {
 		ev.preventDefault();
 	}
 

@@ -49,6 +49,7 @@
 
 	let active_user = false
 	let active_identity = false
+	let active_profile_image = false
 	let known_users = [false]
 	let known_identities = [false]
   	let u_index = 0
@@ -518,6 +519,11 @@
 		fetch_messages(identity)
 		fetch_manifest(identity)
 
+		if ( identity.profile_image ) {
+			let img_cid = identity.profile_image
+			active_profile_image = await ipfs_profiles.load_blob_as_url(img_cid)
+		}
+
 		/*
 		let manifest_cid = identity.files.cid
 		let contacts_cid = identity.files.cid
@@ -556,6 +562,29 @@
 			await unstore_user(identity)
 		}
 	}
+
+
+	async function drop_picture(ev) {
+		ev.preventDefault();
+		try {
+			let files = ev.dataTransfer.files ? ev.dataTransfer.files : false
+			let items = ev.dataTransfer.items ? ev.dataTransfer.items : false
+			let [fname,blob64] = await utils.drop(items,files)
+			//
+			fname = `images/contact`
+			let identity = active_identity
+			if ( identity ) {
+				let fcid = await ipfs_profiles.upload_profile_data_file(identity.cid,business,fname,blob64)
+				identity.profile_image = fcid
+				update_identity(identity)
+			}
+		} catch (e) {}
+	}
+
+	function dragover_picture(ev) {
+		ev.preventDefault();
+	}
+
 
 // MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
 // MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES MESSAGES
@@ -898,6 +927,19 @@
 		}
 	}
 
+
+	async function upload_identity() {
+		await upload_identity()
+		await get_active_users()  // updates login page and initializes the view of this user.
+		u_index = (known_users.length - 1)	// user was added to the end...
+	}
+
+	async function download_identity() {
+		let user_info = active_identity.user_info
+		await download_identity(user_info,false)
+	}
+
+
 	// ---- ---- ---- ---- ---- ---- ----
 
 // MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST MANIFEST 
@@ -1154,8 +1196,6 @@
 		font-family: inherit;
 		font-size: inherit;
 	}
-
-
 
 	.splash-if-you-will {
 		font-size: 140%;
@@ -1670,8 +1710,12 @@
 				status: <span class={signup_status === 'OK' ? "good-status" : "bad-status"}>{signup_status}</span>
 			</div>
 			<div>
-				<div class="picture-drop">
+				<div class="picture-drop"  on:drop={drop_picture} on:dragover={dragover_picture}  >
+					{#if active_profile_image }
+					<image src={active_profile_image} />
+					{:else}
 					drop a picture here
+					{/if}
 				</div>
 				<div>
 					<div class="contact_controls">
@@ -1679,8 +1723,8 @@
 						<button on:click={remove_identify_seen_in_form} >∌ remove</button>
 					</div>	
 					<div class="contact_controls">
-						<button>▼ identity</button>
-						<button>▲ identity</button>
+						<button no:click={download_identity} >▼ identity</button>
+						<button no:click={upload_identity} >▲ identity</button>
 					</div>	
 				</div>
 			</div>
