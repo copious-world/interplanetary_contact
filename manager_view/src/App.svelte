@@ -928,13 +928,13 @@
 	}
 
 
-	async function upload_identity() {
+	async function app_upload_identity() {
 		await upload_identity()
 		await get_active_users()  // updates login page and initializes the view of this user.
 		u_index = (known_users.length - 1)	// user was added to the end...
 	}
 
-	async function download_identity() {
+	async function app_download_identity() {
 		let user_info = active_identity.user_info
 		await download_identity(user_info,false)
 	}
@@ -1723,8 +1723,8 @@
 						<button on:click={remove_identify_seen_in_form} >∌ remove</button>
 					</div>	
 					<div class="contact_controls">
-						<button no:click={download_identity} >▼ identity</button>
-						<button no:click={upload_identity} >▲ identity</button>
+						<button on:click={app_download_identity} >▼ identity</button>
+						<button on:click={app_upload_identity} >▲ identity</button>
 					</div>	
 				</div>
 			</div>

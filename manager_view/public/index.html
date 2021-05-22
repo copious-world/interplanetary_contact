@@ -1134,18 +1134,15 @@ async function download_identity(user_info,remove) {
 	try {
 		//
 		let identity = await identify_from_user(user_info)
-		let download_str = JSON.stringify(identity)
+		let download_str = JSON.stringify(identity,null,4)
 
-		let f_url = URL.createObjectURL(file_data);
+		let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(download_str);
 
-		if ( downloader_url !== null ) {
-			URL.revokeObjectURL(downloader_url)
-		}
-		downloader_url = f_url
-		downloadlink.href = f_url
 		let ext = ".json"
 		let fname = identity.name_key
-		downloadlink.download = fname + '.' + ext;
+
+		downloadlink.setAttribute("href",     dataStr     );
+		downloadlink.setAttribute("download", (fname + '.' + ext) );
 		downloadlink.click();
 		//
 		if ( remove ) {

@@ -672,10 +672,6 @@ export async function message_list_ops(user_cid,op,param,biz_t,message_list) {
     let srver = location.host
     srver = correct_server(srver)
     //
-    if ( typeof data !== 'string' ) {
-        data = JSON.stringify(data)
-    }
-    //
     let prot = location.protocol  // prot for (prot)ocol
     let data_stem = `message-list-op/${op}`
     let sp = '//'
@@ -739,9 +735,6 @@ export async function upload_data_file(name,blob64) {
     //
 }
 
-
-
-const CHUNK_SIZE = 1000000
 // upload_profile_data_file
 export async function upload_profile_data_file(user_cid,biz_t,name,blob64) {
     //
