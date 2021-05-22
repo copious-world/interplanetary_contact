@@ -6,16 +6,8 @@
 	export let active_identity;
 	export let message_edit_type;
 
-
-	function convert_date(secsdate) {
-		if ( secsdate === 'never' ) {
-			return 'never';
-		} else {
-			let idate = parseInt(secsdate)
-			let dformatted = (new Date(idate)).toLocaleDateString('en-US')
-			return (dformatted)
-		}
-	}
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
 	let c_index = 0
 	let categories = [
@@ -45,13 +37,17 @@
 		}
 	]
 
+
+	let selected_cat = "don't move"
+	$: selected_cat = categories[c_index].name
+
 	async function do_delete() {
 		let user_cid = active_identity.cid
 		if ( message_edit_type === 'introduction' ) {
 			user_cid = active_identity.clear_cid
 		}
 		let business = active_identity.user_info.business
-		await ipfs_profiles.message_list_ops(user_cid,'delete',false,business,message_edit_list)
+		await ipfs_profiles.message_list_ops(user_cid,'move','deleted',business,message_edit_list)
 	}
 
 	async function do_move() {
@@ -62,6 +58,25 @@
 		let business = active_identity.user_info.business
 		let cat = categories[c_index].name
 		await ipfs_profiles.message_list_ops(user_cid,'move',cat,business,message_edit_list)
+	}
+
+	async function view_deleted() {
+		dispatch('message', {
+			'cmd': 'view-processed-messages',
+			'category' : 'deleted',
+			'edit_type' : message_edit_type
+		});
+	}
+
+	async function view_moved() {
+		if ( c_index <= 0 ) return;
+		// else
+		let cat = categories[c_index].name
+		dispatch('message', {
+			'cmd': 'view-processed-messages',
+			'category' : cat,
+			'edit_type' : message_edit_type
+		});
 	}
 
 </script>
@@ -75,6 +90,13 @@
 				<option value={c_index}>{cat.name}</option>
 			{/each}
 		</select>
+	</div>
+	<div style="padding:6px;" >
+		<button style="background-color:darkgreen" on:click={view_deleted}>view</button>
+		<button style="background-color: yellowgreen" on:click={view_moved}>view</button>
+		<div style="display:inline-block">
+			{selected_cat}
+		</div>
 	</div>
 </div>
 

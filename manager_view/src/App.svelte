@@ -8,6 +8,7 @@
 	import MessageDisplay from './MessageDisplay.svelte'
 	import MessageEditor from './MessageEditor.svelte'
 	import MessageListEdit from './MessageListEditor.svelte'
+	//
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	import * as utils from './utilities.js'
 
@@ -26,7 +27,9 @@
 	let i = 0;
 	let c_i = 0;
 	let i_i = 0;
+	let p_i = 0;
 	let form_index = 0
+
 
 	let name = ''
 	let DOB = ''
@@ -86,6 +89,9 @@
 
 	let filtered_cc_list = []
 
+	let message_op_category = "read"
+	let inbound_messages = []
+
 	// This is just a default... It will be used until the user picks something else 
 	// when editing the manifest.
 	let selected_form_link_types = {
@@ -120,7 +126,12 @@
 		{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : "testesttesttest", "message" : "this is a message 3"  }
 	]
 
+
+	let processed_messages = []
+
 	let message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
+
+
 
 	let message_edit_list_name = ""
 	let message_edit_type = "message"
@@ -140,6 +151,7 @@
 		i = 0;
 		c_i = 0;
 		i_i = 0;
+		p_i = 0;
 		form_index = 0
 		//
 		c_name = ''
@@ -190,6 +202,9 @@
 			{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : "testesttesttest", "message" : "this is a message 2"  },
 			{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : "testesttesttest", "message" : "this is a message 3"  }
 		]
+
+		processed_messages = []
+
 		message_selected = { "name": 'Admin', "subject" : "Hello From copious.world", "date" : today, "readers" : "you", "business" : false, "public_key" : false }
 
 		update_selected_form_links()
@@ -209,6 +224,13 @@
 				selected.answer_message = true
 				message_edit_from_contact = false
 				start_floating_window(1);
+			}
+			case "view-processed-messages": {
+				(async () => {
+					message_op_category = evt.detail.category
+					processed_messages = await fetch_category_messages(active_identity,message_op_category)
+				})()
+				break;
 			}
 			default: {
 				console.log("message cmd not handled")
@@ -629,6 +651,27 @@
 		start_floating_window(2);
 	}
 
+
+	function doops_processed(ev) {
+		message_edit_list_name = "Processed Message Ops"
+		message_edit_type = "message"
+		message_edit_list = []
+		//
+		let n = processed_messages.length
+		for ( let i = 0; i < n; i++ ) {
+			let check_el_id = `doop-p_contact_${i}`
+			let check_el = document.getElementById(check_el_id)
+			if ( check_el ) {
+				if ( check_el.checked ) {
+					let m = processed_messages[i]
+					message_edit_list.push(m)
+				}
+			}
+		}
+		//
+		start_floating_window(2);
+	}
+
 	function doops_intros(ev) {
 		message_edit_list_name = "Introduction Ops"
 		message_edit_type = "introduction"
@@ -687,7 +730,15 @@
 			check_contacts(inbound_solicitation_messages)
 		}
 	}
+	
+	async function fetch_category_messages(identify,op_category) {
+		if ( identify ) {
+			let inbound_messages = await ipfs_profiles.get_categorized_message_files(identify,op_category,start_of_messages,messages_per_page)
+			return inbound_messages
+		}
+	}
 
+	
 	function messages_update_contacts(cid,bval) {
 		if ( Array.isArray(inbound_contact_messages) ) {
 			for ( let m of inbound_contact_messages ) {
@@ -1281,6 +1332,18 @@
 	}
 
 
+	.header-button {
+		max-width:min-content;
+		border-radius: 6px;
+		padding: 1px;
+		background-color:rgb(248, 250, 248);
+	}
+
+	.header-button:hover {
+		background-color:rgb(51, 65, 28);
+		color:yellow;
+	}
+
 	.classy-small {
 		background-color:inherit;
 		font-size:small;
@@ -1588,13 +1651,20 @@
 		color:navy;
 	}
 
+	.processed-category {
+		font-weight: bold;
+		color:rgb(22, 63, 63);
+		font-size:larger;
+		text-transform:capitalize;
+	}
+
 </style>
 
 <div>
 	<!--
 	  Note: tabs must be unique. (They cannot === each other.)
 	-->
-	<TabBar tabs={['Identify', 'User', 'Messages', 'Introductions', 'Contacts', 'Manifest', 'About Us']} let:tab bind:active>
+	<TabBar tabs={['Identify', 'User', 'Messages', 'Introductions', 'Processed', 'Contacts', 'Manifest', 'About Us']} let:tab bind:active>
 	  <!-- Note: the `tab` property is required! -->
 	  <Tab {tab}>
 		<Label><span class={ (tab === active) ? "active-tab" : "plain-tab"}>{tab}</span></Label>
@@ -1737,7 +1807,9 @@
 				<table style="width:100%">
 					<thead>
 						<tr>
-							<th on:click={doops_messages} class="button-header"  style="width:5%">Op</th><th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:55%;text-align: left;">Subject</th>
+							<th  class="button-header"  style="width:5%">
+								<button class="header-button"  on:click={doops_messages}>Op</button>
+							</th><th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:55%;text-align: left;">Subject</th>
 						</tr>
 					</thead>
 					{#if inbound_contact_messages.length }
@@ -1762,7 +1834,9 @@
 				<table style="width:100%">
 					<thead>
 						<tr>
-							<th on:click={doops_intros} class="button-header"  style="width:5%">Op</th><th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:55%;text-align: left;">Subject</th>
+							<th class="button-header"  style="width:5%">
+								<button class="header-button"  on:click={doops_intros}>Op</button>
+							</th><th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:55%;text-align: left;">Subject</th>
 						</tr>
 					</thead>
 					{#if inbound_solicitation_messages.length }
@@ -1770,6 +1844,36 @@
 							<tr on:click={full_message} id="m_intro_{i_i}" class="element-poster"  on:mouseover="{show_subject}">
 								<td on:click={check_box_block} class="op-select"style="width:5%;text-align:center">
 									<input id="doop-m_intro_{i_i}" type="checkbox" >
+								</td>
+								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
+								<td class="sender"  style="width:30%">{a_message.name}</td>
+								<td class="subject" style="width:60%">{@html a_message.subject}</td>
+							</tr>
+						{/each}
+					{/if}
+				</table>
+			</div>
+		</div>
+		{:else if active === 'Processed' }
+		<div>
+			<span class="processed-category" >{message_edit_type}s</span>
+			Processed as
+			<span class="processed-category" >{message_op_category}</span></div>
+		<div>
+			<div class="tableFixHead" >
+				<table style="width:100%">
+					<thead>
+						<tr>
+							<th class="button-header"  style="width:5%">
+								<button class="header-button"  on:click={doops_processed}>Op</button>
+							</th><th style="width:20%">Date</th><th style="width:30%">Sender</th><th style="width:55%;text-align: left;">Subject</th>
+						</tr>
+					</thead>
+					{#if processed_messages.length }
+						{#each processed_messages as a_message, p_i }
+							<tr on:click={full_message} id="m_intro_{p_i}" class="element-poster"  on:mouseover="{show_subject}">
+								<td on:click={check_box_block} class="op-select"style="width:5%;text-align:center">
+									<input id="doop-p_intro_{p_i}" type="checkbox" >
 								</td>
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
@@ -1981,6 +2085,6 @@
 </FloatWindow>
 
 <FloatWindow title={message_edit_list_name} scale_size_array={all_window_scales} index={2} use_smoke={false}>
-	<MessageListEdit message_edit_list={message_edit_list} message_edit_type={message_edit_type} active_identity={active_identity} />
+	<MessageListEdit message_edit_list={message_edit_list} message_edit_type={message_edit_type} active_identity={active_identity} on:message={handle_message} />
 </FloatWindow>
 

@@ -543,6 +543,13 @@ async function get_spool_files(identity,spool_select,clear,offset,count) {
 }
 
 
+async function get_special_files(identity,op_category,offset,count) {
+    //
+    return await get_spool_files(identity,op_category,false,offset,count)
+    //
+}
+
+
 export async function get_message_files(identity,offset,count) {
     let expected_messages = await get_spool_files(identity,true,false,offset,count)
     let solicitations = await get_spool_files(identity,true,true,offset,count)
@@ -552,6 +559,11 @@ export async function get_message_files(identity,offset,count) {
 export async function get_topic_files(identity,offset,count) {
     let expected_messages = await get_spool_files(identity,false,false,offset,count)
     let solicitations = await get_spool_files(identity,false,true,offset,count)
+    return [expected_messages,solicitations]
+}
+
+export async function get_categorized_message_files(identity,op_category,offset,count,clarity) {
+    let expected_messages = await get_special_files(identity,op_category,clarity,offset,count)
     return [expected_messages,solicitations]
 }
 
