@@ -246,7 +246,11 @@
 				// message_edit_list containes message from message_op_category
 				// they are being sent to cat
 				//
-				await ipfs_profiles.message_list_ops(user_cid,dst_cid,'move',cat,business,message_edit_list)
+				let src_cat = false
+				if ( (message_op_category !== 'message') && (message_op_category !== 'intros') ) {
+					src_cat = message_op_category
+				}
+				await ipfs_profiles.message_list_ops(user_cid,dst_cid,'move',cat,business,message_edit_list,src_cat)
 				//
 				//message_edit_source
 				let status = remove_from_source_list(message_edit_source,message_edit_list)

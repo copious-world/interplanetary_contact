@@ -426,13 +426,17 @@ app.post('/message-list-op/:op',async (req, res) => {
   let dst_cid = body.dst_cid
   let message_list = body.message_list.split(',')
 
+  let src_dir = 'spool'
+  if ( body.source_category ) {
+    src_dir = body.source_category
+  }
   switch ( operation ) {
     case 'delete' : {
       await g_ipfs_profiles.remove_messages(user_cid,biz_t,message_list)
       break;
     }
     case 'move' : {
-      await g_ipfs_profiles.move_messages_to_dir(user_cid,dst_cid,biz_t,parameter,message_list)
+      await g_ipfs_profiles.move_messages_to_dir(user_cid,dst_cid,biz_t,src_dir,parameter,message_list)
       break;
     }
   }

@@ -686,7 +686,7 @@ export async function put_contact_template(name,data) {
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 //
 
-export async function message_list_ops(user_cid,dst_cid,op,param,biz_t,message_list) {
+export async function message_list_ops(user_cid,dst_cid,op,param,biz_t,message_list,src_cat) {
     //
     let srver = location.host
     srver = correct_server(srver)
@@ -700,6 +700,9 @@ export async function message_list_ops(user_cid,dst_cid,op,param,biz_t,message_l
         'param' : param,
         'business' : biz_t,
         'message_list' : message_list.join(',')
+    }
+    if ( src_cat ) {
+        post_data.source_category = src_cat
     }
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( result.status === "OK" ) {
