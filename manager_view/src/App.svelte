@@ -82,6 +82,7 @@
 
 	//
 	let active = 'Identify';
+	let prev_active = active
 	let first_message = 0
 
 	let green = false     // an indicator telling if this user ID is set
@@ -90,7 +91,8 @@
 	let filtered_cc_list = []
 
 	let message_op_category = "read"
-	let inbound_messages = []
+	let source_category = "messages"
+	let processed_category = "Use Op to Select"
 
 	// This is just a default... It will be used until the user picks something else 
 	// when editing the manifest.
@@ -136,6 +138,7 @@
 	let message_edit_list_name = ""
 	let message_edit_type = "message"
 	let message_edit_list = []
+	let message_edit_source = false
 
 	function reinitialize_user_context() {
 		active_cid = ""
@@ -210,14 +213,12 @@
 		update_selected_form_links()
 	}
 
-	function handle_message(evt) {
+	async function handle_message(evt) {
 		let cmd = evt.detail.cmd
 		switch ( cmd ) {
 			case "new-contact" : {
-				(async () => {
-					let added = await auto_add_contact(evt.detail.cid)
-					message_selected.is_in_contacts = added
-				})()
+				let added = await auto_add_contact(evt.detail.cid)
+				message_selected.is_in_contacts = added
 				break;
 			}
 			case "reply": {
@@ -226,10 +227,32 @@
 				start_floating_window(1);
 			}
 			case "view-processed-messages": {
-				(async () => {
-					message_op_category = evt.detail.category
-					processed_messages = await fetch_category_messages(active_identity,message_op_category)
-				})()
+				message_op_category = evt.detail.category
+				processed_category = message_op_category
+				source_category = message_op_category
+				processed_messages = await fetch_category_messages(active_identity,message_op_category)
+				break;
+			}
+			case 'move-messages': {
+				let cat =  evt.detail.category
+				if ( cat === source_category ) return
+				let user_cid = active_identity.cid
+				if ( active === 'Introductions' ) {
+					user_cid = active_identity.clear_cid
+				}
+				let dst_cid = active_identity.cid
+				let business = active_identity.user_info.business
+				//
+				// message_edit_list containes message from message_op_category
+				// they are being sent to cat
+				//
+				await ipfs_profiles.message_list_ops(user_cid,dst_cid,'move',cat,business,message_edit_list)
+				//
+				//message_edit_source
+				let status = remove_from_source_list(message_edit_source,message_edit_list)
+				if ( status == false ) {
+					console.log("no message removed")
+				}
 				break;
 			}
 			default: {
@@ -379,6 +402,19 @@
 						|| (c_place_of_origin.length == 0) )
 						|| (c_cool_public_info.length == 0))
 						
+
+	$: {
+		if ( prev_active !== active ) {
+			message_edit_list = []
+			message_edit_source = false
+			if ( active == "Introductions" ) {
+				message_op_category = "intros"
+			} else if ( active == "Messages" ) {
+				message_op_category = "messages"
+			}
+		}
+		prev_active = active
+	}
 	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
  
 
@@ -625,8 +661,104 @@
 
 	}
 
+
+	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+	function clear_checks(pattern,n) {
+		let i = 0
+		let el = false
+		do {
+			let el_id = `${pattern}${i}`
+			el = document.getElementById(el_id)
+			if ( el ) {
+				el.checked = false
+			}
+			i++
+		} while ( el )
+	}
+
+ 
+	function get_selected_message(dom_el,parts_of_0) {
+		let found_message = false
+		if ( dom_el && (dom_el.id.length === 0) ) {
+			do {
+				dom_el = dom_el.parentNode;
+			} while ( dom_el && (dom_el.id.length === 0) )
+		}
+		if ( dom_el && (dom_el.id.length !== 0) ) {
+			let parts = dom_el.id.split('_')
+			if ( parts[0] === parts_of_0 ) {
+				if ( parts[1] === 'contact' ) {
+					let index = parseInt(parts[2])
+					message_edit_source = inbound_contact_messages
+					found_message = inbound_contact_messages[index]
+				} else if ( parts[1] === 'intro' ) {
+					let index = parseInt(parts[2])
+					message_edit_source = inbound_solicitation_messages
+					found_message = inbound_solicitation_messages[index]
+				} else if ( parts[1] === 'category' ) { // category
+					let index = parseInt(parts[2])
+					message_edit_source = processed_messages
+					found_message = processed_messages[index]
+				}
+			}
+		}
+		return found_message
+	}
+
+
+	function remove_from_source_list(m_source,m_changed) {
+		//
+		let op_list = []
+		if ( active == "Introductions" ) {
+			op_list = inbound_contact_messages
+			if ( m_source !== op_list ) return false;
+		} else if ( active == "Messages" ) {
+			op_list = inbound_solicitation_messages
+			if ( m_source !== op_list ) return false;
+		} else {
+			op_list = processed_messages
+			if ( m_source !== op_list ) return false;
+		}
+		//
+		let changed_list = op_list.filter(m_el => {
+			let cid = m_el.f_cid
+			if ( cid ) {
+				if ( m_changed.indexOf(cid) >= 0 ) return false
+			}
+			return true
+		})
+		//
+		if ( active === "Messages" ) {
+			inbound_contact_messages  = changed_list
+			clear_checks("doop-m_contact_",changed_list.length)
+		} else if ( active === "Introductions" ) {
+			inbound_solicitation_messages  = changed_list
+			clear_checks("doop-m_intro_",changed_list.length)
+		} else {
+			processed_messages  = changed_list
+			clear_checks("doop-m_category_",changed_list.length)
+		}
+		//
+	}
+
+	// ---- check_box_block
+	// ---- 
 	function check_box_block(ev) {
 		ev.stopPropagation()
+		// enter or remove element into the operation list....
+		let dom_el = ev.target
+		let m = get_selected_message(dom_el,'doop-m')
+		if ( m ) {
+			if ( dom_el.checked ) {
+				message_edit_list.push(m.f_cid)
+			} else {
+				const index = message_edit_list.indexOf(m.f_cid);
+				message_edit_list = [...message_edit_list.slice(0, index), ...message_edit_list.slice(index + 1)];
+			}
+		}
+		console.log(message_edit_list)
 	}
 
 
@@ -634,19 +766,7 @@
 		//
 		message_edit_list_name = "Message Ops"
 		message_edit_type = "message"
-		message_edit_list = []
-		//
-		let n = inbound_contact_messages.length
-		for ( let i = 0; i < n; i++ ) {
-			let check_el_id = `doop-m_contact_${i}`
-			let check_el = document.getElementById(check_el_id)
-			if ( check_el ) {
-				if ( check_el.checked ) {
-					let m = inbound_contact_messages[i]
-					message_edit_list.push(m)
-				}
-			}
-		}
+
 		//
 		start_floating_window(2);
 	}
@@ -655,19 +775,6 @@
 	function doops_processed(ev) {
 		message_edit_list_name = "Processed Message Ops"
 		message_edit_type = "message"
-		message_edit_list = []
-		//
-		let n = processed_messages.length
-		for ( let i = 0; i < n; i++ ) {
-			let check_el_id = `doop-p_contact_${i}`
-			let check_el = document.getElementById(check_el_id)
-			if ( check_el ) {
-				if ( check_el.checked ) {
-					let m = processed_messages[i]
-					message_edit_list.push(m)
-				}
-			}
-		}
 		//
 		start_floating_window(2);
 	}
@@ -675,19 +782,6 @@
 	function doops_intros(ev) {
 		message_edit_list_name = "Introduction Ops"
 		message_edit_type = "introduction"
-		message_edit_list = []
-		//
-		let n = inbound_solicitation_messages.length
-		for ( let i = 0; i < n; i++ ) {
-			let check_el_id = `doop-doop-m_intro_${i}`
-			let check_el = document.getElementById(check_el_id)
-			if ( check_el ) {
-				if ( check_el.checked ) {
-					let m = inbound_solicitation_messages[i]
-					message_edit_list.push(m)
-				}
-			}
-		}
 		//
 		start_floating_window(2);
 	}
@@ -695,28 +789,16 @@
 	function full_message(ev) {
 		if ( ev ) {
 			let dom_el = ev.target;
-			while ( dom_el && (dom_el.id.length === 0) ) {
-				dom_el = dom_el.parentNode;
-				if ( dom_el && (dom_el.id.length !== 0) ) {
-					let parts = dom_el.id.split('_')
-					if ( parts[0] === 'm' ) {
-						if ( parts[1] === 'contact' ) {
-							let index = parseInt(parts[2])
-							message_selected = inbound_contact_messages[index]
-						} else {
-							let index = parseInt(parts[2])
-							message_selected = inbound_solicitation_messages[index]
-						}
-						break;
-					}
+			let m = get_selected_message(dom_el,'m')
+			if ( m ) {
+				message_selected = m
+				let contact = find_contact_from_message(message_selected)
+				if ( contact ) {
+					contact.answer_message = `&lt;subject ${message_selected.subject}&gt;<br>` + message_selected.message
 				}
+				start_floating_window(0);
 			}
 		}
-		let contact = find_contact_from_message(message_selected)
-		if ( contact ) {
-			contact.answer_message = `&lt;subject ${message_selected.subject}&gt;<br>` + message_selected.message
-		}
-		start_floating_window(0);
 	}
 
 
@@ -733,7 +815,9 @@
 	
 	async function fetch_category_messages(identify,op_category) {
 		if ( identify ) {
-			let inbound_messages = await ipfs_profiles.get_categorized_message_files(identify,op_category,start_of_messages,messages_per_page)
+			let start = start_of_messages ? start_of_messages : 0
+			let count = messages_per_page ? messages_per_page : 100
+			let inbound_messages = await ipfs_profiles.get_categorized_message_files(identify,op_category,start,count)
 			return inbound_messages
 		}
 	}
@@ -764,6 +848,7 @@
 	}
 
 	function find_contact_from_message(message) {
+		if ( message === undefined ) return false
 		for ( let contact of individuals ) {
 			if ( (contact.name == message.name) && (message.user_cid === contact.cid) ) {
 				return contact
@@ -1815,8 +1900,8 @@
 					{#if inbound_contact_messages.length }
 						{#each inbound_contact_messages as a_message, c_i }
 							<tr on:click={full_message} id="m_contact_{c_i}" class="element-poster"  on:mouseover="{show_subject}">
-								<td on:click={check_box_block} class="op-select"style="width:5%;text-align:center">
-									<input id="doop-m_contact_{c_i}" type="checkbox" >
+								<td class="op-select"style="width:5%;text-align:center">
+									<input id="doop-m_contact_{c_i}" type="checkbox" on:click={check_box_block}  >
 								</td>
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
@@ -1842,8 +1927,8 @@
 					{#if inbound_solicitation_messages.length }
 						{#each inbound_solicitation_messages as a_message, i_i }
 							<tr on:click={full_message} id="m_intro_{i_i}" class="element-poster"  on:mouseover="{show_subject}">
-								<td on:click={check_box_block} class="op-select"style="width:5%;text-align:center">
-									<input id="doop-m_intro_{i_i}" type="checkbox" >
+								<td class="op-select"style="width:5%;text-align:center">
+									<input id="doop-m_intro_{i_i}" type="checkbox"on:click={check_box_block}  >
 								</td>
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
@@ -1856,9 +1941,7 @@
 		</div>
 		{:else if active === 'Processed' }
 		<div>
-			<span class="processed-category" >{message_edit_type}s</span>
-			Processed as
-			<span class="processed-category" >{message_op_category}</span></div>
+			<span class="processed-category" >{processed_category}</span></div>
 		<div>
 			<div class="tableFixHead" >
 				<table style="width:100%">
@@ -1871,9 +1954,9 @@
 					</thead>
 					{#if processed_messages.length }
 						{#each processed_messages as a_message, p_i }
-							<tr on:click={full_message} id="m_intro_{p_i}" class="element-poster"  on:mouseover="{show_subject}">
-								<td on:click={check_box_block} class="op-select"style="width:5%;text-align:center">
-									<input id="doop-p_intro_{p_i}" type="checkbox" >
+							<tr on:click={full_message} id="m_category_{p_i}" class="element-poster"  on:mouseover="{show_subject}">
+								<td class="op-select"style="width:5%;text-align:center">
+									<input id="doop-m_category_{p_i}" type="checkbox" on:click={check_box_block}  >
 								</td>
 								<td class="date"  style="width:20%;text-align:center">{a_message.date}</td>
 								<td class="sender"  style="width:30%">{a_message.name}</td>
@@ -2085,6 +2168,6 @@
 </FloatWindow>
 
 <FloatWindow title={message_edit_list_name} scale_size_array={all_window_scales} index={2} use_smoke={false}>
-	<MessageListEdit message_edit_list={message_edit_list} message_edit_type={message_edit_type} active_identity={active_identity} on:message={handle_message} />
+	<MessageListEdit message_edit_type="Message Ops" active_identity={active_identity} on:message={handle_message} />
 </FloatWindow>
 

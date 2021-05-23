@@ -482,6 +482,9 @@ async function clarify_message(messages,identity) {
         for await (let message of message_decryptor(messages,identity) ) {
             try {
                 let cmessage = JSON.parse(message.message)
+                if ( message.f_cid ) {
+                    cmessage.f_cid =  message.f_cid
+                }
                 clear_messages.push(cmessage)
             } catch (e) {
                 clear_messages.push(message)
@@ -518,12 +521,16 @@ async function get_spool_files(identity,spool_select,clear,offset,count) {
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( result.status === "OK" ) {
         let messages = result.data
+        let cid_list = result.cid_list
         try {
             if ( Array.isArray(messages) ) {
-                messages = messages.map(msg => {
+                messages = messages.map((msg,index) => {
                     if ( typeof msg === "string" ) {
                         try {
                             let obj = JSON.parse(msg)
+                            if ( cid_list ) {
+                                obj.f_cid = cid_list[index]
+                            }
                             return obj
                         } catch(e) {
                             return msg
@@ -562,9 +569,9 @@ export async function get_topic_files(identity,offset,count) {
     return [expected_messages,solicitations]
 }
 
-export async function get_categorized_message_files(identity,op_category,offset,count,clarity) {
-    let expected_messages = await get_special_files(identity,op_category,clarity,offset,count)
-    return [expected_messages,solicitations]
+export async function get_categorized_message_files(identity,op_category,offset,count) {
+    let expected_messages = await get_special_files(identity,op_category,offset,count)
+    return expected_messages
 }
 
 
@@ -679,7 +686,7 @@ export async function put_contact_template(name,data) {
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 //
 
-export async function message_list_ops(user_cid,op,param,biz_t,message_list) {
+export async function message_list_ops(user_cid,dst_cid,op,param,biz_t,message_list) {
     //
     let srver = location.host
     srver = correct_server(srver)
@@ -689,6 +696,7 @@ export async function message_list_ops(user_cid,op,param,biz_t,message_list) {
     let sp = '//'
     let post_data = {
         'user_cid' : user_cid,
+        'dst_cid' : dst_cid,
         'param' : param,
         'business' : biz_t,
         'message_list' : message_list.join(',')

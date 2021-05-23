@@ -1,8 +1,5 @@
 <script>
 
-	import * as ipfs_profiles from './ipfs_profile_proxy.js'
-
-	export let message_edit_list;
 	export let active_identity;
 	export let message_edit_type;
 
@@ -42,29 +39,25 @@
 	$: selected_cat = categories[c_index].name
 
 	async function do_delete() {
-		let user_cid = active_identity.cid
-		if ( message_edit_type === 'introduction' ) {
-			user_cid = active_identity.clear_cid
-		}
-		let business = active_identity.user_info.business
-		await ipfs_profiles.message_list_ops(user_cid,'move','deleted',business,message_edit_list)
+		dispatch('message', {
+			'cmd': 'move-messages',
+			'category' : 'deleted'
+		});
 	}
 
 	async function do_move() {
-		let user_cid = active_identity.cid
-		if ( message_edit_type === 'introduction' ) {
-			user_cid = active_identity.clear_cid
-		}
-		let business = active_identity.user_info.business
+		if ( c_index <= 0 ) return;
 		let cat = categories[c_index].name
-		await ipfs_profiles.message_list_ops(user_cid,'move',cat,business,message_edit_list)
+		dispatch('message', {
+			'cmd': 'move-messages',
+			'category' : cat
+		});
 	}
 
 	async function view_deleted() {
 		dispatch('message', {
 			'cmd': 'view-processed-messages',
-			'category' : 'deleted',
-			'edit_type' : message_edit_type
+			'category' : 'deleted'
 		});
 	}
 
@@ -74,8 +67,7 @@
 		let cat = categories[c_index].name
 		dispatch('message', {
 			'cmd': 'view-processed-messages',
-			'category' : cat,
-			'edit_type' : message_edit_type
+			'category' : cat
 		});
 	}
 

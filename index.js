@@ -299,10 +299,10 @@ app.post('/get-spool',async (req, res) => {
   let body = req.body
   let answer = { "status" : "error", "reason" : "unidentified spool" }
   //
-  let messages = ""
+
   if ( body.cid !== undefined ) {
-    messages = await g_ipfs_profiles.get_spool_files_body(body)
-    answer = { "status" : "OK", "data" : messages }
+    let [messages,cid_list] = await g_ipfs_profiles.get_spool_files_body(body)
+    answer = { "status" : "OK", "data" : messages, "cid_list" : cid_list }
   }
   //
   res.type('application/json').send(answer)
@@ -423,6 +423,7 @@ app.post('/message-list-op/:op',async (req, res) => {
   let biz_t = body.business
   let parameter = body.param
   let user_cid = body.user_cid
+  let dst_cid = body.dst_cid
   let message_list = body.message_list.split(',')
 
   switch ( operation ) {
@@ -431,7 +432,7 @@ app.post('/message-list-op/:op',async (req, res) => {
       break;
     }
     case 'move' : {
-      await g_ipfs_profiles.move_messages_to_dir(user_cid,biz_t,parameter,message_list)
+      await g_ipfs_profiles.move_messages_to_dir(user_cid,dst_cid,biz_t,parameter,message_list)
       break;
     }
   }
