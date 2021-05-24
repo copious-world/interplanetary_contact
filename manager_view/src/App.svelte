@@ -235,7 +235,7 @@
 			}
 			case 'move-messages': {
 				let cat =  evt.detail.category
-				if ( cat === source_category ) return
+				if ( (cat === source_category) && !(message_op_category === 'intros' || message_op_category === 'messages')) return
 				let user_cid = active_identity.cid
 				if ( active === 'Introductions' ) {
 					user_cid = active_identity.clear_cid
@@ -247,7 +247,7 @@
 				// they are being sent to cat
 				//
 				let src_cat = false
-				if ( (message_op_category !== 'message') && (message_op_category !== 'intros') ) {
+				if ( (message_op_category !== 'messages') && (message_op_category !== 'intros') ) {
 					src_cat = message_op_category
 				}
 				await ipfs_profiles.message_list_ops(user_cid,dst_cid,'move',cat,business,message_edit_list,src_cat)
@@ -715,10 +715,10 @@
 	function remove_from_source_list(m_source,m_changed) {
 		//
 		let op_list = []
-		if ( active == "Introductions" ) {
+		if ( active == "Messages" ) {
 			op_list = inbound_contact_messages
 			if ( m_source !== op_list ) return false;
-		} else if ( active == "Messages" ) {
+		} else if ( active == "Introductions" ) {
 			op_list = inbound_solicitation_messages
 			if ( m_source !== op_list ) return false;
 		} else {
