@@ -61,6 +61,12 @@ app.get('/',(req, res) => {
   res.type('text/html').send(stream)
 })
 
+app.get('/image',(req, res) => {
+  console.log("image")
+  const stream = fs.createReadStream('./test/brent-fox-jane-18-b.jpg')
+  res.type('image/jpeg').send(stream)
+})
+
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
@@ -568,7 +574,6 @@ app.post('/put/blob',async (req, res) => {  // narrow search by category.
   //
   let file_name = body.name 
   let tstamp = body.tstamp
-  let template_data = body.chunk
 
   let key = file_name + '-' + tstamp
   let blob_holder = g_blob_keeper[key]
@@ -579,13 +584,41 @@ app.post('/put/blob',async (req, res) => {  // narrow search by category.
     blob_holder.chunk += body.chunk
   }
 
-  if ( body.end_of_file ) {
-    let cid = await g_ipfs_profiles.add_data(blob_holder)
+  if ( body.end ) {
+    delete blob_holder.end
+    delete blob_holder.offset
+    delete g_blob_keeper[key]
+    let blob_descr = JSON.stringify(blob_holder)
+    let cid = await g_ipfs_profiles.add_data(blob_descr)
     res.type('application/json').send({ "status" : "OK", "end_of_data" : true, "cid" : cid })
   } else {
     res.type('application/json').send({ "status" : "OK", "end_of_data" : false })
   }
 
+  //
+})
+
+
+
+//get/blob
+
+app.post('/get/blob',async (req, res) => {  // narrow search by category.
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  let body = req.body
+
+  let cid = body.cid
+  if ( cid ) {
+    let output = await g_ipfs_profiles.get_complete_file_from_cid(cid)
+    let blob_holder = JSON.parse(output)
+    let chunked = blob_holder.chunk
+    res.type('application/json').send({ "status" : "OK", "end_of_data" : true, "data" : chunked })
+  } else {
+    res.type('application/json').send({ "status" : "fail", "reason" : "bad parameter"})
+  }
   //
 })
 

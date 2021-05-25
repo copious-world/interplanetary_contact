@@ -1174,6 +1174,21 @@ async function download_identity(user_info,remove) {
 	} catch (e) {}
 }
 
+
+function generic_downloader(dataStr) {
+	let downloadlink = document.getElementById("identity-download-link")
+	if ( !(downloadlink) ) return false
+	try {
+		let mime_type = dataStr.substring(dataStr.indexOf(":")+1, dataStr.indexOf(";"))
+		//
+		let ext = mime_type.split('/')[1]
+		//
+		downloadlink.setAttribute("href",     dataStr     );
+		downloadlink.setAttribute("download", (`untitled.${ext}`) );
+		downloadlink.click();
+	} catch (e) {}
+}
+
 async function upload_identity() {
 	let identity_str = await get_file()
 	let identity = JSON.parse(identity_str)

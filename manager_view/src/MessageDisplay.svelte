@@ -12,6 +12,7 @@
 	export let is_in_contacts;
 	export let attachments;
 
+	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
@@ -45,6 +46,10 @@
 			attachments_display = utils.clear_char(attachments_display,"\n")
 			attachments_display = utils.clear_char(attachments_display,"\t")
 			attachments_display = utils.clear_char(attachments_display," ")
+			//
+			if ( attachments_display !== "none" ) {
+
+			}
 		} else {
 			attachments_display = "none"
 		}
@@ -67,6 +72,12 @@
 		} else {
 			readers_display = "none"
 		}
+	}
+
+
+	async function downloader(f_cid) {
+		let attached_file = await ipfs_profiles.load_blob_as_url(f_cid)
+		generic_downloader(attached_file)
 	}
 
 </script>
@@ -95,7 +106,13 @@
 	</div>
 	<div style="border-bottom: slategrey solid 1px;margin-bottom: 4px;background-color:snow;">
 		<span class="useful-label" >Attachments:</span>
-		<div style="display:inline-block;color:darkgreen">{attachments_display}</div>
+		{#if attachments_display === 'none' }
+			<div style="display:inline-block;color:darkgreen">{attachments_display}</div>
+		{:else}
+			{#each attachments as attached }
+				<span class="attachment-click" on:click={() => downloader(attached)}>{attached}</span>
+			{/each}
+		{/if}
 	</div>
 	<div class="message-header">
 		<span class="useful-label" style="font-size: small;">Message:</span>
@@ -194,5 +211,17 @@
 		font-weight: bold;
 		font-size:x-small;
 		font-style: oblique;
+	}
+
+
+	.attachment-click {
+		border: beige 1px solid;
+		cursor: pointer;
+		margin-left: 4px;
+	}
+
+	.attachment-click:hover {
+		color:green;
+		background-color: rgb(253, 253, 244);
 	}
 </style>

@@ -12,6 +12,10 @@
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	import * as utils from './utilities.js'
 
+
+	let active_profile_image = ""; //"/favicon.png" ; // "/brent-fox-jane-18-b.jpg"
+	//
+	let src_1_name = "Drop a picture here"
 	//
 	let active_cid = ""
 	let clear_cid = ""
@@ -52,7 +56,6 @@
 
 	let active_user = false
 	let active_identity = false
-	let active_profile_image = false
 	let known_users = [false]
 	let known_identities = [false]
   	let u_index = 0
@@ -79,6 +82,8 @@
 	let man_encrypted = false
 
 	let message_edit_from_contact = false
+
+	let profile_image_el
 
 	//
 	let active = 'Identify';
@@ -148,6 +153,8 @@
 	//
 		start_of_messages = 0
 		messages_per_page = 100
+		//
+		active_profile_image = ""
 		//
 		prefix = '';
 		man_prefix = '';
@@ -625,7 +632,6 @@
 		}
 	}
 
-
 	async function drop_picture(ev) {
 		ev.preventDefault();
 		try {
@@ -636,11 +642,17 @@
 			fname = `images/contact`
 			let identity = active_identity
 			if ( identity ) {
-				let fcid = await ipfs_profiles.upload_profile_data_file(identity.cid,business,fname,blob64)
-				identity.profile_image = fcid
-				update_identity(identity)
+				active_profile_image = blob64
+				//
+				let fcid = await ipfs_profiles.upload_data_file(fname,blob64)
+				if ( fcid ) {
+					identity.profile_image = fcid
+					update_identity(identity)
+				}
 			}
-		} catch (e) {}
+		} catch (e) {
+			console.log(e)
+		}
 	}
 
 	function dragover_picture(ev) {
@@ -1682,9 +1694,21 @@
 	}
 
 	.picture-drop:hover {
-		background-color:rgb(234, 247, 223);
+		border: 2px dotted rgb(180, 8, 31);
+		background-color:rgb(151, 197, 114);
 	}
-	
+
+	.picture-drop > .capture_image {
+		position:absolute; 
+		top:0px; 
+		left:0px; 
+		z-index:100; 
+		width: auto; 
+		height: inherit; 
+		border:none;
+		cursor:pointer;
+	}
+
 	.contact_controls {
 		width: calc(32vw - 96px);
 		margin: 2px;
@@ -1870,11 +1894,7 @@
 			</div>
 			<div>
 				<div class="picture-drop"  on:drop={drop_picture} on:dragover={dragover_picture}  >
-					{#if active_profile_image }
-					<image src={active_profile_image} />
-					{:else}
-					drop a picture here
-					{/if}
+					<img src={active_profile_image} bind:this={profile_image_el} alt={src_1_name} />
 				</div>
 				<div>
 					<div class="contact_controls">
