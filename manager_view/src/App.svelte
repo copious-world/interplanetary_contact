@@ -12,7 +12,6 @@
 	import * as ipfs_profiles from './ipfs_profile_proxy.js'
 	import * as utils from './utilities.js'
 
-
 	let active_profile_image = ""; //"/favicon.png" ; // "/brent-fox-jane-18-b.jpg"
 	//
 	let src_1_name = "Drop a picture here"
@@ -2138,7 +2137,7 @@
 		</blockquote>
 		<blockquote>
 		For one, there is no email service associated with this way of handling messages. 
-		All messages and interfaces for interacting with the processes are stored on the Inner Planetary File System.
+		All messages and interfaces for interacting with the processes are stored on the InterPlanetary File System.
 		</blockquote>
 		<blockquote>
 		Your contact pages is stored there. This tool makes the contact page and stores it for you. Then when someone wants to send 
