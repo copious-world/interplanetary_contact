@@ -871,6 +871,7 @@
 
 	function make_individuals_map(indivs_map) {
 		cid_individuals_map = Object.assign(cid_individuals_map,indivs_map)
+		window.set_contact_map(cid_individuals_map)
 	}
 
 	function find_contact_from_message(message) {
@@ -1017,7 +1018,7 @@
 			let identify = active_identity
 			if ( identify ) {
 				let act_cid = identify.cid
-				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
 				identify.files.contacts.cid = update_cid
 				await update_identity(identify)
 				await get_active_users()
@@ -1056,7 +1057,7 @@
 		let identify = active_identity  // write to client user dir
 		if ( identify ) {
 			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
 			identify.files.contacts.cid = update_cid
 			await update_identity(identify)
 			await get_active_users()
@@ -1084,7 +1085,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
 			identify.files.contacts.cid = update_cid
 			await update_identity(identify)
 			await get_active_users()
@@ -1107,7 +1108,7 @@
 		let identify = active_identity
 		if ( identify ) {
 			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(act_cid,business,cid_individuals_map)
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
 			identify.files.contacts.cid = update_cid
 			await update_identity(identify)
 			await get_active_users()
@@ -1264,7 +1265,7 @@
 		if ( identify ) {
 			let act_cid = identify.cid
 			ipfs_profiles.dont_store_html(manifest_obj)
-			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)
 		}
@@ -1280,7 +1281,7 @@
 		if ( identify ) {
 			let act_cid = identify.cid
 			ipfs_profiles.dont_store_html(manifest_obj)
-			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)
 		}
@@ -1327,7 +1328,7 @@
 		if ( identify ) {
 			let act_cid = identify.cid
 			ipfs_profiles.dont_store_html(manifest_obj)
-			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)
 		}
@@ -1346,7 +1347,7 @@
 		if ( identify ) {
 			let act_cid = identify.cid
 			ipfs_profiles.dont_store_html(manifest_obj)
-			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(act_cid,business,manifest_obj)
+			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
 			update_identity(identify)
 		}

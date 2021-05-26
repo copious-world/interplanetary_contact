@@ -175,12 +175,15 @@
 			"date" : Date.now(),
 			"readers" : common_contact_vars["{{id-cc-"].extract_value(),
 			"business" : business,
-			"public_key" : active_identity.user_info.public_key,  // receiver will wrap keys back to me
-			"signer_public_key" : false,
-			"nonce"  : gen_nonce(),
 			"message" :  common_contact_vars["{{id-message-"].extract_value(),
 			"attachments" : attachments,
-			"reply_with" : selected_contact_cid
+			"reply_with" : selected_contact_cid,
+			//
+			"public_key" : active_identity.user_info.public_key, 	// receiver will wrap keys back to me 
+																	// (could send a different on than the one used in establishing identity)
+			"signer_public_key" : false,							// only send with intro
+			//
+			"nonce"  : gen_nonce()									// always send a fresh nonce
 		}
 		//
 		if (  introduction ) {

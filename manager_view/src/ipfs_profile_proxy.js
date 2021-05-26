@@ -12,6 +12,7 @@ let g_all_keys = []
 let g_prune_timeout = null
 
 const TIMEOUT_THRESHHOLD = 4*60*60
+const SIG_REQUIRED = false
 
 
 var alert_error = (msg) => {
@@ -113,14 +114,15 @@ export async function fetch_topicst(topics_cid,user_cid,btype) {  // specificall
 // ASSETS
 
 
-async function update_asset_to_ipfs(asset,user_cid,is_business,contents) {
+async function update_asset_to_ipfs(asset,identity,is_business,contents) {
+    let user_cid = identity.cid
     let srver = location.host
     srver = correct_server(srver)
     //
     if ( typeof contents !== 'string' ) {
         contents = JSON.stringify(contents)
     }
-    let encryptor = window.user_encryption(user_cid,asset)
+    let encryptor = await window.user_encryption(identity,asset)
     let encoded_contents = contents
     if ( encryptor !== undefined ) {
         encoded_contents = encryptor(contents)
@@ -142,16 +144,16 @@ async function update_asset_to_ipfs(asset,user_cid,is_business,contents) {
 }
 
 
-export async function update_contacts_to_ipfs(user_cid,is_business,contents) {
-    return await update_asset_to_ipfs(CONTACTS,user_cid,is_business,contents)
+export async function update_contacts_to_ipfs(identity,is_business,contents) {
+    return await update_asset_to_ipfs(CONTACTS,identity,is_business,contents)
 }
 
-export async function update_manifest_to_ipfs(user_cid,is_business,contents) {
-    return await update_asset_to_ipfs(MANIFEST,user_cid,is_business,contents)
+export async function update_manifest_to_ipfs(identity,is_business,contents) {
+    return await update_asset_to_ipfs(MANIFEST,identity,is_business,contents)
 }
 
-export async function update_topics_to_ipfs(user_cid,is_business,contents) {
-    return await update_asset_to_ipfs(TOPICS,user_cid,is_business,contents)
+export async function update_topics_to_ipfs(identity,is_business,contents) {
+    return await update_asset_to_ipfs(TOPICS,identity,is_business,contents)
 }
 
 // // contact page
@@ -354,13 +356,12 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
         }
     }
 
-    let sendable_message = {}
+    let sendable_message = Object.assign({},message)
     //
     let user_cid = identity.cid
     sendable_message.user_cid = user_cid    // cid of from  (should have been set)
                                                         // the recipient will wrap key with this (so refresh his memory)
     if ( clear ) {
-        sendable_message = message
         sendable_message.public_key = user_info.public_key
         sendable_message.signer_public_key = user_info.signer_public_key  // send the signature key in the intro (just this once)
         // the id of the clear directory ignores the key.
@@ -368,38 +369,39 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
         delete recipient.public_key  // this has to do with the identiy and the directory where introductions go.
     } else  {
         //
-        sendable_message.when = Date.now()
-        sendable_message.date = (new Date(sendable_message.when)).toISOString()
-        //
-        //
-        sendable_message.name = user_info.name       // from
-                // should have been set in the interface ... but can still catch this here.
+        if ( sendable_message.when === undefined ) sendable_message.when = Date.now()
+        if ( sendable_message.date === undefined ) sendable_message.date = (new Date(message.date)).toISOString()
+        if ( sendable_message.name === undefined ) sendable_message.name = user_info.name       // from
+
+        // should have been set in the interface ... but can still catch this here.
         sendable_message.public_key = user_info.public_key  // basically says we know the recipient (we have talked)
         sendable_message.nonce = message.nonce  // for AES CBC...
         //
-        let key_to_wrap = window.gen_cipher_key()  /// this will be an AES KEY, new each time.
+        // CAN'T PROCEED WITHOUT A KEY
+        //
+        let key_to_wrap = await window.gen_cipher_key()  /// this will be an AES KEY, new each time.
         if ( key_to_wrap === undefined || !(key_to_wrap) ) {
             alert_error("could not get key ")
             alert("no cipher key")
             return
         } else {
             //
-            sendable_message.message = JSON.stringify(message)
-            let encryptor = window.user_encryption(user_cid,"message")  // encryptor may vary by user... assuming more than one in indexedDB
+            sendable_message.message = JSON.stringify(message)      // STRINGIFY
+            //
+            let encryptor = await window.user_encryption(identity,"message")  // encryptor may vary by user... assuming more than one in indexedDB
             let encoded_contents = sendable_message.message 
             if ( encryptor !== undefined ) {
-                encoded_contents = encryptor(encoded_contents,key_to_wrap,message.nonce)  // CBC starting with nonce...
+                encoded_contents = await encryptor(encoded_contents,key_to_wrap,message.nonce)  // CBC starting with nonce...
             }
             sendable_message.message = encoded_contents  // ENCODED
             //
             // wrap the key just used with the public wrapper key of the recipient (got the key via introduction...)
-            sendable_message.wrapped_key = window.key_wrapper(key_to_wrap,recipient.public_key)
+            sendable_message.wrapped_key = await window.key_wrapper(key_to_wrap,recipient.public_key)
             // Sign the wrapped key using the sender's private signer key (receiver should already have public signature...)
-            sendable_message.signature = window.key_signer(sendable_message.wrapped_key,identity.signer_priv_key)
+            sendable_message.signature = await window.key_signer(sendable_message.wrapped_key,identity.signer_priv_key)
             //
-            sendable_message.subject = message.subject
-            sendable_message.readers = message.readers
-            sendable_message.business = message.business
+            delete sendable_message.subject
+            delete sendable_message.readers
         }
     }
     //
@@ -470,7 +472,17 @@ async function* message_decryptor(messages,identity) {
     for ( let message of messages ) {
         let wrapped_key = message.wrapped_key
         try {
-            message.message = await window.decipher_message(message.message,wrapped_key,priv_key)
+            let signature = message.signature
+            if ( signature || SIG_REQUIRED ) {
+                if ( !signature ) continue
+                let user_cid = message.user_cid
+                let contact = contact_from_cid(user_cid)
+                let signer_pub_key = contact.get_field("signer_public_key")
+                //
+                let ok = await window.verifier(wrapped_key,signature,signer_pub_key)
+                if ( !(ok) ) continue
+            }
+            message.message = await window.decipher_message(message.message,wrapped_key,priv_key,message.nonce)
             yield message    
         } catch (e) {}
     }
@@ -487,7 +499,7 @@ async function clarify_message(messages,identity) {
                 }
                 clear_messages.push(cmessage)
             } catch (e) {
-                clear_messages.push(message)
+                //clear_messages.push(message)
             }
         }
     } catch (e) {

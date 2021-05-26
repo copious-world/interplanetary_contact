@@ -1020,6 +1020,7 @@ async function gen_public_key(user_info) {
 	store_user(storage_data,{})
 }
 
+
 async function get_user_public_wrapper_key(name_key) {
 	//
 	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
@@ -1072,31 +1073,271 @@ function get_known_users() {
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+
 function identity_fn(data) {
 	return data
 }
 
-function user_decryption(user_cid,asset) {
+let g_contacts = {}
+function set_contact_map(contacts_map) {
+	g_contacts = contacts_map
+}
+
+function contact_from_cid(user_cid) {
+	let c = g_contacts[user_cid]
+	return c
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ----
+// ---- ---- ---- ---- ---- ---- ---- ----
+
+// identify_from_user(user_info)
+
+function user_decryption(identity,asset) {
+	//
+	if ( identity.asset_keys === undefined ) {
+		identity.asset_keys = {}
+	}
+	//
+	switch ( asset ) {
+		case 'contacts': {
+			let {key,nonce} = identity.asset_keys[asset]
+			if ( key ) {
+				let decryptor = async (deodable) => {
+					let key = aes_key
+					return await aes_decipher_message(deodable,key,nonce)
+				}
+				return decryptor
+			} else {
+				return identity_fn
+			}
+			break;
+		}
+		case 'manifest': {
+			let {key,nonce} = identity.asset_keys[asset]
+			if ( key ) {
+				let decryptor = async (deodable) => {
+					let key = aes_key
+					return await aes_decipher_message(deodable,key,nonce)
+				}
+				return decryptor
+			} else {
+				return identity_fn
+			}
+			break;
+		}
+		case 'topics': {
+			let {key,nonce} = identity.asset_keys[asset]
+			if ( key ) {
+				let decryptor = async (deodable) => {
+					let key = aes_key
+					return await aes_decipher_message(deodable,key,nonce)
+				}
+				return decryptor
+			} else {
+				return identity_fn
+			}
+			break;
+		}
+		default: {
+			break;
+		}
+	}
+	//
 	return identity_fn
 }
 
-function user_encryption(user_cid,asset) {
+
+async function user_encryption(user_info,asset) {
+	if ( identity.asset_keys === undefined ) {
+		identity.asset_keys = {}
+	}
+	switch ( asset ) {
+		case 'message': {	// key stays in messages
+			return aes_encryptor
+			break;
+		}
+		case 'contacts': {
+			let aes_key = await gen_cipher_key()
+			let nonce = gen_nonce()
+			identity.asset_keys['contacts'] = {
+				"key" : aes_key,
+				"nonce" : nonce
+			}
+			let encryptor = async (encodable) => {
+				let key = aes_key
+				return await aes_encryptor(encodable,aes_key,nonce)
+			}
+			return encryptor
+		}
+		case 'manifest': {
+			let aes_key = await gen_cipher_key()
+			let nonce = gen_nonce()
+			identity.asset_keys['contacts'] = {
+				"key" : aes_key,
+				"nonce" : nonce
+			}
+			let encryptor = async (encodable) => {
+				let key = aes_key
+				return await aes_encryptor(encodable,aes_key,nonce)
+			}
+			return encryptor
+		}
+		case 'topics': {
+			let aes_key = await gen_cipher_key()
+			let nonce = gen_nonce()
+			identity.asset_keys['contacts'] = {
+				"key" : aes_key,
+				"nonce" : nonce
+			}
+			let encryptor = async (encodable) => {
+				let key = aes_key
+				return await aes_encryptor(encodable,aes_key,nonce)
+			}
+			return encryptor
+		}
+		default: {
+			break;
+		}
+	}
 	return identity_fn
 }
 
-function gen_cipher_key(user_info) {
-	return true
+// ---- ---- ---- ---- ---- ---- ---- ----
+// ---- ---- ---- ---- ---- ---- ---- ----
+
+async function aes_encryptor(encodable,aes_key,nonce) {
+
+	let enc = new TextEncoder();
+    let encodable =  enc.encode(encodable);
+	let iv = nonce
+
+    let ciphertext = await g_crypto.encrypt({
+												name: "AES-CBC",
+												iv
+											},
+											aes_key,
+											encodable
+										);
+	return ciphertext
 }
 
-function key_wrapper(key_to_wrap,pub_wrapper_key) {
-	return "wrapped up"
+
+async function gen_cipher_key() {
+	//
+	try {
+		let aes_key = g_crypto.generateKey({
+												name: "AES-CBC",
+												length: 256
+											},
+											true,
+											["encrypt", "decrypt"]
+										)	
+
+		return aes_key
+	} catch(e){}
+	//
+	return false
+}
+
+async function key_wrapper(key_to_wrap,pub_wrapper_key) {
+	let wrapped_key = await g_crypto.wrapKey(
+										"jwk",
+										key_to_wrap,
+										pub_wrapper_key,
+										{   //these are the wrapping key's algorithm options
+											name: "RSA-OAEP"
+										}
+									);
+	return wrapped_key
 }
 
 
-function decipher_message(message,wrapped_key,priv_key) {
+async function key_signer(data_to_sign,priv_signer_key) {
+
+	let enc = new TextEncoder();
+	let signable = enc.encode(data_to_sign);
+	let signature = await g_crypto.sign({
+											name: "ECDSA",
+											hash: {name: "SHA-384"},
+										},
+										priv_signer_key,
+										signable
+									);
+	return signature
+}
+
+
+async function verifier(wrapped_key,signature,signer_pub_key) {
+	//
+	let encoded = wrapped_key
+	//
+	let result = await g_crypto.verify({
+											name: "ECDSA",
+											hash: {name: "SHA-384"},
+										},
+										signer_pub_key,
+										signature,
+										encoded
+								);
+	return result
+}
+
+
+
+async function aes_decipher_message(message,aes_key,nonce) {
+	let iv = nonce
+    let decrypted = await g_crypto.decrypt({
+												name: "AES-CBC",
+												iv
+											},
+											key,
+											message
+										);
+	//
+    let dec = new TextDecoder();
+	message = dec.decode(decrypted);
 	return message
 }
 // 
+
+
+async function decipher_message(message,wrapped_key,priv_key,nonce) {
+	try {
+		let aes_key = await unwrapped_aes_key(wrapped_key,priv_key)
+		if ( aes_key ) {
+			let clear = await aes_decipher_message(message,aes_key,nonce)
+			return clear
+		}
+	} catch(e) {}
+	return false
+}
+// 
+
+//>--
+// wv_unwrapped_key
+// --
+async function unwrapped_aes_key(wrapped_aes,unwrapper_key) {
+    let unwrapped_aes = await g_crypto.unwrapKey(
+        "jwk", // same as wrapped
+        wrapped_aes, //the key you want to unwrap
+        unwrapper_key, //the private key with "unwrapKey" usage flag
+        {   //these are the wrapping key's algorithm options
+            name: "RSA-OAEP"
+        },
+        {   //this what you want the wrapped key to become (same as when wrapping)
+            name: "AES-CBC",
+            length: 256
+        },
+        true, //whether the key is extractable (i.e. can be used in exportKey)
+        ["encrypt", "decrypt"] //the usages you want the unwrapped key to have
+    )
+    //
+    return unwrapped_aes
+}
+//--<
+
 
 //>--
 // pc_keypair_promise
@@ -1131,95 +1372,6 @@ function pc_wrapper_keypair_promise() {  // return
     return p  // promise
 }
 //--<
-
-/*
-
-  // Store the calculated ciphertext and IV here, so we can decrypt the message later.
-  //
-  let ciphertext;
-  let iv;
-
-  // Fetch the contents of the "message" textbox, and encode it
-  // in a form we can use for the encrypt operation.
-
-  function getMessageEncoding() {
-    const messageBox = document.querySelector("#aes-cbc-message");
-    let message = messageBox.value;
-    let enc = new TextEncoder();
-    return enc.encode(message);
-  }
-
-
-  // Get the encoded message, encrypt it and display a representation
-  // of the ciphertext in the "Ciphertext" element.
-
-  async function encryptMessage(key) {
-    let encoded = getMessageEncoding();
-    // The iv must never be reused with a given key.
-    iv = window.crypto.getRandomValues(new Uint8Array(16));
-    ciphertext = await window.crypto.subtle.encrypt(
-      {
-        name: "AES-CBC",
-        iv
-      },
-      key,
-      encoded
-    );
-
-    let buffer = new Uint8Array(ciphertext, 0, 5);
-    const ciphertextValue = document.querySelector(".aes-cbc .ciphertext-value");
-    ciphertextValue.classList.add('fade-in');
-    ciphertextValue.addEventListener('animationend', () => {
-      ciphertextValue.classList.remove('fade-in');
-    });
-    ciphertextValue.textContent = `${buffer}...[${ciphertext.byteLength} bytes total]`;
-  }
-
-  // Fetch the ciphertext and decrypt it.
-  // Write the decrypted message into the "Decrypted" box.
-
-  async function decryptMessage(key) {
-    let decrypted = await window.crypto.subtle.decrypt(
-      {
-        name: "AES-CBC",
-        iv
-      },
-      key,
-      ciphertext
-    );
-
-    let dec = new TextDecoder();
-    const decryptedValue = document.querySelector(".aes-cbc .decrypted-value");
-    decryptedValue.classList.add('fade-in');
-    decryptedValue.addEventListener('animationend', () => {
-      decryptedValue.classList.remove('fade-in');
-    });
-    decryptedValue.textContent = dec.decode(decrypted);
-  }
-
-
-  //Generate an encryption key, then set up event listeners
-  //on the "Encrypt" and "Decrypt" buttons.
-	window.crypto.subtle.generateKey(
-    {
-        name: "AES-CBC",
-        length: 256
-    },
-    true,
-    ["encrypt", "decrypt"]
-  ).then((key) => {
-    const encryptButton = document.querySelector(".aes-cbc .encrypt-button");
-    encryptButton.addEventListener("click", () => {
-      encryptMessage(key);
-    });
-
-    const decryptButton = document.querySelector(".aes-cbc .decrypt-button");
-    decryptButton.addEventListener("click", () => {
-      decryptMessage(key);
-    });
-  });
-
-*/
 
 
 // promail_user_starter_keys
