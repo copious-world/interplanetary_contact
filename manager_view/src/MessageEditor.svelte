@@ -10,6 +10,7 @@
 	export let cool_public_info;
 	export let business;
 	export let public_key;			// this may be empty... can add a contact without the key (message should have key)
+	export let signer_public_key;
 	export let answer_message		// boolean
 	export let cid
 
@@ -45,6 +46,7 @@
 			"cool_public_info" : cool_public_info,
 			"business" : business,
 			"public_key" : public_key,
+			"signer_public_key" : signer_public_key,
 			"name" : name
 		}
 		
@@ -124,6 +126,7 @@
 		"{{id-subject-" : utils.cvar_factory("promail-subject"),
 		"{{id-message-" : utils.cvar_factory("promail-message"),
 		"{{id-sender_key-" : utils.cvar_factory("promail-sender_key","public_key"),
+		"{{id-sender_signer_key-" : utils.cvar_factory("promail-sender_signer_key","signer_public_key"),
 		"{{id-wrapped_key-" : utils.cvar_factory("promail-wrapped_key","wrapped_key"),
 		"{{id-attachment-" : utils.cvar_factory("promail-attachments","attachments"),
 	}
@@ -137,6 +140,7 @@
 		"{{cool_public_info}}" : cool_public_info,
 		"{{business}}" : business ? "business" : "profile",
 		"{{public_key}}" : JSON.stringify(public_key),
+		"{{signer_public_key}}" : JSON.stringify(signer_public_key),
 		"{{cid}}" : JSON.stringify(active_identity.cid),
 		"{{from}}" : active_identity.user_info ? active_identity.user_info.name : "",
 		"{{clear_cid}}" : JSON.stringify(active_identity.clear_cid)
@@ -163,6 +167,7 @@
 	// "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry",
 	// "business" : false, "public_key" : false, "message" : "this is a message 1"
 	function message_object_on_send(top_level_id) {
+		//
 		let message_object = {
 			"name" : active_identity.user_info.name,
 			"user_cid" : active_identity.cid,
@@ -170,19 +175,25 @@
 			"date" : Date.now(),
 			"readers" : common_contact_vars["{{id-cc-"].extract_value(),
 			"business" : business,
-			"public_key" : active_identity.user_info.public_key,
+			"public_key" : active_identity.user_info.public_key,  // receiver will wrap keys back to me
+			"signer_public_key" : false,
+			"nonce"  : gen_nonce(),
 			"message" :  common_contact_vars["{{id-message-"].extract_value(),
 			"attachments" : attachments,
 			"reply_with" : selected_contact_cid
 		}
-
+		//
+		if (  introduction ) {
+			message_object.signer_public_key = active_identity.user_info.signer_public_key // receiver will verify my signature
+		}
+		//
 		let message = message_object
-
+		//
 		if ( use_previous ) {
 			message.message += "<br><br><br>=====================================================<br>"
 			message.message += previous_message
 		}
-
+		//
 		return(message)
 	}
 
@@ -206,7 +217,8 @@
 			"place_of_origin" : place_of_origin,
 			"cool_public_info" : cool_public_info,
 			"business" : business,
-			"public_key" : public_key
+			"public_key" : public_key,
+			"signer_public_key" : signer_public_key
 		}
 		init_contact_form_cids(receiver_user_info)
 	}
@@ -240,7 +252,6 @@
 		show_key = show_key ? false : true
 		console.log(show_key)
 	}
-
 
 	let previous_message = ""
 	$: previous_message = answer_message ? JSON.stringify(reply_to,null,4) : ""
@@ -314,8 +325,7 @@
 			case "introduction" : {
 				let identify = active_identity
 				if ( identify ) {
-					let user_info = identify.user_info
-					let i_cid = await ipfs_profiles.send_introduction(receiver_user_info,user_info,message)
+					let i_cid = await ipfs_profiles.send_introduction(receiver_user_info,identify,message)
 					if ( i_cid ) {
 						if ( identify.introductions === undefined ) {
 							identify.introductions = []
@@ -330,8 +340,7 @@
 			default: {
 				let identify = active_identity
 				if ( identify ) {
-					let user_info = identify.user_info
-					let m_cid = await ipfs_profiles.send_message(receiver_user_info,user_info,message)
+					let m_cid = await ipfs_profiles.send_message(receiver_user_info,identify,message)
 					if ( m_cid ) {
 						if ( identify.messages === undefined ) {
 							identify.messages = []

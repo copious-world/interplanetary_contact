@@ -1,6 +1,6 @@
 <script>
 
-	// `current` is updated whenever the prop value changes...
+	// all of these fields come in from the message 
 	export let name;
 	export let user_cid;
 	export let subject;
@@ -8,6 +8,8 @@
 	export let readers;
 	export let business;
 	export let public_key;
+	export let signer_public_key;
+	export let nonce;
 	export let message;
 	export let is_in_contacts;
 	export let attachments;
@@ -28,7 +30,8 @@
 	function add_to_contacts() {
 		dispatch('message', {
 			'cmd': 'new-contact',
-			'cid' : user_cid
+			'cid' : user_cid,
+			'signer_public_key' : signer_public_key
 		});
 	}
 

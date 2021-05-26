@@ -193,6 +193,11 @@ app.post('/send/message',async (req, res) => {
       return
     }
   }
+  for ( let fld of receiver ) {   // use just the field required to establish identity
+    if ( g_user_fields.indexOf(fld) < 0 ) {
+      delete receiver[fld]
+    }
+  }
   //
   let message_cid = await g_ipfs_profiles.add_profile_message(body,"spool")
   res.type('application/json').send({ "status" : "OK", "message_cid" : message_cid })
@@ -214,9 +219,10 @@ app.post('/send/introduction',async (req, res) => {
       return
     }
   }
-  let receiver = {}
+  let receiver = {}   // recipient fields that are used to get a cid for the user ... find spool directory
   for ( let fld of g_user_fields ) {
-    if ( fld === "public_key"  || fld === "wrapped_key" ) {  // neither key is used in establishing the identity of the recipient
+    if ( fld === "public_key"  || fld === "signer_public_key" ) {
+      // this record translates into a cid... the clear version does not use other key information
       continue;
     }
     if ( body.receiver[fld] === undefined ) {

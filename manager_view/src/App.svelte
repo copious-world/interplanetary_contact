@@ -33,7 +33,6 @@
 	let p_i = 0;
 	let form_index = 0
 
-
 	let name = ''
 	let DOB = ''
 	let place_of_origin = ''
@@ -46,6 +45,7 @@
 	let c_cool_public_info = ''
 	let c_business = false
 	let c_public_key = "testesttesttest"
+	let c_signer_public_key = "testesttesttest"
 	let c_cid = "testesttesttest"
 	let c_answer_message = ''
 
@@ -169,6 +169,7 @@
 		c_cool_public_info = ''
 		c_business = false
 		c_public_key = "testesttesttest"
+		c_signer_public_key = "testesttesttest"
 		c_cid = "testesttesttest"
 		c_answer_message = ''
 		c_empty_fields = false
@@ -223,7 +224,8 @@
 		let cmd = evt.detail.cmd
 		switch ( cmd ) {
 			case "new-contact" : {
-				let added = await auto_add_contact(evt.detail.cid)
+				let signer_pk = evt.detail.signer_public_key
+				let added = await auto_add_contact(evt.detail.cid,signer_pk,false)
 				message_selected.is_in_contacts = added
 				break;
 			}
@@ -287,19 +289,21 @@
 				"place_of_origin" : "", 
 				"cool_public_info" : "", 
 				"business" : false, 
-				"public_key" : false
+				"public_key" : false,
+				"signer_public_key" : false
 			}
 			this.data = this.empty_identity
 		}
 		//
-		set(name,DOB,place_of_origin,cool_public_info,business,public_key) {
+		set(name,DOB,place_of_origin,cool_public_info,business,public_key,signer_public_key) {
 			let user_data = {
 				"name": name,
 				"DOB" : DOB,
 				"place_of_origin" : place_of_origin, 
 				"cool_public_info" : cool_public_info, 
 				"business" : (business === undefined) ? false : business, 
-				"public_key" : public_key
+				"public_key" : public_key,
+				"signer_public_key" : signer_public_key
 			}
 			this.data = user_data
 		}
@@ -324,6 +328,10 @@
 		
 		extend_contact(field,value) {
 			this.data[field] = value;
+		}
+
+		get_field(field) {
+			return this.data[field]
 		}
 
 		identity() {
@@ -553,7 +561,7 @@
 	async function add_profile() {
 		//
 		let contact = new Contact()
-		contact.set(name,DOB,place_of_origin,cool_public_info,business,false)
+		contact.set(name,DOB,place_of_origin,cool_public_info,business,false,false)
 		//
 		selected_form_link = selected_form_link_types[ (business ? "business" : "profile") ]
 		contact.extend_contact("form_link",selected_form_link)
@@ -823,8 +831,11 @@
 			inbound_contact_messages = all_inbound_messages[0]
 			inbound_solicitation_messages = all_inbound_messages[1]
 			//
-			check_contacts(inbound_contact_messages)
-			check_contacts(inbound_solicitation_messages)
+			check_contacts(inbound_contact_messages,false)
+			let auto_responses = check_contacts(inbound_solicitation_messages,true)
+			inbound_solicitation_messages = inbound_solicitation_messages.filter(m => {
+				return (auto_responses.indexOf(m) >= 0)
+			})
 		}
 	}
 	
@@ -872,13 +883,28 @@
 		return false
 	}
 
-	function check_contacts(message_list) {
+	function check_contacts(message_list,clear) {
+		let removals = []
 		if ( Array.isArray(message_list) ) {
 			for ( let m of message_list ) { 
+				// This will be false -- 
+				// the introduction will supply the sender (from) cid for the keyed path.
 				let is = (cid_individuals_map[m.user_cid] !== undefined)
 				m.is_in_contacts = is
+				//
+				if ( is && clear ) {
+					let c = cid_individuals_map[m.user_cid]
+					if ( c.get_field("received_keys") ) {
+						//
+						c.get_field("must_send_keys")  // only comes in from the intro message...
+						auto_add_contact(m.user_cid,m.signer_public_key,true)
+						//
+						removals.push(m)
+					}
+				}
 			}
 		}
+		return removals
 	}
 
 
@@ -898,6 +924,7 @@
 		c_cool_public_info = individual ? individual.cool_public_info : '';
 		c_business = individual ? individual.business : '';
 		c_public_key = individual ? individual.public_key : '';
+		c_signer_public_key = individual ? individual.c_signer_public_key : '';
 		c_answer_message = individual ? individual.answer_message : '';
 		c_cid = individual ? individual.cid : '';
 	}
@@ -933,8 +960,33 @@
 		return false
 	}
 
-	async function auto_add_contact(cid) {
-		let contact_info = await get_contact_info(cid)
+	async function respond_to_intro(msg,contact) {
+		//
+		let identify = active_identity
+		if ( identify ) {
+			let message = Object.assign({},msg)
+			//
+			message.user_cid = identify.cid
+			message.public_key = identify.user_info.public_key
+			message.signer_public_key = identify.user_info.signer_public_key
+			message.date = Date.now()
+			message.business = business
+			message.attachments = []
+			//
+			let i_cid = await ipfs_profiles.send_introduction(contact.identity(),identify,message)
+			if ( i_cid ) {
+				if ( identify.introductions === undefined ) {
+					identify.introductions = []
+				}
+				identify.introductions.push(i_cid)
+				update_identity(identify)
+			}
+		}
+		//
+	}
+
+	async function auto_add_contact(cid,signer_pk,no_response) {
+		let contact_info = await get_contact_info(cid)  // use the private path cid pull in public wrapper key from here.
 		if ( contact_info ) {
 			let contact = new Contact()
 			contact.copy(contact_info)
@@ -944,6 +996,9 @@
 			}
 			contact.extend_contact("cid",cid)
 			contact.extend_contact("answer_message",'')
+			contact.extend_contact("signer_public_key",signer_pk)  // only comes in from the intro message...
+			contact.extend_contact("must_send_keys",true)  // only comes in from the intro message...
+			contact.extend_contact("received_keys",true)  // only comes in from the intro message...
 			//
 			let user_data = contact.identity()
 			//
@@ -967,6 +1022,9 @@
 				await update_identity(identify)
 				await get_active_users()
 			}
+			if ( !no_response ) {
+				await respond_to_intro(message_selected,contact)
+			}
 			return true
 		}
 		return false
@@ -974,7 +1032,7 @@
 
 	async function add_contact() {
 		let contact = new Contact()
-		contact.set(c_name,c_DOB,c_place_of_origin,c_cool_public_info,c_business,c_public_key)
+		contact.set(c_name,c_DOB,c_place_of_origin,c_cool_public_info,c_business,c_public_key,c_signer_public_key)
 		contact.extend_contact("cid",'')
 		contact.extend_contact("answer_message",'')
 		//
@@ -1013,6 +1071,7 @@
 		selected.cool_public_info = c_cool_public_info;
 		selected.business = c_business;
 		selected.public_key = c_public_key;
+		selected.c_signer_public_key = c_signer_public_key
 		//
 		let cid = selected.cid
 		delete cid_individuals_map[cid]
@@ -1032,8 +1091,6 @@
 		}
 		//
 	}
-
-
 
 	async function remove_contact() {
 		if ( i < 0 ) return

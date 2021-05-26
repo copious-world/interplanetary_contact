@@ -1004,11 +1004,19 @@ function identify_from_user(user_info) {
 	return p
 }
 
+
+function gen_nonce() {
+	return btoa(g_crypto.getRandomValues(new Uint8Array(16)))
+}
+
 async function gen_public_key(user_info) {
 	let keys = await promail_user_starter_keys()
 	user_info.public_key = keys.pk_str
+	user_info.signer_public_key = keys.signer_pk_str
+	//
 	let storage_data = Object.assign({},user_info)
 	storage_data.priv_key = keys.priv_key
+	storage_data.signer_priv_key = keys.signer_priv_key
 	store_user(storage_data,{})
 }
 
@@ -1124,28 +1132,126 @@ function pc_wrapper_keypair_promise() {  // return
 }
 //--<
 
+/*
+
+  // Store the calculated ciphertext and IV here, so we can decrypt the message later.
+  //
+  let ciphertext;
+  let iv;
+
+  // Fetch the contents of the "message" textbox, and encode it
+  // in a form we can use for the encrypt operation.
+
+  function getMessageEncoding() {
+    const messageBox = document.querySelector("#aes-cbc-message");
+    let message = messageBox.value;
+    let enc = new TextEncoder();
+    return enc.encode(message);
+  }
+
+
+  // Get the encoded message, encrypt it and display a representation
+  // of the ciphertext in the "Ciphertext" element.
+
+  async function encryptMessage(key) {
+    let encoded = getMessageEncoding();
+    // The iv must never be reused with a given key.
+    iv = window.crypto.getRandomValues(new Uint8Array(16));
+    ciphertext = await window.crypto.subtle.encrypt(
+      {
+        name: "AES-CBC",
+        iv
+      },
+      key,
+      encoded
+    );
+
+    let buffer = new Uint8Array(ciphertext, 0, 5);
+    const ciphertextValue = document.querySelector(".aes-cbc .ciphertext-value");
+    ciphertextValue.classList.add('fade-in');
+    ciphertextValue.addEventListener('animationend', () => {
+      ciphertextValue.classList.remove('fade-in');
+    });
+    ciphertextValue.textContent = `${buffer}...[${ciphertext.byteLength} bytes total]`;
+  }
+
+  // Fetch the ciphertext and decrypt it.
+  // Write the decrypted message into the "Decrypted" box.
+
+  async function decryptMessage(key) {
+    let decrypted = await window.crypto.subtle.decrypt(
+      {
+        name: "AES-CBC",
+        iv
+      },
+      key,
+      ciphertext
+    );
+
+    let dec = new TextDecoder();
+    const decryptedValue = document.querySelector(".aes-cbc .decrypted-value");
+    decryptedValue.classList.add('fade-in');
+    decryptedValue.addEventListener('animationend', () => {
+      decryptedValue.classList.remove('fade-in');
+    });
+    decryptedValue.textContent = dec.decode(decrypted);
+  }
+
+
+  //Generate an encryption key, then set up event listeners
+  //on the "Encrypt" and "Decrypt" buttons.
+	window.crypto.subtle.generateKey(
+    {
+        name: "AES-CBC",
+        length: 256
+    },
+    true,
+    ["encrypt", "decrypt"]
+  ).then((key) => {
+    const encryptButton = document.querySelector(".aes-cbc .encrypt-button");
+    encryptButton.addEventListener("click", () => {
+      encryptMessage(key);
+    });
+
+    const decryptButton = document.querySelector(".aes-cbc .decrypt-button");
+    decryptButton.addEventListener("click", () => {
+      decryptMessage(key);
+    });
+  });
+
+*/
 
 
 // promail_user_starter_keys
 //    make a priv/pub key pair. Then negotiate with the server to wrap the key.
 async function promail_user_starter_keys() {
-  // Generate a local public/private key pair
-  let keypair = await pc_wrapper_keypair_promise()
-  // ---- ---- ---- ----
-  let pub_key = keypair.publicKey
-  let priv_key = keypair.privateKey
-  // ---- ---- ---- ----                                      // g_nonce_buffer - space to use
-  let exported = await g_crypto.exportKey("jwk",pub_key);
-  let pub_key_str = JSON.stringify(exported)
-  
-  let priv_exported = await g_crypto.exportKey("jwk",priv_key);
-  let priv_key_str =  JSON.stringify(priv_exported);
+	// Generate a local public/private key pair
+	let keypair = await pc_wrapper_keypair_promise()
+	// ---- ---- ---- ----
+	let pub_key = keypair.publicKey
+	let priv_key = keypair.privateKey
+	// ---- ---- ---- ----                                      // g_nonce_buffer - space to use
+	let exported = await g_crypto.exportKey("jwk",pub_key);
+	let pub_key_str = JSON.stringify(exported)
 
-  let key_info = {
-    "pk_str" : pub_key_str,
-    "priv_key" : priv_key_str
-  }
-  return(key_info)
+	let priv_exported = await g_crypto.exportKey("jwk",priv_key);
+	let priv_key_str =  JSON.stringify(priv_exported);
+
+	let signer_pair = await pc_keypair_promise()
+
+	let sign_exported = await g_crypto.exportKey("jwk",pub_key);
+	let sign_pub_key_str = JSON.stringify(exported)
+
+	let sign_priv_exported = await g_crypto.exportKey("jwk",priv_key);
+	let sign_priv_key_str =  JSON.stringify(priv_exported);
+	//
+	let key_info = {
+		"pk_str" : pub_key_str,
+		"priv_key" : priv_key_str,
+		"signer_pk_str"  : sign_pub_key_str,
+		"signer_priv_key" : sign_priv_key_str
+	}
+	return(key_info)
 }
 
 

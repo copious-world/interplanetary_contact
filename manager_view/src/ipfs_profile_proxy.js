@@ -335,27 +335,17 @@ export async function get_dir(user_info,clear) {
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
 let g_message_fields = ["name", "user_cid", "subject", "readers", "date", "when", "business", "public_key", "wrapped_key", "encoding","message"]
-async function send_kind_of_message(m_path,recipient_info,user_info,message,clear) {
+async function send_kind_of_message(m_path,recipient_info,identity,message,clear) {
     //
-    for ( let field of g_user_fields ) {
-        if ( user_info[field] === undefined ) {
-            // public_key is the public wrapper key (asymmetric)
-            if ( field ===  "public_key" ) {  // always send the wrapper key (although not a wrapped_key) especially for an introduction
-                let p_key = get_user_public_wrapper_key(`${user_info.name}-${user_info.DOB}`)
-                if ( p_key ) {
-                    user_info[field] = p_key
-                    continue
-                }
-            }
-            alert_error("undefined field " + field)
-            return
-        }
-    }
+    let user_info = identity.user_info  // from sender == user_info
+    // assume that user info has been properly formed and ready to act as recipient
     //
+    // make sure that 
     let recipient = Object.assign({},recipient_info)
     for ( let field of g_user_fields ) {
-        if ( (field === "wrapped_key")  && clear ) {     // when wrapping a key use the recipients public wrapper key
-            delete recipient_info.wrapped_key            // delete wrapped key from messages that are introductions, etc. It won't be used
+        if ( (field === "public_key")  && clear ) {     // when wrapping a key use the recipients public wrapper key
+            // delete public_key key from messages that are introductions, etc. (this is used for the clear user directory id)
+            delete recipient_info.public_key            
             continue
         }
         if ( recipient[field] === undefined ) {
@@ -365,37 +355,47 @@ async function send_kind_of_message(m_path,recipient_info,user_info,message,clea
     }
 
     let sendable_message = {}
+    //
+    let user_cid = identity.cid
+    sendable_message.user_cid = user_cid    // cid of from  (should have been set)
                                                         // the recipient will wrap key with this (so refresh his memory)
     if ( clear ) {
         sendable_message = message
+        sendable_message.public_key = user_info.public_key
+        sendable_message.signer_public_key = user_info.signer_public_key  // send the signature key in the intro (just this once)
         // the id of the clear directory ignores the key.
-        // the identity of established contact messages requires the public (so it stays for not clear)
+        // the identity of established contact messages requires the public key (so it stays for not clear)
         delete recipient.public_key  // this has to do with the identiy and the directory where introductions go.
     } else  {
         //
         sendable_message.when = Date.now()
         sendable_message.date = (new Date(sendable_message.when)).toISOString()
         //
-        let user_cid = user_info.cid
         //
         sendable_message.name = user_info.name       // from
-        sendable_message.user_cid = user_cid    // cid of from
+                // should have been set in the interface ... but can still catch this here.
         sendable_message.public_key = user_info.public_key  // basically says we know the recipient (we have talked)
+        sendable_message.nonce = message.nonce  // for AES CBC...
         //
-        let key_to_wrap = window.gen_cipher_key(user_info)
+        let key_to_wrap = window.gen_cipher_key()  /// this will be an AES KEY, new each time.
         if ( key_to_wrap === undefined || !(key_to_wrap) ) {
             alert_error("could not get key ")
             alert("no cipher key")
             return
         } else {
+            //
             sendable_message.message = JSON.stringify(message)
-            let encryptor = window.user_encryption(user_cid,"message")
+            let encryptor = window.user_encryption(user_cid,"message")  // encryptor may vary by user... assuming more than one in indexedDB
             let encoded_contents = sendable_message.message 
             if ( encryptor !== undefined ) {
-                encoded_contents = encryptor(encoded_contents,key_to_wrap)
+                encoded_contents = encryptor(encoded_contents,key_to_wrap,message.nonce)  // CBC starting with nonce...
             }
-            sendable_message.message = encoded_contents
+            sendable_message.message = encoded_contents  // ENCODED
+            //
+            // wrap the key just used with the public wrapper key of the recipient (got the key via introduction...)
             sendable_message.wrapped_key = window.key_wrapper(key_to_wrap,recipient.public_key)
+            // Sign the wrapped key using the sender's private signer key (receiver should already have public signature...)
+            sendable_message.signature = window.key_signer(sendable_message.wrapped_key,identity.signer_priv_key)
             //
             sendable_message.subject = message.subject
             sendable_message.readers = message.readers
@@ -436,30 +436,30 @@ if ( !(introduction) && encrypting ) {
 */
 
 
-export async function send_message(recipient_info,user_info,message) {
+export async function send_message(recipient_info,identity,message) {
     let m_path = 'send/message'
-    let result = await send_kind_of_message(m_path,recipient_info,user_info,message,false)
+    let result = await send_kind_of_message(m_path,recipient_info,identity,message,false)
     return result
 }
 
 
-export async function send_introduction(recipient_info,user_info,message) {
+export async function send_introduction(recipient_info,identity,message) {
     let m_path = 'send/introduction'
-    let result = await send_kind_of_message(m_path,recipient_info,user_info,message,true)
+    let result = await send_kind_of_message(m_path,recipient_info,identity,message,true)
     return result
 }
 
 
-export async function send_topic(recipient_info,user_info,message) {
+export async function send_topic(recipient_info,identity,message) {
     let m_path = '/send/topic'
-    let result = await send_kind_of_message(m_path,recipient_info,user_info,message,false)
+    let result = await send_kind_of_message(m_path,recipient_info,identity,message,false)
     return result
 }
 
 
-export async function send_topic_offer(recipient_info,user_info,message) {
+export async function send_topic_offer(recipient_info,identity,message) {
     let m_path = '/send/topic_offer'
-    let result = await send_kind_of_message(m_path,recipient_info,user_info,message,true)
+    let result = await send_kind_of_message(m_path,recipient_info,identity,message,true)
     return result
 }
 
@@ -496,7 +496,13 @@ async function clarify_message(messages,identity) {
     return(clear_messages)
 }
 
-
+// get_spool_files
+//  ---- identity - sender's information...
+//  ---- spool_select - the name of a spool, e.g. 'spool' 'deleted', 'read', 'events', etc.
+//  ---- clear -- WHICH PATHWAY -- use either the 'clear' cid path (no keys, no encryption) or use the key based message pathway, cid
+//  ---- offset -- offset into the dirctory list (paging)
+//  ---- count -- max per page
+//
 async function get_spool_files(identity,spool_select,clear,offset,count) {
     //
     let cid = identity.cid
@@ -558,8 +564,14 @@ async function get_special_files(identity,op_category,offset,count) {
 
 
 export async function get_message_files(identity,offset,count) {
+    // picks up both clear and encrypted messages...
+    //
+    // expected_messages -- decrypted messages from the key based identity
     let expected_messages = await get_spool_files(identity,true,false,offset,count)
+    //
+    // solicitations -- message sent by those who don't have the receiver's public keys 
     let solicitations = await get_spool_files(identity,true,true,offset,count)
+    //
     return [expected_messages,solicitations]
 }
 
