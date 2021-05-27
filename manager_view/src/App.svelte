@@ -391,7 +391,9 @@
 			current_index = u_index
 			reinitialize_user_context()
 		}
-		load_user_info(active_identity)
+		if ( active_identity !== false ) {
+			load_user_info(active_identity)
+		}
 	}
 
 	$: filtered_manifest_contact_form_list = man_prefix
@@ -467,7 +469,7 @@
 		let h_p_min = 0.75
 		p_range = h_p_max - h_p_min
 		P = (biggest_h - h)/(biggest_h - smallest_h)
-		console.log("P h: " + P)
+		//console.log("P h: " + P)
 		let h_scale = P*(p_range) + h_p_min
 
 		//	percentage w range 
@@ -475,7 +477,7 @@
 		let w_p_min = 0.20
 		p_range = w_p_max - w_p_min
 		P = (biggest_w - w)/(biggest_w - smallest_w)
-		console.log("P w: " + P)
+		//console.log("P w: " + P)
 		let w_scale = P*(p_range) + w_p_min
 
 		// Setting the current height & width 
@@ -895,12 +897,13 @@
 				//
 				if ( is && clear ) {
 					let c = cid_individuals_map[m.user_cid]
-					if ( c.get_field("received_keys") ) {
-						//
-						c.get_field("must_send_keys")  // only comes in from the intro message...
-						auto_add_contact(m.user_cid,m.signer_public_key,true)
-						//
-						removals.push(m)
+					if ( c.received_keys ) {
+						if ( c.must_send_keys ) {
+							c.must_send_keys  // only comes in from the intro message...
+							auto_add_contact(m.user_cid,m.signer_public_key,true)
+							//
+							removals.push(m)
+						}
 					}
 				}
 			}
@@ -1120,8 +1123,7 @@
 		if ( identify && identify.files ) {
 			if ( identify.files.contacts ) {
 				let contacts_cid = identify.files.contacts.cid
-				let user_cid = identify.cid
-				let contacts_data = await ipfs_profiles.fetch_contacts(contacts_cid,user_cid)
+				let contacts_data = await ipfs_profiles.fetch_contacts(contacts_cid,identify)
 				let indivs = []
 				for ( let ky in contacts_data ) {
 					indivs.push(contacts_data[ky])
@@ -1214,8 +1216,7 @@
 			//
 			if ( identify ) {
 				let contacts_cid = identify.files.contacts.cid
-				let user_cid = identify.cid
-				let c_data = await ipfs_profiles.fetch_contacts(contacts_cid,user_cid)
+				let c_data = await ipfs_profiles.fetch_contacts(contacts_cid,identify)
 				dir_view = JSON.stringify(c_data)
 			}
 		}
@@ -1233,9 +1234,8 @@
 			}
 			if ( identify ) {
 				let manifest_cid = identify.files.manifest.cid
-				let user_cid = identify.cid
 				let btype = business
-				let c_data = await ipfs_profiles.fetch_manifest(manifest_cid,user_cid,btype)
+				let c_data = await ipfs_profiles.fetch_manifest(manifest_cid,identify,btype)
 				dir_view = JSON.stringify(c_data,false,2)
 			}
 		}
@@ -1375,8 +1375,7 @@
 		if ( identify && identify.files ) {
 			if ( identify.files.manifest ) {
 				let manifest_cid = identify.files.manifest.cid
-				let user_cid = identify.cid
-				manifest_obj = await ipfs_profiles.fetch_manifest(manifest_cid,user_cid)
+				manifest_obj = await ipfs_profiles.fetch_manifest(manifest_cid,identify)
 				if ( manifest_obj.clear_cid === undefined ) {
 					manifest_obj.clear_cid = identify.clear_cid
 				}

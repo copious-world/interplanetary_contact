@@ -54,11 +54,16 @@ function correct_server(srvr) {
 // ASSETS
 
 
-async function fetch_asset(topics_cid,user_cid,btype,asset) {  // specifically from this user
+async function fetch_asset(topics_cid,identity,btype,asset) {  // specifically from this user
+    //
+    let user_cid = identity.cid
+    //
     let srver = location.host
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
+
+    btype = btype ? true : false
     
     let data_stem = `get-asset/${asset}`
     let sp = '//'
@@ -72,7 +77,7 @@ async function fetch_asset(topics_cid,user_cid,btype,asset) {  // specifically f
         if ( search_result.status === "OK" ) {
             let data = search_result[asset];
             if ( typeof data === 'string' ) {
-                let decryptor = window.user_decryption(user_cid,asset)      // user user cid to get the decryptor...
+                let decryptor = window.user_decryption(identity,asset)      // user user cid to get the decryptor...
                 if ( decryptor !== undefined ) {
                     try {
                         data = decryptor(data)
@@ -97,16 +102,16 @@ async function fetch_asset(topics_cid,user_cid,btype,asset) {  // specifically f
 }
 
 
-export async function fetch_contacts(contacts_cid,user_cid,btype) {  // specifically from this user
-    return await fetch_asset(contacts_cid,user_cid,btype,CONTACTS)
+export async function fetch_contacts(contacts_cid,identity,btype) {  // specifically from this user
+    return await fetch_asset(contacts_cid,identity,btype,CONTACTS)
 }
 
-export async function fetch_manifest(manifest_cid,user_cid,btype) {  // specifically from this user
-    return await fetch_asset(manifest_cid,user_cid,btype,MANIFEST)
+export async function fetch_manifest(manifest_cid,identity,btype) {  // specifically from this user
+    return await fetch_asset(manifest_cid,identity,btype,MANIFEST)
 }
 
-export async function fetch_topicst(topics_cid,user_cid,btype) {  // specifically from this user
-    return await fetch_asset(topics_cid,user_cid,btype,TOPICS)
+export async function fetch_topicst(topics_cid,identity,btype) {  // specifically from this user
+    return await fetch_asset(topics_cid,identity,btype,TOPICS)
 }
 
 

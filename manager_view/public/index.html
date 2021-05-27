@@ -1098,6 +1098,12 @@ function user_decryption(identity,asset) {
 	//
 	if ( identity.asset_keys === undefined ) {
 		identity.asset_keys = {}
+		for ( let asset of ['contacts','manifest','topics'] ) {
+			identity.asset_keys[asset] = {}
+			identity.asset_keys[asset].key = false
+			identity.asset_keys[asset].nonce = false
+
+		}
 	}
 	//
 	switch ( asset ) {
@@ -1210,7 +1216,7 @@ async function user_encryption(user_info,asset) {
 async function aes_encryptor(encodable,aes_key,nonce) {
 
 	let enc = new TextEncoder();
-    let encodable =  enc.encode(encodable);
+    let clear_buf =  enc.encode(encodable);
 	let iv = nonce
 
     let ciphertext = await g_crypto.encrypt({
@@ -1218,7 +1224,7 @@ async function aes_encryptor(encodable,aes_key,nonce) {
 												iv
 											},
 											aes_key,
-											encodable
+											clear_buf
 										);
 	return ciphertext
 }
