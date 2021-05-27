@@ -836,7 +836,7 @@
 			check_contacts(inbound_contact_messages,false)
 			let auto_responses = check_contacts(inbound_solicitation_messages,true)
 			inbound_solicitation_messages = inbound_solicitation_messages.filter(m => {
-				return (auto_responses.indexOf(m) >= 0)
+				return (auto_responses.indexOf(m) < 0)
 			})
 		}
 	}

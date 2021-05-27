@@ -475,21 +475,28 @@ export async function send_topic_offer(recipient_info,identity,message) {
 async function* message_decryptor(messages,identity) {
     let priv_key = identity.priv_key
     for ( let message of messages ) {
-        let wrapped_key = message.wrapped_key
-        try {
-            let signature = message.signature
-            if ( signature || SIG_REQUIRED ) {
-                if ( !signature ) continue
-                let user_cid = message.user_cid
-                let contact = contact_from_cid(user_cid)
-                let signer_pub_key = contact.get_field("signer_public_key")
-                //
-                let ok = await window.verifier(wrapped_key,signature,signer_pub_key)
-                if ( !(ok) ) continue
-            }
-            message.message = await window.decipher_message(message.message,wrapped_key,priv_key,message.nonce)
-            yield message    
-        } catch (e) {}
+        if ( message.version && (message.version > 1.0) ) {
+            let wrapped_key = message.wrapped_key
+            try {
+                let signature = message.signature
+                if ( signature || SIG_REQUIRED ) {
+                    if ( !signature ) continue
+                    let user_cid = message.user_cid
+                    let contact = contact_from_cid(user_cid)
+                    let signer_pub_key = contact.get_field("signer_public_key")
+                    //
+                    let ok = await window.verifier(wrapped_key,signature,signer_pub_key)
+                    if ( !(ok) ) continue
+                }
+                let clear_m = await window.decipher_message(message.message,wrapped_key,priv_key,message.nonce)
+                if ( clear_m !== false ) {
+                    message.message = clear_m
+                } else {
+                    continue
+                }
+            } catch (e) {}
+        }
+        yield message
     }
 }
 
