@@ -268,7 +268,7 @@
 		//
 		// the user cid (active identity) gets any services for handling encryption locally.
 		// The receiver information will be stored as part of the data if encryption is required
-		let contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'default',r_p_cid)
+		let contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'default',r_p_cid)
 		if ( contact_page_descr ) {
 			let html = (contact_page_descr.html === undefined) ? contact_page_descr.txt_full : contact_page_descr.html
 			contact_page = process_variables(html,contact_page_descr.var_map) // decodeURIComponent(html)
@@ -299,11 +299,11 @@
 		let contact_asset_cid = r_cid
 		if ( !special_contact_form_cid ) {
 			contact_asset_cid = special_contact_form_cid
-			contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'cid',contact_asset_cid)
+			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'cid',contact_asset_cid)
 		}
 		//
 		if ( !contact_page_descr ) {
-			contact_page_descr = await ipfs_profiles.fetch_contact_page(user_cid,business,'default',r_cid)
+			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'default',r_cid)
 		}
 		//
 		if ( contact_page_descr ) {

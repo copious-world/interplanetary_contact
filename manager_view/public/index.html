@@ -1157,7 +1157,7 @@ function user_decryption(identity,asset) {
 }
 
 
-async function user_encryption(user_info,asset) {
+async function user_encryption(identity,asset) {
 	if ( identity.asset_keys === undefined ) {
 		identity.asset_keys = {}
 	}

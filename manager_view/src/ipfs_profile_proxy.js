@@ -167,7 +167,7 @@ export async function update_topics_to_ipfs(identity,is_business,contents) {
 //
 // fetch_contact_page
 //
-export async function fetch_contact_page(user_cid,business,asset,contact_cid) {  // specifically from this user
+export async function fetch_contact_page(identity,business,asset,contact_cid) {  // specifically from this user
     let srver = location.host
     srver = correct_server(srver)
     //
@@ -182,7 +182,7 @@ export async function fetch_contact_page(user_cid,business,asset,contact_cid) { 
     let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( search_result ) {
         let contact_form = search_result.contact;
-        let decryptor = window.user_decryption(user_cid,asset)
+        let decryptor = window.user_decryption(identity,asset)
         if ( decryptor !== undefined ) {
             try {
                 contact_form = decryptor(contact_form)
