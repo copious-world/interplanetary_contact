@@ -80,7 +80,7 @@ async function fetch_asset(topics_cid,identity,btype,asset) {  // specifically f
                 let decryptor = window.user_decryption(identity,asset)      // user user cid to get the decryptor...
                 if ( decryptor !== undefined ) {
                     try {
-                        data = decryptor(data)
+                        data = decryptor(data)        // decryption
                     } catch (e) {
                     }
                 }
@@ -129,7 +129,7 @@ async function update_asset_to_ipfs(asset,identity,is_business,contents) {
     }
     let encryptor = await window.user_encryption(identity,asset)
     let encoded_contents = contents
-    if ( encryptor !== undefined ) {
+    if ( encryptor !== undefined ) {        // encryption
         encoded_contents = encryptor(contents)
     }
     //
@@ -181,23 +181,23 @@ export async function fetch_contact_page(user_cid,business,asset,contact_cid) { 
     }
     let search_result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( search_result ) {
-        let contact = search_result.contact;
+        let contact_form = search_result.contact;
         let decryptor = window.user_decryption(user_cid,asset)
         if ( decryptor !== undefined ) {
             try {
-                contact = decryptor(contact)
+                contact_form = decryptor(contact_form)
             } catch (e) {
             }
         }
-        if ( contact ) {
-            if ( typeof contact === "string" ) {
-                let data_obj = JSON.parse(contact)
+        if ( contact_form ) {
+            if ( typeof contact_form === "string" ) {
+                let data_obj = JSON.parse(contact_form)
                 try {
                     return data_obj
                 } catch (e) {
                 }
             } else {
-                return contact
+                return contact_form
             }
         }
     }
@@ -391,18 +391,19 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
             return
         } else {
             //
-            sendable_message.message = JSON.stringify(message)      // STRINGIFY
+            sendable_message.message = JSON.stringify(message)  // STRINGIFY
             //
             let encryptor = await window.user_encryption(identity,"message")  // encryptor may vary by user... assuming more than one in indexedDB
             let encoded_contents = sendable_message.message 
             if ( encryptor !== undefined ) {
-                encoded_contents = await encryptor(encoded_contents,key_to_wrap,message.nonce)  // CBC starting with nonce...
+                let aes_key = key_to_wrap                   // ENCRYPT
+                encoded_contents = await encryptor(encoded_contents,aes_key,message.nonce)  // CBC starting with nonce...
             }
-            sendable_message.message = encoded_contents  // ENCODED
+            sendable_message.message = encoded_contents     // ENCODED
             //
-            // wrap the key just used with the public wrapper key of the recipient (got the key via introduction...)
+            // WRAP the key just used with the public wrapper key of the recipient (got the key via introduction...)
             sendable_message.wrapped_key = await window.key_wrapper(key_to_wrap,recipient.public_key)
-            // Sign the wrapped key using the sender's private signer key (receiver should already have public signature...)
+            // SIGN the wrapped key using the sender's private signer key (receiver should already have public signature...)
             sendable_message.signature = await window.key_signer(sendable_message.wrapped_key,identity.signer_priv_key)
             //
             delete sendable_message.subject

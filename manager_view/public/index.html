@@ -1093,7 +1093,7 @@ function contact_from_cid(user_cid) {
 // ---- ---- ---- ---- ---- ---- ---- ----
 
 // identify_from_user(user_info)
-
+// user_decryption
 function user_decryption(identity,asset) {
 	//
 	if ( identity.asset_keys === undefined ) {
@@ -1102,7 +1102,6 @@ function user_decryption(identity,asset) {
 			identity.asset_keys[asset] = {}
 			identity.asset_keys[asset].key = false
 			identity.asset_keys[asset].nonce = false
-
 		}
 	}
 	//
@@ -1110,9 +1109,10 @@ function user_decryption(identity,asset) {
 		case 'contacts': {
 			let {key,nonce} = identity.asset_keys[asset]
 			if ( key ) {
-				let decryptor = async (deodable) => {
+				// decryptor fn
+				let decryptor = async (decodable) => {
 					let key = aes_key
-					return await aes_decipher_message(deodable,key,nonce)
+					return await aes_decipher_message(decodable,key,nonce)
 				}
 				return decryptor
 			} else {
@@ -1123,9 +1123,10 @@ function user_decryption(identity,asset) {
 		case 'manifest': {
 			let {key,nonce} = identity.asset_keys[asset]
 			if ( key ) {
-				let decryptor = async (deodable) => {
+				// decryptor fn
+				let decryptor = async (decodable) => {
 					let key = aes_key
-					return await aes_decipher_message(deodable,key,nonce)
+					return await aes_decipher_message(decodable,key,nonce)
 				}
 				return decryptor
 			} else {
@@ -1136,9 +1137,10 @@ function user_decryption(identity,asset) {
 		case 'topics': {
 			let {key,nonce} = identity.asset_keys[asset]
 			if ( key ) {
-				let decryptor = async (deodable) => {
+				// decryptor fn
+				let decryptor = async (decodable) => {
 					let key = aes_key
-					return await aes_decipher_message(deodable,key,nonce)
+					return await aes_decipher_message(decodable,key,nonce)
 				}
 				return decryptor
 			} else {
@@ -1171,6 +1173,7 @@ async function user_encryption(user_info,asset) {
 				"key" : aes_key,
 				"nonce" : nonce
 			}
+			// encryptor fn
 			let encryptor = async (encodable) => {
 				let key = aes_key
 				return await aes_encryptor(encodable,aes_key,nonce)
@@ -1184,6 +1187,7 @@ async function user_encryption(user_info,asset) {
 				"key" : aes_key,
 				"nonce" : nonce
 			}
+			// encryptor fn
 			let encryptor = async (encodable) => {
 				let key = aes_key
 				return await aes_encryptor(encodable,aes_key,nonce)
@@ -1197,6 +1201,7 @@ async function user_encryption(user_info,asset) {
 				"key" : aes_key,
 				"nonce" : nonce
 			}
+			// encryptor fn
 			let encryptor = async (encodable) => {
 				let key = aes_key
 				return await aes_encryptor(encodable,aes_key,nonce)
