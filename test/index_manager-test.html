@@ -15,10 +15,8 @@
 
 	<link rel='icon' type='image/png' href='./favicon.png'>
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700" />
-	<link rel='stylesheet' href='./global.css'>
-	<link rel='stylesheet' href='./build/bundle.css'>
 
-	<script defer src='./build/bundle.js'></script>
+
 	
 <style>
 	/*csslint important:false*/
@@ -688,7 +686,37 @@
 		</table>
 	</nav>
 	<main id='app-main'>
+		<div class="container" >
+			<div class="all-tests" >
+				<div class="tester" >
+					<span class="test-title" id="tester-1-title">Test 1:</span>
+					<span class="test-tagline">Initialise Identity</span>
+					<br>
+					<button onclick="tester_1('tester-1')">Run Test</button>
+				</div>	
+				<div class="tester" >
+					<span class="test-title" id="tester-2-title">Test 2:</span>
+					<span class="test-tagline">Export Keys (Identity)</span>
+					<br>
+					<button onclick="tester_2('tester-2')">Run Test</button>
+				</div>
+				<div class="tester" >
+					<span class="test-title" id="tester-3-title">Test3:</span>
+					<span class="test-tagline">Cipher Test</span>
+					<br>
+					<button onclick="tester_3('tester-3')">Run Test</button>
+				</div>	
+				<div class="tester" >
+					<span class="test-title" id="tester-4-title">Test4:</span>
+					<span class="test-tagline">Round Trip Text with Identity</span>
+					<br>
+					<button onclick="tester_4('tester-4')">Run Test</button>
+				</div>	
+			</div>
+			<div id="test-output" class="outputs">
 	
+			</div>	
+		</div>
 	</main>
 	<div style="visibility: hidden;">
 		<a id='identity-download-link' href = "" >identity download</a>
@@ -791,6 +819,30 @@ function bufferToArrayBufferCycle(buffer) {
 }
 //--<
 
+function string_from_buffer(bytes) {
+	let s = ""
+	let n = bytes.length
+	for ( let i = 0; i < n; i++ ) {
+		let c_code = bytes[i]
+		s += String.fromCharCode(c_code)
+	}
+	return s
+}
+
+function buffer_from_cvs_array(number_els) {
+	let els = number_els.split(',').map(el => parseInt(el))
+	let buf = new Uint8Array(els)
+	return buf
+}
+
+function buffer_from_b64_cvs(b64_number_els) {
+	let numbers = atob(b64_number_els)
+	return buffer_from_cvs_array(numbers)
+}
+
+
+
+
 function ext_of_file(file_name) {
 	let idx = file_name.lastIndexOf('.')
 	let ext = file_name.substr(idx+1)
@@ -821,7 +873,7 @@ if (!window.indexedDB) {
 
 
 
-
+///  UNDER TEST
 
 // DATABASE
 async function pc_init_database() {
@@ -906,8 +958,6 @@ function unstore_user(identity) {
 	return p
 }
 
-
-
 function store_user(user_information,privates) {
 	//
 	let name_key = name_key_of(user_information)
@@ -940,8 +990,10 @@ function store_user(user_information,privates) {
 	return(true)
 }
 
-
-
+// finalize_user_identity
+// Once the application gets its user cid's, it calls finalize_user_identity 
+// and this function stores the user values in the identity object in indexedDB.
+//
 async function finalize_user_identity(u_info,identity_files) {
 	//
 // "id" : cid with key,
@@ -968,7 +1020,6 @@ async function finalize_user_identity(u_info,identity_files) {
 	})
 	return p
 }
-
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
 //		update_identity
@@ -1397,6 +1448,10 @@ async function verifier(wrapped_key,signature,signer_pub_key) {
 	return result
 }
 
+
+
+
+
 async function decipher_message(message,wrapped_key,priv_key,nonce) {
 	try {
 		let aes_key = await unwrapped_aes_key(wrapped_key,priv_key)
@@ -1547,7 +1602,7 @@ function generic_downloader(dataStr) {
 async function upload_identity() {
 	let identity_str = await get_file()
 	let identity = JSON.parse(identity_str)
-	await load_identity(identity)
+	await restore_identity(identity)
 	return identity
 }
 
@@ -2326,8 +2381,271 @@ function setupCaptchaClose() {
 
 async function startup() {
 	await pc_init_database()
-	not_https_switch()
+	//not_https_switch()
 }
 
 
+
+
+
+//	TEST TEST TEST TEST TEST TEST TEST TEST 
+
+let tester_who = {
+    "name_key": "Jane-09/09/1919",
+    "user_info": {
+        "name": "Jane",
+        "DOB": "09/09/1919",
+        "place_of_origin": "Lost City",
+        "cool_public_info": "A diamond in the rough",
+        "business": false,
+        "public_key": "{\"alg\":\"RSA-OAEP-256\",\"e\":\"AQAB\",\"ext\":true,\"key_ops\":[\"wrapKey\"],\"kty\":\"RSA\",\"n\":\"rdBcBRwvKYXpydY6SUFa43Sr0VOe22foeuOTgS0ew0nc0Q9oOxiIj_209TdiMNGAOlZShbuMv5-YO6fBT4tL8or-rC4G-DzifX6_LiYtxwc5km3orZnlo9RsJuziTTrtLk4WFki3aN-X2U0-efwHce2EltNfgNFGloHZDvCQ0yD_H2KsHoacKblnFDC01lnfUs1p6e7898jw9OXeSpiE0ofJdx31-k50XGv88XzyyZ7lseU0T22gI4d1LqvRJ9tNFaHkHxoEuKuaNcl9iHgrp4_QDRcys-KZYgnvvxEZOeylh15mnYQV6ZAfMZfVkJZh9qzC7UGqxjKO-Mi5sKfBxTMam3sOoCgrrFRInUA1XIYBbn2DEOr2-mJJRghCfF5h12KX2h3tGOVRdFYGQlYeMICBhMJUFfYypFszizpYRRjbQpwK3zAZ3PtOqxnV6Cg34U-axesSm3viMg4DFRX75XK2mMTTHoZp7zu05B0JB0N1S-MLjYM_2ArvKDDy7squYECOV6eLdSeAszj0404A9emaxhWug0U8qdxK8kX2Ml0q4W9GrDnv_YAa0UzlVGWfH9fxU7AFOiKzeu62fszfhCFzcB-g9jUmBc7O89KEkxrEum5d9Woyhjk5TxIRXqlHQe30s4dgJZFft-SJwPLpyHYqLp9CqZDTKTXJOfaqGms\"}",
+        "form_link": {
+            "link": "latest-contact",
+            "from_cid": "QmTfD2LyTy8WGgdUkKE1Z1vAfb6HwNgmZA5kMaFAiy4fuz"
+        },
+        "answer_message": "",
+        "cid": "QmSa9rHbKYD5wNnxZGrt93SMCxhzLfKswXB71E6Q38FiQg"
+    },
+    "cid": "QmSa9rHbKYD5wNnxZGrt93SMCxhzLfKswXB71E6Q38FiQg",
+    "clear_cid": "QmNNSTegDTxivQtaPUfh1fR3ahm3y3MUAHBWeCkVm1ZhAy",
+    "dirs": {
+        "profile": {
+            "cid": "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn",
+            "size": 0
+        },
+        "spool": {
+            "cid": "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn",
+            "size": 0
+        },
+        "topics": {
+            "cid": "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn",
+            "size": 0
+        },
+        "contact_pages": {
+            "cid": "QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn",
+            "size": 0
+        }
+    },
+    "files": {
+        "id": "QmSa9rHbKYD5wNnxZGrt93SMCxhzLfKswXB71E6Q38FiQg",
+        "contacts": {
+            "file": "contacts",
+            "type": "file",
+            "cid": "QmW9a9Eg3DaBcECQwGQW25PU2aBTBgaAkTyiWGaBnW4d3W",
+            "size": 423
+        },
+        "topics": {
+            "cid": "QmYJmoKWDFh1wmZLATh3fiVzMuhhTyNm9NLGuLEJM7HdNZ",
+            "size": 2
+        },
+        "manifest": {
+            "cid": "QmdRLpoMVfYCNm7dqRR5HUaJDDNoLgxtGQgdBfkXXGgLmW",
+            "size": 353
+        }
+    },
+    "stored_externally": true,
+    "profile_image": "QmYxMumEmvV9g22fn3YRWTfMqPRZVpXAnCVWHD5fQ8AANt"
+}
+
+
+
+function clear_output() {
+	let el = document.getElementById('test-output')
+	if ( el ) {
+		el.innerHTML = ""
+	}
+}
+
+
+function append_output(str) {
+	let el = document.getElementById('test-output')
+	if ( el ) {
+		let html = el.innerHTML
+		html += "<br>"
+		html += str
+		el.innerHTML = html
+	}
+
+}
+
+function output_json(jobj) {
+	display = JSON.stringify(jobj,null,4)
+	display = `<pre>
+		<code>
+${display}
+		</code>
+		</pre>`
+	append_output(display)
+}
+
+
+async function tester_1(base_id) {
+	clear_output()
+	append_output("Starting test 1")
+	let test_identity = tester_who
+
+	let display = JSON.stringify(test_identity,null,4)
+	display = `<pre>
+		<code>
+${display}
+		</code>
+		</pre>`
+	append_output(display)
+
+	let user_info = test_identity.user_info
+	await gen_public_key(user_info)
+
+	let identity = await identify_from_user(user_info)
+	display = JSON.stringify(identity,null,4)
+	display = `<pre>
+		<code>
+${display}
+		</code>
+		</pre>`
+	append_output(display)
+}
+
+
+async function tester_2(base_id) {
+	clear_output()
+	append_output("Starting test 2")
+	append_output("=======================================")
+	let test_identity = tester_who
+	let user_info = test_identity.user_info
+	let identity = await identify_from_user(user_info)
+	output_json(identity)
+	//
+	let key = identity.signer_priv_key
+	append_output("Signer private key")
+	try {
+		let key_str = JSON.parse(key)
+		output_json(key_str)
+	} catch (e) {
+		append_output("Failed to parse key")
+	}
+	key = identity.priv_key
+	append_output("Wrapper private key")
+	try {
+		let key_str = JSON.parse(key)
+		output_json(key_str)
+	} catch (e) {
+		append_output("Failed to parse key")
+	}
+
+	append_output("AES AS STRING")
+	let aes_key = await gen_cipher_key()
+	let key_str = await aes_to_str(aes_key)
+	append_output(key_str)
+
+	let imp_key = await aes_from_str(key_str)
+	let check_key_str = await aes_to_str(imp_key)
+	append_output("AES IMPORTED")
+	append_output(check_key_str)
+	let b = (check_key_str === key_str)
+	if ( b ) append_output("KEYS MATCH")
+	else append_output("KEYS DIFFERENT")
+
+}
+
+
+async function tester_3(base_id) {
+	clear_output()
+	append_output("Starting test 3: Cipher test")
+	append_output("=======================================")
+	let test_identity = tester_who
+	let user_info = test_identity.user_info
+	let identity = await identify_from_user(user_info)
+	//
+	let aes_key = await gen_cipher_key()
+	let nonce = gen_nonce()
+
+	let key_str = await aes_to_str(aes_key)
+	append_output("AES: " + key_str)
+	append_output("NONCE: " + nonce)
+
+	let imp_key = await aes_from_str(key_str)
+
+	let message = "THIS IS a big test of the world around us."
+	append_output("ENCRYPTING: " + message)
+	let iv_nonce = buffer_from_b64_cvs(nonce)
+	let encrypted = await aes_encryptor(message,aes_key,iv_nonce)
+	//
+	let clear = await aes_decipher_message(encrypted,imp_key,iv_nonce)
+	append_output("DECRYPTED: " + clear)
+}
+
+
+async function tester_4(base_id) {
+	clear_output()
+	append_output("Starting test 3: Cipher test")
+	append_output("=======================================")
+	let test_identity = tester_who
+	let user_info = test_identity.user_info
+	let identity = await identify_from_user(user_info)
+	//
+	let encryptor = await user_encryption(identity,"contacts")
+
+	let message = "THIS IS a bigger TEST of the world around us again CONTEXT."
+	append_output("ENCRYPTING: " + message)
+	let encrypted = await encryptor(message)
+console.log(encrypted)
+
+	let decryptor = await user_decryption(identity,"contacts")
+	let clear = await decryptor(encrypted)
+	append_output("DECRYPTED: " + clear)
+}
+
+
+(async () => {
+	await startup()
+})()
+
+
 </script>
+<style>
+	.container {
+		vertical-align: top;
+		border:rgba(100, 5, 5, 0.6) 2px solid;
+		background-color:rgb(255, 253, 253);
+		padding: 1%;
+	}
+	.all-tests {
+		vertical-align: top;
+		display: inline-block;
+		width: 45%;
+		border: solid 2px darkcyan;
+		padding:4px;
+		min-height: 250px;
+		max-height: 300px;
+		overflow-y: scroll;
+	}
+	.outputs {
+		display: inline-block;
+		width: 45%;
+		border: solid 2px darkcyan;
+		min-height: 250px;
+		max-height: 300px;
+		padding-left: 6px;
+		overflow-y: scroll;
+	}
+
+	.test-title {
+		color:rgb(0, 0, 95);
+		background-color: cornsilk;
+		font-weight: bolder;
+	}
+
+	.test-tagline {
+		color:rgb(54, 54, 175);
+		font-style: oblique;
+		font-weight: 700;
+	}
+
+	.tester {
+		border: solid 2px rgb(69, 212, 205);
+		margin-bottom: 4px;
+		padding:2px;
+	}
+			
+
+</style>
