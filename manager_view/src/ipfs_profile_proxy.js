@@ -245,7 +245,7 @@ export async function add_profile(u_info) {
         // "clear_id" : cid without key,
         // "dir_data" : user directory structure
         u_info.cid = ipfs_identity.id
-        await store_user(u_info,ipfs_identity)
+        await finalize_user_identity(u_info,ipfs_identity)
         return true
     }
     return false

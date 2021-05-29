@@ -562,7 +562,7 @@
 	// ADD PROFILE.....
 	async function add_profile() {
 		//
-		let contact = new Contact()
+		let contact = new Contact()		// contact of self... Stores the same info as a contact plus some special fields for local db
 		contact.set(name,DOB,place_of_origin,cool_public_info,business,false,false)
 		//
 		selected_form_link = selected_form_link_types[ (business ? "business" : "profile") ]
@@ -1217,7 +1217,14 @@
 			if ( identify ) {
 				let contacts_cid = identify.files.contacts.cid
 				let c_data = await ipfs_profiles.fetch_contacts(contacts_cid,identify)
-				dir_view = JSON.stringify(c_data)
+				dir_view = JSON.stringify(c_data,null,4)
+				dir_view = `
+<pre>
+	<code>
+${dir_view}
+	</code>
+</pre>
+`
 			}
 		}
 	}
@@ -1236,7 +1243,14 @@
 				let manifest_cid = identify.files.manifest.cid
 				let btype = business
 				let c_data = await ipfs_profiles.fetch_manifest(manifest_cid,identify,btype)
-				dir_view = JSON.stringify(c_data,false,2)
+				dir_view = JSON.stringify(c_data,false,4)
+				dir_view = `
+<pre>
+	<code>
+${dir_view}
+	</code>
+</pre>
+`
 			}
 		}
 	}

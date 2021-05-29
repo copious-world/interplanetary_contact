@@ -906,7 +906,9 @@ function unstore_user(identity) {
 	return p
 }
 
-function store_user(user_information,identity_files) {
+
+
+function store_user(user_information,privates) {
 	//
 	let name_key = name_key_of(user_information)
 	if ( !name_key ) return(false)
@@ -914,25 +916,57 @@ function store_user(user_information,identity_files) {
 	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
 	//
-	let cid = value_fallback(identity_files.id)
+	let store_u_i = Object.assign({},user_information)
 	//
-	let storage_obj = {
+	let storage_obj = {		// prepare a data structure to store data made by this app's ipfs gateway
 		"name_key" : name_key,
-		"user_info" : user_information,
-		"cid" : cid,
-		"clear_cid" :  value_fallback(identity_files.clear_id),
-		"dirs" :  value_fallback(value_fallback(identity_files.dir_data).dirs),
-		"files" :  value_fallback(value_fallback(identity_files.dir_data).files),
-		"stored_externally" : (cid.length > 0)
+		"user_info" : store_u_i,
+		"cid" : '',
+		"clear_cid" :  '',
+		"dirs" :  '',
+		"files" :  '',
+		"stored_externally" : false
 	}
 	//
-	if ( user_information.priv_key ) {
-		storage_obj.priv_key = user_information.priv_key
-		delete user_information.priv_key
+	if ( privates.priv_key ) {
+		storage_obj.priv_key = privates.priv_key
+	}
+	//
+	if ( privates.signer_priv_key ) {
+		storage_obj.signer_priv_key = privates.signer_priv_key
 	}
 	//
 	userStore.put(storage_obj)           // information create by 
 	return(true)
+}
+
+
+
+async function finalize_user_identity(u_info,identity_files) {
+	//
+// "id" : cid with key,
+// "clear_id" : cid without key,
+// "dir_data" : user directory structure
+	//
+	let storage_obj = await identify_from_user(u_info)
+	//
+	let cid = value_fallback(identity_files.id)
+	storage_obj.cid = cid
+	storage_obj.clear_cid = value_fallback(identity_files.clear_id)
+	storage_obj.dirs = value_fallback(value_fallback(identity_files.dir_data).dirs)
+	storage_obj.files = value_fallback(value_fallback(identity_files.dir_data).files)
+	storage_obj.stored_externally =  (cid.length > 0)
+	//
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
+	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+	//
+	let p = new Promise((resolve,reject) => {
+		const updateUserRequest =  userStore.put(storage_obj)           // information create by 
+		updateUserRequest.onsuccess = () => {
+			resolve(true)
+		};
+	})
+	return p
 }
 
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
@@ -1402,11 +1436,14 @@ async function promail_user_starter_keys() {
 
 	let signer_pair = await pc_keypair_promise()
 
-	let sign_exported = await g_crypto.exportKey("jwk",pub_key);
-	let sign_pub_key_str = JSON.stringify(exported)
+	let signer_pub_key = signer_pair.publicKey
+	let signer_priv_key = signer_pair.privateKey
 
-	let sign_priv_exported = await g_crypto.exportKey("jwk",priv_key);
-	let sign_priv_key_str =  JSON.stringify(priv_exported);
+	let sign_exported = await g_crypto.exportKey("jwk",signer_pub_key);
+	let sign_pub_key_str = JSON.stringify(sign_exported)
+
+	let sign_priv_exported = await g_crypto.exportKey("jwk",signer_priv_key);
+	let sign_priv_key_str =  JSON.stringify(sign_priv_exported);
 	//
 	let key_info = {
 		"pk_str" : pub_key_str,
