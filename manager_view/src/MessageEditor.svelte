@@ -297,7 +297,7 @@
 		// figure out how to get custom cids from inbound messages...
 		let contact_page_descr = false
 		let contact_asset_cid = r_cid
-		if ( !special_contact_form_cid ) {
+		if ( special_contact_form_cid ) {
 			contact_asset_cid = special_contact_form_cid
 			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'cid',contact_asset_cid)
 		}
