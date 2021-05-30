@@ -705,12 +705,30 @@
 					<span class="test-tagline">Cipher Test</span>
 					<br>
 					<button onclick="tester_3('tester-3')">Run Test</button>
-				</div>	
+				</div>
 				<div class="tester" >
 					<span class="test-title" id="tester-4-title">Test4:</span>
 					<span class="test-tagline">Round Trip Text with Identity</span>
 					<br>
 					<button onclick="tester_4('tester-4')">Run Test</button>
+				</div>	
+				<div class="tester" >
+					<span class="test-title" id="tester-5-title">Test5:</span>
+					<span class="test-tagline">Wrap/Unwrap</span>
+					<br>
+					<button onclick="tester_5('tester-5')">Run Test</button>
+				</div>
+				<div class="tester" >
+					<span class="test-title" id="tester-6-title">Test6:</span>
+					<span class="test-tagline">Sign/Verify</span>
+					<br>
+					<button onclick="tester_6('tester-6')">Run Test</button>
+				</div>	
+				<div class="tester" >
+					<span class="test-title" id="tester-7-title">Test7:</span>
+					<span class="test-tagline">Message Round Trip</span>
+					<br>
+					<button onclick="tester_7('tester-7')">Run Test</button>
 				</div>	
 			</div>
 			<div id="test-output" class="outputs">
@@ -1182,7 +1200,7 @@ function contact_from_cid(user_cid) {
 
 // identify_from_user(user_info)
 // user_decryption
-function user_decryption(identity,asset) {
+async function user_decryption(identity,asset) {
 	//
 	if ( identity.asset_keys === undefined ) {
 		identity.asset_keys = {}
@@ -1197,12 +1215,17 @@ function user_decryption(identity,asset) {
 		case 'contacts': {
 			let {key,nonce} = identity.asset_keys[asset]
 			if ( key ) {
+				key = await aes_from_str(key)
 				// decryptor fn
 				let decryptor = async (decodable) => {
 					let buffer = buffer_from_cvs_array(decodable)
-					let aes_key = key
-					let iv_nonce = buffer_from_b64_cvs(nonce)
-					return await aes_decipher_message(buffer,aes_key,iv_nonce)
+					try {
+						let aes_key = key 
+						let iv_nonce = buffer_from_b64_cvs(nonce)
+						return await aes_decipher_message(buffer,aes_key,iv_nonce)
+					} catch(e) {
+						return false
+					}
 				}
 				return decryptor
 			} else {
@@ -1213,11 +1236,17 @@ function user_decryption(identity,asset) {
 		case 'manifest': {
 			let {key,nonce} = identity.asset_keys[asset]
 			if ( key ) {
+				key = await aes_from_str(key)
 				// decryptor fn
 				let decryptor = async (decodable) => {
-					let aes_key = key
-					let iv_nonce = buffer_from_b64_cvs(nonce)
-					return await aes_decipher_message(decodable,aes_key,iv_nonce)
+					let buffer = buffer_from_cvs_array(decodable)
+					try {
+						let aes_key = key 
+						let iv_nonce = buffer_from_b64_cvs(nonce)
+						return await aes_decipher_message(buffer,aes_key,iv_nonce)
+					} catch(e) {
+						return false
+					}
 				}
 				return decryptor
 			} else {
@@ -1228,11 +1257,17 @@ function user_decryption(identity,asset) {
 		case 'topics': {
 			let {key,nonce} = identity.asset_keys[asset]
 			if ( key ) {
+				key = await aes_from_str(key)
 				// decryptor fn
 				let decryptor = async (decodable) => {
-					let aes_key = key
-					let iv_nonce = buffer_from_b64_cvs(nonce)
-					return await aes_decipher_message(decodable,aes_key,iv_nonce)
+					let buffer = buffer_from_cvs_array(decodable)
+					try {
+						let aes_key = key
+						let iv_nonce = buffer_from_b64_cvs(nonce)
+						return await aes_decipher_message(buffer,aes_key,iv_nonce)
+					} catch(e) {
+						return false
+					}
 				}
 				return decryptor
 			} else {
@@ -1261,8 +1296,9 @@ async function user_encryption(identity,asset) {
 		case 'contacts': {
 			let aes_key = await gen_cipher_key()
 			let nonce = gen_nonce()
+			let storable_key = await aes_to_str(aes_key) // sometimes it's tricky getting indexedDB to take types, likely not this one, but then...
 			identity.asset_keys['contacts'] = {
-				"key" : aes_key,
+				"key" : storable_key,
 				"nonce" : nonce
 			}
 			// encryptor fn
@@ -1277,8 +1313,9 @@ async function user_encryption(identity,asset) {
 		case 'manifest': {
 			let aes_key = await gen_cipher_key()
 			let nonce = gen_nonce()
+			let storable_key = await aes_to_str(aes_key) // sometimes it's tricky getting indexedDB to take types, likely not this one, but then...
 			identity.asset_keys['contacts'] = {
-				"key" : aes_key,
+				"key" : storable_key,
 				"nonce" : nonce
 			}
 			// encryptor fn
@@ -1293,8 +1330,9 @@ async function user_encryption(identity,asset) {
 		case 'topics': {
 			let aes_key = await gen_cipher_key()
 			let nonce = gen_nonce()
+			let storable_key = await aes_to_str(aes_key) // sometimes it's tricky getting indexedDB to take types, likely not this one, but then...
 			identity.asset_keys['contacts'] = {
-				"key" : aes_key,
+				"key" : storable_key,
 				"nonce" : nonce
 			}
 			// encryptor fn
@@ -1370,11 +1408,21 @@ async function gen_cipher_key() {
 }
 
 
-async function aes_to_str(aes_key) {
-	const exported = await g_crypto.exportKey("raw", aes_key);
-	const exportedKeyBuffer = new Uint8Array(exported);
-	let key_str = exportedKeyBuffer.toString()
-	return key_str
+async function aes_to_str(aes_key,transport_type) {
+	switch ( transport_type ) {
+		case "jwk" : {
+			const exported = await g_crypto.exportKey("jwk", aes_key);
+			let key_str = JSON.stringify(exported)
+			return key_str
+		}
+		case "raw" :
+		default: {
+			const exported = await g_crypto.exportKey("raw", aes_key);
+			const exportedKeyBuffer = new Uint8Array(exported);
+			let key_str = exportedKeyBuffer.toString()
+			return key_str
+		}
+	}
 }
 
 
@@ -1383,9 +1431,9 @@ Import an AES secret key from an ArrayBuffer containing the raw bytes.
 Takes an ArrayBuffer string containing the bytes, and returns a Promise
 that will resolve to a CryptoKey representing the secret key.
 */
-function importAESKey(rawKey) {
+function importAESKey(rawKey,transport_type) {
   return g_crypto.importKey(
-		"raw",
+		transport_type,
 		rawKey,
 		{
 			name: "AES-CBC",
@@ -1396,56 +1444,151 @@ function importAESKey(rawKey) {
   );
 }
 
-async function aes_from_str(aes_key_str) {
-	let els = aes_key_str.split(',').map(el => parseInt(el))
-	let buf = new Uint8Array(els)
-	let key = await importAESKey(buf)
-	return key
+async function aes_from_str(aes_key_str,transport_type) {
+	switch ( transport_type ) {
+		case "jwk" : {
+			try {
+				let key_obj = JSON.parse(aes_key_str)
+				let key = await importAESKey(key_obj,"jwk")
+				return key
+			} catch (e) {}
+			break;
+		}
+		case "raw" :
+		default: {
+			let els = aes_key_str.split(',').map(el => parseInt(el))
+			let buf = new Uint8Array(els)
+			let key = await importAESKey(buf,"raw")
+			return key
+		}
+	}
 }
 
 
 
 async function key_wrapper(key_to_wrap,pub_wrapper_key) {
-	let wrapped_key = await g_crypto.wrapKey(
-										"jwk",
-										key_to_wrap,
-										pub_wrapper_key,
-										{   //these are the wrapping key's algorithm options
-											name: "RSA-OAEP"
-										}
-									);
-	return wrapped_key
+	try {
+		let wrapper_jwk = JSON.parse(pub_wrapper_key)
+		let wrapper = await g_crypto.importKey(
+				"jwk",
+				wrapper_jwk,
+				{   //these are the wrapping key's algorithm options
+					name: "RSA-OAEP",
+					modulusLength: 4096, //can be 1024, 2048, or 4096
+					publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+					hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+				},
+				true,
+				["wrapKey"]
+		);
+
+		let wrapped_key = await g_crypto.wrapKey(
+											"jwk",
+											key_to_wrap,
+											wrapper,
+											{   //these are the wrapping key's algorithm options
+												name: "RSA-OAEP"
+											}
+										);
+		let type8 = new Uint8Array(wrapped_key)
+		let tranportable = hex_fromTypedArray(type8)
+		return tranportable
+	} catch(e) {
+		console.log(e)
+	}
+	return false
 }
 
+
+async function key_unwrapper(wrapped_key,piv_wrapper_key) {
+	let wrapper_jwk = JSON.parse(piv_wrapper_key)
+	let unwrapper = await g_crypto.importKey(
+			"jwk",
+			wrapper_jwk,
+			{   //these are the wrapping key's algorithm options
+				name: "RSA-OAEP",
+				modulusLength: 4096, //can be 1024, 2048, or 4096
+				publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+				hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+			},
+			true,
+			["unwrapKey"]
+	);
+
+
+	// wrapped_key
+	let wrapped_aes =  hex_toByteArray(wrapped_key)
+
+	let aes_key = await unwrapped_aes_key(wrapped_aes,unwrapper)
+
+	return aes_key
+}
 
 async function key_signer(data_to_sign,priv_signer_key) {
+	try {
+		let signer_jwk = JSON.parse(priv_signer_key)
+		let signer = await g_crypto.importKey(
+				"jwk",
+				signer_jwk,
+				{
+					'name': "ECDSA",
+					'namedCurve': "P-384"
+				},
+				true,
+				["sign"]
+		);
 
-	let enc = new TextEncoder();
-	let signable = enc.encode(data_to_sign);
-	let signature = await g_crypto.sign({
-											name: "ECDSA",
-											hash: {name: "SHA-384"},
-										},
-										priv_signer_key,
-										signable
-									);
-	return signature
+		let enc = new TextEncoder();
+		let signable = enc.encode(data_to_sign);
+		let signature = await g_crypto.sign({
+												name: "ECDSA",
+												hash: {name: "SHA-384"},
+											},
+											signer,
+											signable
+										);
+
+		let type8 = new Uint8Array(signature)
+		let tranportable = hex_fromTypedArray(type8)
+		return tranportable
+	} catch(e) {
+		console.log(e)
+	}
+	return false
 }
 
 
-async function verifier(wrapped_key,signature,signer_pub_key) {
-	//
-	let encoded = wrapped_key
-	//
-	let result = await g_crypto.verify({
+async function verifier(was_signed_data,signature,signer_pub_key) {
+	try {
+		let signer_jwk = JSON.parse(signer_pub_key)
+		let verifier = await g_crypto.importKey(
+				"jwk",
+				signer_jwk,
+				{
+					'name': "ECDSA",
+					'namedCurve': "P-384"
+				},
+				true,
+				["verify"]
+		);
+		//
+		let enc = new TextEncoder();
+		let verifiable = enc.encode(was_signed_data);
+
+		let sig_bytes = hex_toByteArray(signature)
+
+		let result = await g_crypto.verify({
 											name: "ECDSA",
 											hash: {name: "SHA-384"},
 										},
-										signer_pub_key,
-										signature,
-										encoded
-								);
-	return result
+										verifier,
+										sig_bytes,
+										verifiable
+									);
+		return result
+	}  catch(e) {
+		console.log(e)
+	}
 }
 
 
@@ -1473,7 +1616,10 @@ async function unwrapped_aes_key(wrapped_aes,unwrapper_key) {
         wrapped_aes, //the key you want to unwrap
         unwrapper_key, //the private key with "unwrapKey" usage flag
         {   //these are the wrapping key's algorithm options
-            name: "RSA-OAEP"
+			name: "RSA-OAEP",
+			modulusLength: 4096, //can be 1024, 2048, or 4096
+			publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+			hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
         },
         {   //this what you want the wrapped key to become (same as when wrapping)
             name: "AES-CBC",
@@ -2563,6 +2709,7 @@ async function tester_3(base_id) {
 	append_output("AES: " + key_str)
 	append_output("NONCE: " + nonce)
 
+	let t_format = "raw"
 	let imp_key = await aes_from_str(key_str)
 
 	let message = "THIS IS a big test of the world around us."
@@ -2572,12 +2719,24 @@ async function tester_3(base_id) {
 	//
 	let clear = await aes_decipher_message(encrypted,imp_key,iv_nonce)
 	append_output("DECRYPTED: " + clear)
+	//
+	t_format = "jwk"
+	append_output("TRANSPORT_FORMAT: " + t_format)
+	key_str = await aes_to_str(aes_key,t_format)
+	imp_key = await aes_from_str(key_str,t_format)
+	//
+	//
+	message = "THIS IS a JWK big test of the world around us."
+	append_output("ENCRYPTING: " + message)
+	encrypted = await aes_encryptor(message,aes_key,iv_nonce)
+	clear = await aes_decipher_message(encrypted,imp_key,iv_nonce)
+	append_output("DECRYPTED: " + clear)
 }
 
 
 async function tester_4(base_id) {
 	clear_output()
-	append_output("Starting test 3: Cipher test")
+	append_output("Starting test 4: Cipher test")
 	append_output("=======================================")
 	let test_identity = tester_who
 	let user_info = test_identity.user_info
@@ -2588,13 +2747,87 @@ async function tester_4(base_id) {
 	let message = "THIS IS a bigger TEST of the world around us again CONTEXT."
 	append_output("ENCRYPTING: " + message)
 	let encrypted = await encryptor(message)
-console.log(encrypted)
 
 	let decryptor = await user_decryption(identity,"contacts")
 	let clear = await decryptor(encrypted)
 	append_output("DECRYPTED: " + clear)
 }
 
+
+async function tester_5(base_id) {
+	clear_output()
+	append_output("Starting test 5: Wrap - Unwrap")
+	append_output("=======================================")
+	let test_identity = tester_who
+	let user_info = test_identity.user_info
+	let identity = await identify_from_user(user_info)
+
+	let aes_key = await gen_cipher_key()
+	let nonce = gen_nonce()
+//
+	let pub_wrapper_key = identity.user_info.public_key
+	let piv_wrapper_key = identity.priv_key
+	//	
+	//
+	let wrapup = await key_wrapper(aes_key,pub_wrapper_key)
+	append_output("WRAPPED: " + wrapup)
+
+	//
+	let message = "THIS IS a WRAP test."
+	append_output("ENCRYPTING: " + message)
+	let iv_nonce = buffer_from_b64_cvs(nonce)
+	let encrypted = await aes_encryptor(message,aes_key,iv_nonce)
+
+	let unwrapped_aes_key = await key_unwrapper(wrapup,piv_wrapper_key)
+
+	let clear = await aes_decipher_message(encrypted,unwrapped_aes_key,iv_nonce)
+	append_output("DECRYPTED: " + clear)
+
+}
+
+
+async function tester_6(base_id) {
+	clear_output()
+	append_output("Starting test 6: Sign - Verify")
+	append_output("=======================================")
+	let test_identity = tester_who
+	let user_info = test_identity.user_info
+	let identity = await identify_from_user(user_info)
+	//
+	let aes_key = await gen_cipher_key()
+	let nonce = gen_nonce()
+//
+	let pub_wrapper_key = identity.user_info.public_key
+	let piv_wrapper_key = identity.priv_key
+	//
+	let pub_signer_key = identity.user_info.signer_public_key
+	let priv_signer_key = identity.signer_priv_key
+	//
+	let wrapup = await key_wrapper(aes_key,pub_wrapper_key)
+	append_output("WRAPPED: " + wrapup)
+	//
+	// now sign the wrapped key
+	let signature = await key_signer(wrapup,priv_signer_key)
+	append_output("SIGNED WRAPPED KEY: " + signature)
+
+	let verified = await verifier(wrapup,signature,pub_signer_key)
+	append_output(verified ? "WRAPPED KEY VERIFIED" : "WRAPPED KEY INVALID")
+}
+
+async function tester_7(base_id) {
+	clear_output()
+	append_output("Starting test 7: Message Round Trip")
+	append_output("=======================================")
+	let test_identity = tester_who
+	let user_info = test_identity.user_info
+	let identity = await identify_from_user(user_info)
+
+}
+
+
+
+// decipher_message(message.message,wrapped_key,priv_key,message.nonce)
+// let encryptor = await user_encryption(identity,"message")
 
 (async () => {
 	await startup()
