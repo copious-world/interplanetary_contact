@@ -4,6 +4,7 @@ const CONTACTS = 'contacts'
 const MANIFEST  = 'manifest'
 const TOPICS = 'topics'
 
+const CURRENT_PRIVATE_MESSAGE_VERSION = 1.2
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 let g_search_table = {}
 let g_when_table = {}
@@ -409,6 +410,8 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
             delete sendable_message.subject
             delete sendable_message.readers
         }
+
+        sendable_message.version = CURRENT_PRIVATE_MESSAGE_VERSION
     }
     //
     let srver = location.host
@@ -491,12 +494,11 @@ async function* message_decryptor(messages,identity) {
                 }
                 let clear_m = await window.decipher_message(message.message,wrapped_key,priv_key,message.nonce)
                 if ( clear_m !== false ) {
-                    message.message = clear_m
+                    message.message = JSON.parse(clear_m)
                 } else {
                     continue
                 }
-            } catch (e) {}
-        }
+        } catch (e) {}
         yield message
     }
 }
