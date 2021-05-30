@@ -853,7 +853,7 @@ function buffer_from_cvs_array(number_els) {
 	return buf
 }
 
-function buffer_from_b64_cvs(b64_number_els) {
+function buffer_from_b64_csv(b64_number_els) {
 	let numbers = atob(b64_number_els)
 	return buffer_from_cvs_array(numbers)
 }
@@ -1221,7 +1221,7 @@ async function user_decryption(identity,asset) {
 					let buffer = buffer_from_cvs_array(decodable)
 					try {
 						let aes_key = key 
-						let iv_nonce = buffer_from_b64_cvs(nonce)
+						let iv_nonce = buffer_from_b64_csv(nonce)
 						return await aes_decipher_message(buffer,aes_key,iv_nonce)
 					} catch(e) {
 						return false
@@ -1242,7 +1242,7 @@ async function user_decryption(identity,asset) {
 					let buffer = buffer_from_cvs_array(decodable)
 					try {
 						let aes_key = key 
-						let iv_nonce = buffer_from_b64_cvs(nonce)
+						let iv_nonce = buffer_from_b64_csv(nonce)
 						return await aes_decipher_message(buffer,aes_key,iv_nonce)
 					} catch(e) {
 						return false
@@ -1263,7 +1263,7 @@ async function user_decryption(identity,asset) {
 					let buffer = buffer_from_cvs_array(decodable)
 					try {
 						let aes_key = key
-						let iv_nonce = buffer_from_b64_cvs(nonce)
+						let iv_nonce = buffer_from_b64_csv(nonce)
 						return await aes_decipher_message(buffer,aes_key,iv_nonce)
 					} catch(e) {
 						return false
@@ -1290,7 +1290,13 @@ async function user_encryption(identity,asset) {
 	}
 	switch ( asset ) {
 		case 'message': {	// key stays in messages
-			return aes_encryptor
+			let encryptor = async (encodable,aes_key,nonce) => {
+				let iv_nonce = buffer_from_b64_csv(nonce)
+				let encoded = await aes_encryptor(encodable,aes_key,iv_nonce)
+				let int_rep_enc = new Uint8Array(encoded)
+				return int_rep_enc.toString()
+			}
+			return encryptor
 			break;
 		}
 		case 'contacts': {
@@ -1303,7 +1309,7 @@ async function user_encryption(identity,asset) {
 			}
 			// encryptor fn
 			let encryptor = async (encodable) => {
-				let iv_nonce = buffer_from_b64_cvs(nonce)
+				let iv_nonce = buffer_from_b64_csv(nonce)
 				let encoded = await aes_encryptor(encodable,aes_key,iv_nonce)
 				let int_rep_enc = new Uint8Array(encoded)
 				return int_rep_enc.toString()
@@ -1320,7 +1326,7 @@ async function user_encryption(identity,asset) {
 			}
 			// encryptor fn
 			let encryptor = async (encodable) => {
-				let iv_nonce = buffer_from_b64_cvs(nonce)
+				let iv_nonce = buffer_from_b64_csv(nonce)
 				let encoded = await aes_encryptor(encodable,aes_key,iv_nonce)
 				let int_rep_enc = new Uint8Array(encoded)
 				return int_rep_enc.toString()
@@ -1337,7 +1343,7 @@ async function user_encryption(identity,asset) {
 			}
 			// encryptor fn
 			let encryptor = async (encodable) => {
-				let iv_nonce = buffer_from_b64_cvs(nonce)
+				let iv_nonce = buffer_from_b64_csv(nonce)
 				let encoded = await aes_encryptor(encodable,aes_key,iv_nonce)
 				let int_rep_enc = new Uint8Array(encoded)
 				return int_rep_enc.toString()
@@ -1597,15 +1603,19 @@ async function verifier(was_signed_data,signature,signer_pub_key) {
 
 async function decipher_message(message,wrapped_key,priv_key,nonce) {
 	try {
-		let aes_key = await unwrapped_aes_key(wrapped_key,priv_key)
+		let aes_key = await key_unwrapper(wrapped_key,priv_key)
 		if ( aes_key ) {
-			let clear = await aes_decipher_message(message,aes_key,nonce)
+			let iv_nonce = buffer_from_b64_csv(nonce)
+			let buffer = buffer_from_cvs_array(message)
+			let clear = await aes_decipher_message(buffer,aes_key,iv_nonce)
 			return clear
 		}
-	} catch(e) {}
+	} catch(e) {
+		console.log(e)
+	}
 	return false
 }
-// 
+
 
 //>--
 // wv_unwrapped_key
@@ -2714,7 +2724,7 @@ async function tester_3(base_id) {
 
 	let message = "THIS IS a big test of the world around us."
 	append_output("ENCRYPTING: " + message)
-	let iv_nonce = buffer_from_b64_cvs(nonce)
+	let iv_nonce = buffer_from_b64_csv(nonce)
 	let encrypted = await aes_encryptor(message,aes_key,iv_nonce)
 	//
 	let clear = await aes_decipher_message(encrypted,imp_key,iv_nonce)
@@ -2744,9 +2754,9 @@ async function tester_4(base_id) {
 	//
 	let encryptor = await user_encryption(identity,"contacts")
 
-	let message = "THIS IS a bigger TEST of the world around us again CONTEXT."
-	append_output("ENCRYPTING: " + message)
-	let encrypted = await encryptor(message)
+	let content = "THIS IS a bigger TEST of the world around us again CONTEXT."
+	append_output("ENCRYPTING: " + content)
+	let encrypted = await encryptor(content)
 
 	let decryptor = await user_decryption(identity,"contacts")
 	let clear = await decryptor(encrypted)
@@ -2775,7 +2785,7 @@ async function tester_5(base_id) {
 	//
 	let message = "THIS IS a WRAP test."
 	append_output("ENCRYPTING: " + message)
-	let iv_nonce = buffer_from_b64_cvs(nonce)
+	let iv_nonce = buffer_from_b64_csv(nonce)
 	let encrypted = await aes_encryptor(message,aes_key,iv_nonce)
 
 	let unwrapped_aes_key = await key_unwrapper(wrapup,piv_wrapper_key)
@@ -2814,6 +2824,18 @@ async function tester_6(base_id) {
 	append_output(verified ? "WRAPPED KEY VERIFIED" : "WRAPPED KEY INVALID")
 }
 
+
+
+class TestClass {
+	constructor(identity) {
+		this.identity = identity
+	}
+
+	get_field(key) {
+		return this.identity.user_info[key]
+	}
+}
+
 async function tester_7(base_id) {
 	clear_output()
 	append_output("Starting test 7: Message Round Trip")
@@ -2822,12 +2844,73 @@ async function tester_7(base_id) {
 	let user_info = test_identity.user_info
 	let identity = await identify_from_user(user_info)
 
+
+	//
+	let message_txt = {
+		"message":"All Around the World.",
+		"date" : (new Date()).toISOString()
+	}
+	//
+	g_contacts["abc123"] = new TestClass(identity)
+	let sendable_message = {}
+	let recipient = {}
+	recipient.public_key = identity.user_info.public_key
+	let key_to_wrap = await window.gen_cipher_key()  /// this will be an AES KEY, new each time.
+
+	sendable_message.version = 1.2
+	sendable_message.user_cid = "abc123"
+	sendable_message.message = JSON.stringify(message_txt)  // STRINGIFY
+	sendable_message.nonce = gen_nonce()
+	//
+	let encryptor = await window.user_encryption(identity,"message")  // encryptor may vary by user... assuming more than one in indexedDB
+	let encoded_contents = sendable_message.message 
+	if ( encryptor !== undefined ) {
+		let aes_key = key_to_wrap                   // ENCRYPT
+		encoded_contents = await encryptor(encoded_contents,aes_key,sendable_message.nonce)  // CBC starting with nonce...
+	}
+	sendable_message.message = encoded_contents     // ENCODED
+	//
+	// WRAP the key just used with the public wrapper key of the recipient (got the key via introduction...)
+	sendable_message.wrapped_key = await window.key_wrapper(key_to_wrap,recipient.public_key)
+	// SIGN the wrapped key using the sender's private signer key (receiver should already have public signature...)
+	sendable_message.signature = await window.key_signer(sendable_message.wrapped_key,identity.signer_priv_key)
+
+	append_output("SENDABLE MESSAGE")
+	output_json(sendable_message)
+
+	//
+	const SIG_REQUIRED = true
+
+	let message = sendable_message
+	let priv_key = identity.priv_key
+	if ( message.version && (message.version > 1.0) ) {
+		let wrapped_key = message.wrapped_key
+		for ( let i = 0; i < 1; i++ ) {
+			try {
+				let signature = message.signature
+				if ( signature || SIG_REQUIRED ) {
+					if ( !signature ) continue
+					let user_cid = message.user_cid
+					let contact = contact_from_cid(user_cid)
+					let signer_pub_key = contact.get_field("signer_public_key")
+					//
+					let ok = await window.verifier(wrapped_key,signature,signer_pub_key)
+					if ( !(ok) ) continue
+				}
+				let clear_m = await window.decipher_message(message.message,wrapped_key,priv_key,message.nonce)
+				if ( clear_m !== false ) {
+					message.message = JSON.parse(clear_m)
+				} else {
+					continue
+				}
+			} catch (e) {}
+		}
+	}
+	append_output("ACQUIRED MESSAGE")
+	output_json(sendable_message)
+
 }
 
-
-
-// decipher_message(message.message,wrapped_key,priv_key,message.nonce)
-// let encryptor = await user_encryption(identity,"message")
 
 (async () => {
 	await startup()

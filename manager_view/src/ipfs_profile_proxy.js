@@ -397,7 +397,7 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
             let encoded_contents = sendable_message.message 
             if ( encryptor !== undefined ) {
                 let aes_key = key_to_wrap                   // ENCRYPT
-                encoded_contents = await encryptor(encoded_contents,aes_key,message.nonce)  // CBC starting with nonce...
+                encoded_contents = await encryptor(encoded_contents,aes_key,sendable_message.nonce)  // CBC starting with nonce...
             }
             sendable_message.message = encoded_contents     // ENCODED
             //
