@@ -78,10 +78,10 @@ async function fetch_asset(topics_cid,identity,btype,asset) {  // specifically f
         if ( search_result.status === "OK" ) {
             let data = search_result[asset];
             if ( typeof data === 'string' ) {
-                let decryptor = window.user_decryption(identity,asset)      // user user cid to get the decryptor...
+                let decryptor = await window.user_decryption(identity,asset)      // user user cid to get the decryptor...
                 if ( decryptor !== undefined ) {
                     try {
-                        data = decryptor(data)        // decryption
+                        data = await decryptor(data)        // decryption
                     } catch (e) {
                     }
                 }
@@ -111,7 +111,7 @@ export async function fetch_manifest(manifest_cid,identity,btype) {  // specific
     return await fetch_asset(manifest_cid,identity,btype,MANIFEST)
 }
 
-export async function fetch_topicst(topics_cid,identity,btype) {  // specifically from this user
+export async function fetch_topics(topics_cid,identity,btype) {  // specifically from this user
     return await fetch_asset(topics_cid,identity,btype,TOPICS)
 }
 
@@ -131,7 +131,7 @@ async function update_asset_to_ipfs(asset,identity,is_business,contents) {
     let encryptor = await window.user_encryption(identity,asset)
     let encoded_contents = contents
     if ( encryptor !== undefined ) {        // encryption
-        encoded_contents = encryptor(contents)
+        encoded_contents = await encryptor(contents)
     }
     //
     let prot = location.protocol  // prot for (prot)ocol
@@ -186,7 +186,7 @@ export async function fetch_contact_page(identity,business,asset,contact_cid) { 
         let decryptor = window.user_decryption(identity,asset)
         if ( decryptor !== undefined ) {
             try {
-                contact_form = decryptor(contact_form)
+                contact_form = await decryptor(contact_form)
             } catch (e) {
             }
         }
@@ -208,7 +208,7 @@ export async function fetch_contact_page(identity,business,asset,contact_cid) { 
 // // 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
-let g_user_fields = ["name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key"]
+let g_user_fields = ["name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key", "signer_public_key"]
 // not checking for "cid" for most cases...
 export async function add_profile(u_info) {
     let user_info = Object.assign(u_info)
@@ -259,6 +259,10 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
         if ( user_info[field] === undefined ) {
             if ( (field === "public_key") && clear ) {
                 delete user_info.public_key
+                continue;
+            }
+            if ( (field === "signer_public_key") && clear ) {
+                delete user_info.signer_public_key
                 continue;
             }
             alert_error("undefined field " + field)
@@ -498,7 +502,8 @@ async function* message_decryptor(messages,identity) {
                 } else {
                     continue
                 }
-        } catch (e) {}
+            } catch (e) {}
+        }
         yield message
     }
 }

@@ -201,7 +201,10 @@
 	}
 
 	async function init_contact_form_cids(r_info) {
-		r_cid =  await ipfs_profiles.fetch_contact_cid(r_info,false)  // established contact
+		r_cid = false
+		if ( r_info.public_key && r_info.signer_public_key ) {
+			r_cid =  await ipfs_profiles.fetch_contact_cid(r_info,false)  // established contact
+		}
 		r_p_cid = await ipfs_profiles.fetch_contact_cid(r_info,true)	// introduction or no privacy intended
 	}
 
@@ -211,32 +214,38 @@
 	let user_cid = false	// the active user cid of sender (user of client)
 							// This is for retreiving keys, encryptors, etc. out of local storage
 
-	$: user_cid = active_identity.cid
+	$: user_cid = active_identity ? active_identity.cid : false
 
 	$: {
-		receiver_user_info = {
-			"name" : name,
-			"DOB" : DOB,
-			"place_of_origin" : place_of_origin,
-			"cool_public_info" : cool_public_info,
-			"business" : business,
-			"public_key" : public_key,
-			"signer_public_key" : signer_public_key
+		if ( active_identity && name ) {
+			receiver_user_info = {
+				"name" : name,
+				"DOB" : DOB,
+				"place_of_origin" : place_of_origin,
+				"cool_public_info" : cool_public_info,
+				"business" : business,
+				"public_key" : public_key,
+				"signer_public_key" : signer_public_key
+			}
+			init_contact_form_cids(receiver_user_info)
 		}
-		init_contact_form_cids(receiver_user_info)
 	}
 
-	$: cform_var_supply = {
-		"{{to}}" : name,
-		"{{DOB}}" : DOB,
-		"{{date}}" : (new Date()).toISOString(),
-		"{{place_of_origin}}" : place_of_origin,
-		"{{cool_public_info}}" : cool_public_info,
-		"{{business}}" : business ? "business" : "profile",
-		"{{public_key}}" : JSON.stringify(public_key),
-		"{{cid}}" : JSON.stringify(active_identity.cid),
-		"{{from}}" : active_identity.user_info ? active_identity.user_info.name : "",
-		"{{clear_cid}}" : JSON.stringify(active_identity.clear_cid)
+	$: {
+		if ( active_identity ) {
+			cform_var_supply = {
+				"{{to}}" : name,
+				"{{DOB}}" : DOB,
+				"{{date}}" : (new Date()).toISOString(),
+				"{{place_of_origin}}" : place_of_origin,
+				"{{cool_public_info}}" : cool_public_info,
+				"{{business}}" : business ? "business" : "profile",
+				"{{public_key}}" : JSON.stringify(public_key),
+				"{{cid}}" : JSON.stringify(active_identity.cid),
+				"{{from}}" : active_identity.user_info ? active_identity.user_info.name : "",
+				"{{clear_cid}}" : JSON.stringify(active_identity.clear_cid)
+			}
+		}
 	}
 
 	let todays_date = ''
@@ -296,13 +305,11 @@
 		// The receiver information will be stored as part of the data if encryption is required
 		// figure out how to get custom cids from inbound messages...
 		let contact_page_descr = false
-		let contact_asset_cid = r_cid
 		if ( special_contact_form_cid ) {
-			contact_asset_cid = special_contact_form_cid
-			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'cid',contact_asset_cid)
+			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'cid',special_contact_form_cid)
 		}
 		//
-		if ( !contact_page_descr ) {
+		if ( !contact_page_descr && r_cid ) {
 			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'default',r_cid)
 		}
 		//

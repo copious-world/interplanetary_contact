@@ -1008,6 +1008,9 @@ async function update_identity(identify) {
 		if ( identify.profile_image ) {
 			storage_obj.profile_image = identify.profile_image
 		}
+		if ( identify.asset_keys ) {
+			storage_obj.asset_keys = Object.assign({},identify.asset_keys)
+		}
 		let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 		let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
 		//

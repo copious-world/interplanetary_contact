@@ -116,9 +116,9 @@
 
 	//
 	let individuals = [
-		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "cid" : "4504385938", "answer_message" : ""},
-		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "cid" : "4345687685", "answer_message" : "I got your songs"},
-		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "cid" : "9i58w78ew", "answer_message" : "" }
+		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4504385938", "answer_message" : ""},
+		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4345687685", "answer_message" : "I got your songs"},
+		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "9i58w78ew", "answer_message" : "" }
 	];
 
 	let cid_individuals_map = {}
@@ -242,6 +242,7 @@
 				break;
 			}
 			case 'move-messages': {
+				if ( !active_identity ) return
 				let cat =  evt.detail.category
 				if ( (cat === source_category) && !(message_op_category === 'intros' || message_op_category === 'messages')) return
 				let user_cid = active_identity.cid
@@ -339,6 +340,17 @@
 			return id_obj
 		}
 
+		clear_identity() {
+			let id_obj = {
+				"name": this.data.name,
+				"DOB" : this.data.DOB,
+				"place_of_origin" : this.data.place_of_origin, 
+				"cool_public_info" : this.data.cool_public_info, 
+				"business" : false, 
+			}
+			return id_obj
+		}
+
 	}
 
 	let empty_identity = new Contact()
@@ -359,12 +371,14 @@
 
 	$: reset_inputs(selected)
 
-	$: filtered_cc_list = individuals.filter(ident => {
-		if ( ident.cid !== active_identity.cid ) {
-			return true
-		}
-		return false
-	})
+	$: if ( active_identity ) {
+		filtered_cc_list = individuals.filter(ident => {
+			if ( ident.cid !== active_identity.cid ) {
+				return true
+			}
+			return false
+		})
+	}
 
 	//
 	//
@@ -391,7 +405,7 @@
 			current_index = u_index
 			reinitialize_user_context()
 		}
-		if ( active_identity !== false ) {
+		if ( active_identity ) {
 			load_user_info(active_identity)
 		}
 	}
@@ -627,6 +641,7 @@
 		cool_public_info = ''
 		business = false
 		active_user = false
+		active_identity = false
 		u_index = false
 		adding_new = true
 	}
@@ -656,7 +671,7 @@
 				let fcid = await ipfs_profiles.upload_data_file(fname,blob64)
 				if ( fcid ) {
 					identity.profile_image = fcid
-					update_identity(identity)
+					await update_identity(identity)
 				}
 			}
 		} catch (e) {
@@ -872,7 +887,16 @@
 // CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS CONTACTS
 
 	function make_individuals_map(indivs_map) {
-		cid_individuals_map = Object.assign(cid_individuals_map,indivs_map)
+		if ( Array.isArray(indivs_map) ) {
+			cid_individuals_map = {}
+			for ( let indiv of indivs_map ) {
+				if ( indiv && (typeof indiv !== "string") ) {
+					cid_individuals_map[indiv.cid] = indiv
+				}
+			}
+		} else {
+			cid_individuals_map = Object.assign(cid_individuals_map,indivs_map)
+		}
 		window.set_contact_map(cid_individuals_map)
 	}
 
@@ -928,7 +952,7 @@
 		c_cool_public_info = individual ? individual.cool_public_info : '';
 		c_business = individual ? individual.business : '';
 		c_public_key = individual ? individual.public_key : '';
-		c_signer_public_key = individual ? individual.c_signer_public_key : '';
+		c_signer_public_key = individual ? individual.signer_public_key : '';
 		c_answer_message = individual ? individual.answer_message : '';
 		c_cid = individual ? individual.cid : '';
 	}
@@ -1040,9 +1064,9 @@
 		contact.extend_contact("cid",'')
 		contact.extend_contact("answer_message",'')
 		//
-		let user_data = contact.identity()
+		let user_data = contact.clear_identity()
 		//
-		let cid = await ipfs_profiles.fetch_contact_cid(user_data)
+		let cid = await ipfs_profiles.fetch_contact_cid(user_data,true)
 		user_data.cid = cid
 		contact.extend_contact("cid",cid)
 		//
@@ -1080,7 +1104,7 @@
 		let cid = selected.cid
 		delete cid_individuals_map[cid]
 		messages_update_contacts(cid,false)
-		cid = await ipfs_profiles.fetch_contact_cid(selected)
+		cid = await ipfs_profiles.fetch_contact_cid(selected,((c_signer_public_key !==undefined) && c_signer_public_key))
 		selected.cid = cid
 		cid_individuals_map[cid] = user_data
 		messages_update_contacts(cid,true)
@@ -1125,8 +1149,17 @@
 				let contacts_cid = identify.files.contacts.cid
 				let contacts_data = await ipfs_profiles.fetch_contacts(contacts_cid,identify)
 				let indivs = []
-				for ( let ky in contacts_data ) {
-					indivs.push(contacts_data[ky])
+				if ( Array.isArray(contacts_data) ) {
+					indivs = contacts_data.filter(el => {
+						let t = (typeof el === "object") && (typeof el !== "string") && (el !== false)
+						return t
+					})
+				} else {
+					for ( let ky in contacts_data ) {
+						if ( typeof ky === "string" ) {  // make sure this is a cid string
+							indivs.push(contacts_data[ky])
+						}
+					}
 				}
 				if ( indivs.length === 0 ) {
 					individuals = [ empty_identity.identity() ]
@@ -1146,8 +1179,10 @@
 	}
 
 	async function app_download_identity() {
-		let user_info = active_identity.user_info
-		await download_identity(user_info,false)
+		if ( active_identity ) {
+			let user_info = active_identity.user_info
+			await download_identity(user_info,false)
+		}
 	}
 
 
@@ -1281,7 +1316,7 @@ ${dir_view}
 			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
-			update_identity(identify)
+			await update_identity(identify)
 		}
 		//
 	}
@@ -1297,7 +1332,7 @@ ${dir_view}
 			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
-			update_identity(identify)
+			await update_identity(identify)
 		}
 		//
 	}
@@ -1344,7 +1379,7 @@ ${dir_view}
 			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
-			update_identity(identify)
+			await update_identity(identify)
 		}
 		//
 	}
@@ -1363,7 +1398,7 @@ ${dir_view}
 			ipfs_profiles.dont_store_html(manifest_obj)
 			let update_cid = await ipfs_profiles.update_manifest_to_ipfs(identify,business,manifest_obj)
 			identify.files.manifest.cid = update_cid
-			update_identity(identify)
+			await update_identity(identify)
 		}
 		//
 	}
