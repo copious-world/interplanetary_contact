@@ -305,8 +305,10 @@
 		// The receiver information will be stored as part of the data if encryption is required
 		// figure out how to get custom cids from inbound messages...
 		let contact_page_descr = false
-		if ( special_contact_form_cid ) {
+		if ( special_contact_form_cid && (special_contact_form_cid !== 'default') ) {
 			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'cid',special_contact_form_cid)
+		} else {
+			contact_page_descr = await ipfs_profiles.fetch_contact_page(active_identity,business,'default',r_cid)
 		}
 		//
 		if ( !contact_page_descr && r_cid ) {
