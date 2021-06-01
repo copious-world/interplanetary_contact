@@ -306,8 +306,9 @@ export async function fetch_contact_info(cid) {  // a user,, not the owner of th
 
 
 
-export async function get_dir(user_info,clear) {
+export async function get_dir(identity,clear) {
     //
+    let user_info = identity.user_info
     for ( let field of g_user_fields ) {
         if ( user_info[field] === undefined ) {
             if ( (field === "public_key")  && !(clear) ) {
@@ -315,6 +316,14 @@ export async function get_dir(user_info,clear) {
                 if ( p_key ) {
                     user_info[field] = p_key
                     continue
+                }
+            }
+            if ( (field === "signer_public_key")  && !(clear) ) {
+                //continue
+                let p_key = get_user_public_signer_key(`${user_info.name}-${user_info.DOB}`)
+                if ( p_key ) {
+                   user_info[field] = p_key
+                   continue
                 }
             }
             alert_error("undefined field " + field)
@@ -333,6 +342,7 @@ export async function get_dir(user_info,clear) {
     let data_stem = 'dir'
     let sp = '//'
     let post_data = user_info
+    post_data.cid = identity.cid
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
     if ( result.status === "OK" ) {
         let dir_tree = result.data

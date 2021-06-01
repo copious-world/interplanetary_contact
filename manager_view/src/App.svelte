@@ -1209,7 +1209,8 @@
 
 	async function view_user_dir() {
 		if ( active_user ) {
-			let dir_data = await ipfs_profiles.get_dir(active_user,false)
+			let identify = active_identity
+			let dir_data = await ipfs_profiles.get_dir(identify,false)
 			let listed = ""
 			for ( let el of dir_data ) {
 				let el_it = `<li>
@@ -1245,7 +1246,7 @@
 			}
 			//
 			if ( (identify.files.contacts === undefined) || (typeof identify.files.contacts !== 'object') ) {
-				let dir_data = await ipfs_profiles.get_dir(active_user,false)
+				let dir_data = await ipfs_profiles.get_dir(identify,false)
 				identify.files.contacts = from_dir_data("contacts",dir_data)
 			}
 			//
@@ -1271,7 +1272,7 @@ ${dir_view}
 				identify.files = {}
 			}
 			if ( (identify.files.manifest === undefined) || (typeof identify.files.manifest !== 'object') ) {
-				let dir_data = await ipfs_profiles.get_dir(active_user,false)
+				let dir_data = await ipfs_profiles.get_dir(identify,false)
 				identify.files.manifest = from_dir_data("manifest",dir_data)
 			}
 			if ( identify ) {

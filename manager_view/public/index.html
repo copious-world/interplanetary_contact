@@ -1104,8 +1104,31 @@ async function get_user_public_wrapper_key(name_key) {
 	})
 	//
 	return p
-
 }
+
+
+async function get_user_public_signer_key(name_key) {
+	//
+	let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
+	let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+
+	let p = new Promise((resolve,reject) => {
+		let nameIndex = userStore.index('name_key');
+		nameIndex.openCursor().onsuccess = (event) => {
+			let keyRangeValue = IDBKeyRange.only(name_key);
+			nameIndex.openCursor(keyRangeValue).onsuccess = (event) => {
+				var cursor = event.target.result;
+				if ( cursor ) {
+					let idObj = cursor.value
+					let pkey = idObj.user_info.signer_public_key;
+				}
+			}
+		}
+	})
+	//
+	return p
+}
+
 
 // // // 
 function get_known_users() {
