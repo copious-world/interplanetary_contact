@@ -38,6 +38,8 @@
 
 	let attachments = []
 
+	let clear_cid = false
+
 	let message_type = "introduction"
 	let receiver_user_info = {
 			"name" : name,
@@ -46,8 +48,7 @@
 			"cool_public_info" : cool_public_info,
 			"business" : business,
 			"public_key" : public_key,
-			"signer_public_key" : signer_public_key,
-			"name" : name
+			"signer_public_key" : signer_public_key
 		}
 		
 	let use_previous = answer_message
@@ -107,6 +108,16 @@
 			receiver_pub_key = public_key ? public_key : false
 			special_contact_form_cid = 'default'
 		}
+	}
+
+	$: {
+		if ( cid !== false ) {
+			fetch_clear_cid(cid)
+		}
+	}
+
+	$: {
+		receiver_user_info.clear_cid = clear_cid
 	}
 
 
@@ -268,6 +279,14 @@
 	let previous_message = ""
 	$: previous_message = answer_message ? JSON.stringify(reply_to,null,4) : ""
 
+	async function fetch_clear_cid(cid) {
+		let ccid_container = await ipfs_profiles.fetch_cid_json(cid)
+		if ( ccid_container ) {
+			clear_cid = ccid_container.clear_cid
+			return clear_cid
+		}
+		return false
+	}
 
 	async function start_introduction() {
 		introduction = true
@@ -352,6 +371,8 @@
 			default: {
 				let identify = active_identity
 				if ( identify ) {
+					let clear_cid = await fetch_clear_cid(cid)
+					receiver_user_info.clear_cid = clear_cid
 					let m_cid = await ipfs_profiles.send_message(receiver_user_info,identify,message)
 					if ( m_cid ) {
 						if ( identify.messages === undefined ) {

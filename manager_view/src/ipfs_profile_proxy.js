@@ -533,7 +533,7 @@ async function* message_decryptor(messages,identity) {
                     if ( !signature ) continue
                     let user_cid = message.user_cid
                     let contact = contact_from_cid(user_cid)
-                    let signer_pub_key = contact.get_field("signer_public_key")
+                    let signer_pub_key = contact.signer_public_key
                     //
                     let ok = await window.verifier(wrapped_key,signature,signer_pub_key)
                     if ( !(ok) ) continue
@@ -555,7 +555,12 @@ async function clarify_message(messages,identity) {
     try {
         for await (let message of message_decryptor(messages,identity) ) {
             try {
-                let cmessage = JSON.parse(message.message)
+                let cmessage = false
+                if ( typeof message.message === "string" ) {
+                    cmessage = JSON.parse(message.message)
+                } else {
+                    cmessage = message.message
+                }
                 if ( message.f_cid ) {
                     cmessage.f_cid =  message.f_cid
                 }

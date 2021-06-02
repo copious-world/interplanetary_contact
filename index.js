@@ -171,6 +171,9 @@ let body = {
 
 
 let g_message_fields = ["name", "user_cid", "subject", "readers", "date", "business", "public_key","message"]
+
+
+let g_private_message_fields = [ "business","date","message","name","nonce","signature","user_cid","version","wrapped_key"]
 app.post('/send/message',async (req, res) => {
   //
   if ( !(g_ipfs_profiles) ) {
@@ -180,7 +183,7 @@ app.post('/send/message',async (req, res) => {
   //
   let body = req.body
   let message = body.message
-  for ( let fld of g_message_fields ) {
+  for ( let fld of g_private_message_fields ) {
     if ( message[fld] === undefined ) {
       res.type('application/json').send({ "status" : "fail", "reason" : "missing fields"})
       return
@@ -193,8 +196,9 @@ app.post('/send/message',async (req, res) => {
       return
     }
   }
-  for ( let fld of receiver ) {   // use just the field required to establish identity
+  for ( let fld in receiver ) {   // use just the field required to establish identity
     if ( g_user_fields.indexOf(fld) < 0 ) {
+      if ( fld === "clear_cid" ) continue
       delete receiver[fld]
     }
   }
