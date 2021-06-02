@@ -934,7 +934,7 @@
 				//
 				if ( is && clear ) {
 					let c = cid_individuals_map[m.user_cid]
-					let do_update = await  check_for_auto_update(c,m)
+					let do_update = await check_for_auto_update(c,m)
 					if ( do_update ) {
 						if ( c.public_key && c.signer_public_key ) {
 							let contact = contact_wrapper(c)
@@ -945,6 +945,11 @@
 							auto_add_contact(m.user_cid,m.signer_public_key,c.must_send_keys,m)
 							removals.push(m)
 						}
+					}
+				} else if ( clear ) {
+					if ( m.response_acceptance ) {
+						auto_add_contact(m.user_cid,m.signer_public_key,false,m)
+						removals.push(m)
 					}
 				}
 			}
@@ -1049,6 +1054,7 @@
 			message.signer_public_key = identify.user_info.signer_public_key
 			message.date = Date.now()
 			message.business = business
+			message.response_acceptance = true
 			message.attachments = []
 			//
 			let i_cid = await ipfs_profiles.send_introduction(contact.clear_identity(),identify,message)
@@ -1146,14 +1152,14 @@
 		let user_data = contact.clear_identity()
 		//
 		let cid = await ipfs_profiles.fetch_contact_cid(user_data,true)
-		if ( cid_individuals_map[cid] !== undefind ) {  // the user is already a contact
+		if ( cid_individuals_map[cid] === undefined ) {  // the user is already a contact
 			user_data.cid = cid
 			contact.extend_contact("cid",cid)
 			//
 			if ( individuals[0] === empty_identity.identity() ) {
 				individuals[0] = user_data
 			} else {
-				individuals = individuals.push(user_data);
+				individuals.push(user_data);
 			}
 			//
 			i = individuals.length - 1;
@@ -2382,12 +2388,14 @@ Can't Fetch
 </FloatWindow>
 
 <!---->
+{#if selected !== undefined }
 <FloatWindow title={selected.name} scale_size_array={all_window_scales} index={1} use_smoke={false}>
 	<MessageEditor {...selected} reply_to={message_selected} from_contact={message_edit_from_contact}
 									active_identity={active_identity}
 									cc_list={filtered_cc_list}
 									contact_form_list={filtered_manifest_contact_form_list}/>
 </FloatWindow>
+{/if}
 
 <FloatWindow title={message_edit_list_name} scale_size_array={all_window_scales} index={2} use_smoke={false}>
 	<MessageListEdit message_edit_type="Message Ops" active_identity={active_identity} on:message={handle_message} />
