@@ -218,7 +218,14 @@ export async function add_profile(u_info) {
             if ( field ===  "public_key" ) {
                 let p_key = get_user_public_wrapper_key(`${user_info.name}-${user_info.DOB}`)   // out of DB (index.html)
                 if ( p_key ) {
-                    user_info[field] = p_key
+                    user_info.public_key = p_key
+                    continue
+                }
+            }
+            if ( field ===  "signer_public_key" ) {
+                let p_key = get_user_public_signer_key(`${user_info.name}-${user_info.DOB}`)   // out of DB (index.html)
+                if ( p_key ) {
+                    user_info.signer_public_key = p_key
                     continue
                 }
             }
@@ -283,6 +290,25 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
     }
     return false
 }
+
+export async function fetch_cid_json(jcid) {
+    let data_stem = `get/json-cid/${jcid}`
+    let result = await fetchEndPoint(data_stem,g_profile_port)
+    if ( result.status === "OK" ) {
+        let json_str = result.json_str
+        if ( typeof json_str === "string" ) {
+            try {
+                displayable = JSON.parse(json_str)
+                return displayable
+            } catch (e) {}    
+        } else {
+            return json_str
+        }
+    }
+    return false
+}
+
+
 
 
 export async function fetch_contact_info(cid) {  // a user,, not the owner of the manifest, most likely a recipients
@@ -370,6 +396,11 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
             delete recipient_info.public_key            
             continue
         }
+        if ( (field === "signer_public_key")  && clear ) {     // when wrapping a key use the recipients public wrapper key
+            // delete public_key key from messages that are introductions, etc. (this is used for the clear user directory id)
+            delete recipient_info.signer_public_key            
+            continue
+        }
         if ( recipient[field] === undefined ) {
             alert_error("undefined field " + field)
             return
@@ -387,6 +418,7 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
         // the id of the clear directory ignores the key.
         // the identity of established contact messages requires the public key (so it stays for not clear)
         delete recipient.public_key  // this has to do with the identiy and the directory where introductions go.
+        delete recipient.signer_public_key  // and this. Clear identity does not use keys
     } else  {
         //
         if ( sendable_message.when === undefined ) sendable_message.when = Date.now()

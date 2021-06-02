@@ -79,7 +79,7 @@ app.get('/image',(req, res) => {
     "public_key" : '345345
 
 */
-let g_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key" ]
+let g_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key", "signer_public_key" ]
 app.post('/add/profile',async (req, res) => {
   //
   if ( !(g_ipfs_profiles) ) {
@@ -562,6 +562,23 @@ app.post('/put/template',async (req, res) => {  // narrow search by category.
 })
 
 
+
+
+app.get('/get/json-cid/:cid',async (req, res) => {  // narrow search by category.
+  //
+  if ( !(g_ipfs_profiles) ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+    return
+  }
+  //
+  let a_cid = req.params.cid
+  let jobj = await g_ipfs_profiles.get_json_from_cid(a_cid)
+  if ( jobj ) {
+    res.type('application/json').send({ "status" : "OK", "json_str" : jobj })
+  } else {
+    res.type('application/json').send({ "status" : "fail", "reason" : "no file data"})
+  }
+})
 
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------

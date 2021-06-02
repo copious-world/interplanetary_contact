@@ -930,6 +930,7 @@ function unstore_user(identity) {
 	return p
 }
 
+
 function store_user(user_information,privates) {
 	//
 	let name_key = name_key_of(user_information)
@@ -972,7 +973,7 @@ async function finalize_user_identity(u_info,identity_files) {
 // "clear_id" : cid without key,
 // "dir_data" : user directory structure
 	//
-	let storage_obj = await identify_from_user(u_info)
+	let storage_obj = await identity_from_user(u_info)
 	//
 	let cid = value_fallback(identity_files.id)
 	storage_obj.cid = cid
@@ -996,20 +997,26 @@ async function finalize_user_identity(u_info,identity_files) {
 // // // // // // // // // // // // // // // // // // // // // // // // // // // // // // 
 //		update_identity
 //
-async function update_identity(identify) {
+async function update_identity(identity) {
 	try {
-		let u_info = identify.user_info
-		let storage_obj = await identify_from_user(u_info)
+		let u_info = identity.user_info
+		let storage_obj = await identity_from_user(u_info)
 		for ( let ky in storage_obj ) {
 			if ( (ky == "dirs") || (ky === "files") ) {
-				storage_obj[ky] = identify[ky]
+				storage_obj[ky] = identity[ky]
 			}
 		}
-		if ( identify.profile_image ) {
-			storage_obj.profile_image = identify.profile_image
+		if ( identity.profile_image ) {
+			storage_obj.profile_image = identity.profile_image
 		}
-		if ( identify.asset_keys ) {
-			storage_obj.asset_keys = Object.assign({},identify.asset_keys)
+		if ( identity.asset_keys ) {
+			storage_obj.asset_keys = Object.assign({},identity.asset_keys)
+		}
+		if ( identity.introductions ) {
+			storage_obj.introductions = identity.introductions
+		}
+		if ( identity.messages ) {
+			storage_obj.messages = identity.messages
 		}
 		let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 		let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
@@ -1026,13 +1033,13 @@ async function update_identity(identify) {
 }
 
 
-async function restore_identity(identify) {
+async function restore_identity(identity) {
 	try {
 		let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
 		let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
 		//
 		let p = new Promise((resolve,reject) => {
-			const updateUserRequest =  userStore.put(identify)           // information create by 
+			const updateUserRequest =  userStore.put(identity)           // information create by 
 			updateUserRequest.onsuccess = () => {
 				resolve(true)
 			};
@@ -1042,7 +1049,7 @@ async function restore_identity(identify) {
 	}
 }
 
-function identify_from_user(user_info) {
+function identity_from_user(user_info) {
 	let name_key = name_key_of(user_info)
 	if ( !name_key ) return(false)
 	//
@@ -1082,6 +1089,8 @@ async function gen_public_key(user_info) {
 	}
 	store_user(user_info,privates)
 }
+
+
 
 
 async function get_user_public_wrapper_key(name_key) {
@@ -1178,7 +1187,7 @@ function contact_from_cid(user_cid) {
 // ---- ---- ---- ---- ---- ---- ---- ----
 // ---- ---- ---- ---- ---- ---- ---- ----
 
-// identify_from_user(user_info)
+// identity_from_user(user_info)
 // user_decryption
 async function user_decryption(identity,asset) {
 	//
@@ -1718,6 +1727,59 @@ async function promail_user_starter_keys() {
 }
 
 
+
+async function fix_keys(identity) {
+	let u_info = identity.user_info
+	if ( !u_info ) return // can't fix it
+	if ( ( identity.priv_key === undefined) || ( identity.signer_priv_key === undefined ) || ( u_info.signer_public_key === undefined ) ) {
+		try {
+			let storage_obj = await identity_from_user(u_info)
+			if ( identity.priv_key === undefined ) {
+				let keypair = await pc_wrapper_keypair_promise()
+				// ---- ---- ---- ----
+				let pub_key = keypair.publicKey
+				let priv_key = keypair.privateKey
+				let exported = await g_crypto.exportKey("jwk",pub_key);
+				let pub_key_str = JSON.stringify(exported)
+
+				let priv_exported = await g_crypto.exportKey("jwk",priv_key);
+				let priv_key_str =  JSON.stringify(priv_exported);
+				//
+				storage_obj.priv_key = priv_key_str
+				u_info.public_key = pub_key_str
+			}
+			//
+			if ( ( identity.signer_priv_key === undefined ) || ( u_info.signer_public_key === undefined ) ) {
+				let signer_pair = await pc_keypair_promise()
+				//
+				let signer_pub_key = signer_pair.publicKey
+				let signer_priv_key = signer_pair.privateKey
+
+				let sign_exported = await g_crypto.exportKey("jwk",signer_pub_key);
+				let sign_pub_key_str = JSON.stringify(sign_exported)
+
+				let sign_priv_exported = await g_crypto.exportKey("jwk",signer_priv_key);
+				let sign_priv_key_str = JSON.stringify(sign_priv_exported);
+				//
+				storage_obj.signer_priv_key = sign_priv_key_str					
+				u_info.signer_public_key = sign_pub_key_str
+			}
+			let transaction = g_promail_db.transaction(PROMAIL_USERID_STORE, "readwrite");
+			let userStore = transaction.objectStore(PROMAIL_USERID_STORE);
+			//
+			let p = new Promise((resolve,reject) => {
+				const updateUserRequest =  userStore.put(storage_obj)           // information create by 
+				updateUserRequest.onsuccess = () => {
+					resolve(true)
+				};
+			})
+			return p
+		} catch (e) {
+		}
+	}
+}
+
+
 var downloader_url = null
 async function download_identity(user_info,remove) {
 	//
@@ -1725,7 +1787,7 @@ async function download_identity(user_info,remove) {
 	if ( !(downloadlink) ) return false
 	try {
 		//
-		let identity = await identify_from_user(user_info)
+		let identity = await identity_from_user(user_info)
 		let download_str = JSON.stringify(identity,null,4)
 
 		let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(download_str);

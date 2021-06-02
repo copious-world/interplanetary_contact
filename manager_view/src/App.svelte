@@ -33,6 +33,8 @@
 	let p_i = 0;
 	let form_index = 0
 
+	let j_cid = false
+
 	let name = ''
 	let DOB = ''
 	let place_of_origin = ''
@@ -123,7 +125,7 @@
 
 	let cid_individuals_map = {}
 
-	let selected
+	let selected = individuals[0]
 
 	let inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" , "reply_with" : "default"} ]
 	let inbound_contact_messages = [
@@ -224,8 +226,10 @@
 		let cmd = evt.detail.cmd
 		switch ( cmd ) {
 			case "new-contact" : {
+				// from display -- sender initiated -- got sender public keys 
+				// -- send yours automatically since you already accepted
 				let signer_pk = evt.detail.signer_public_key
-				let added = await auto_add_contact(evt.detail.cid,signer_pk,false)
+				let added = await auto_add_contact(evt.detail.cid,signer_pk,true,message_selected)
 				message_selected.is_in_contacts = added
 				break;
 			}
@@ -346,7 +350,7 @@
 				"DOB" : this.data.DOB,
 				"place_of_origin" : this.data.place_of_origin, 
 				"cool_public_info" : this.data.cool_public_info, 
-				"business" : false, 
+				"business" : this.data.business, 
 			}
 			return id_obj
 		}
@@ -606,6 +610,8 @@
 		active_cid = identity.cid
 		clear_cid = identity.clear_cid
 
+		await fix_keys(identity)
+
 		await fetch_contacts(identity)
 		//
 		fetch_messages(identity)
@@ -847,9 +853,16 @@
 			let all_inbound_messages = await ipfs_profiles.get_message_files(identify,start_of_messages,messages_per_page)
 			inbound_contact_messages = all_inbound_messages[0]
 			inbound_solicitation_messages = all_inbound_messages[1]
+
+			if ( inbound_contact_messages === false ) {
+				inbound_contact_messages = []
+			}
+			if ( inbound_solicitation_messages === false ) {
+				inbound_solicitation_messages = []
+			}
 			//
-			check_contacts(inbound_contact_messages,false)
-			let auto_responses = check_contacts(inbound_solicitation_messages,true)
+			await check_contacts(inbound_contact_messages,false)
+			let auto_responses = await check_contacts(inbound_solicitation_messages,true)
 			inbound_solicitation_messages = inbound_solicitation_messages.filter(m => {
 				return (auto_responses.indexOf(m) < 0)
 			})
@@ -910,7 +923,7 @@
 		return false
 	}
 
-	function check_contacts(message_list,clear) {
+	async function check_contacts(message_list,clear) {
 		let removals = []
 		if ( Array.isArray(message_list) ) {
 			for ( let m of message_list ) { 
@@ -921,11 +934,15 @@
 				//
 				if ( is && clear ) {
 					let c = cid_individuals_map[m.user_cid]
-					if ( c.received_keys ) {
-						if ( c.must_send_keys ) {
-							c.must_send_keys  // only comes in from the intro message...
-							auto_add_contact(m.user_cid,m.signer_public_key,true)
-							//
+					let do_update = await  check_for_auto_update(c,m)
+					if ( do_update ) {
+						if ( c.public_key && c.signer_public_key ) {
+							let contact = contact_wrapper(c)
+							if ( contact ) {
+								await respond_to_intro(m,contact)
+							}
+						} else {
+							auto_add_contact(m.user_cid,m.signer_public_key,c.must_send_keys,m)
 							removals.push(m)
 						}
 					}
@@ -935,7 +952,38 @@
 		return removals
 	}
 
+	//
+	async function check_for_auto_update(c,m) {
+		//
+		if ( c.must_send_keys === undefined ) return false
+		//
+		if ( !(c.received_keys) ) {
+			if ( c.public_key && c.signer_public_key ) {
+				c.received_keys = true
+				await update_contact()
+				return false
+			}
+			let cid = m.user_cid
+			if ( cid ) {
+				if ( active_identity.introductions ) {
+					let intros = active_identity.introductions
+					if ( intros.indexOf(cid) >= 0 ) {
+						return true
+					}
+				} else return true // let "received_keys" make the decision.
+			}
+		} else {
+			if ( c.must_send_keys ) {
+				if ( c.public_key && c.signer_public_key ) {
+					return true
+				}
+			}
+		}
+		//
+		return false
+	}
 
+	//
 	async function get_contact_info(cid) {
 		let user_info = await ipfs_profiles.fetch_contact_info(cid)
 		if ( !user_info ) {
@@ -990,9 +1038,11 @@
 
 	async function respond_to_intro(msg,contact) {
 		//
+		if ( !(contact) ) return
+		//
 		let identify = active_identity
 		if ( identify ) {
-			let message = Object.assign({},msg)
+			let message = Object.assign({},msg)   // make a special automatic message. ...
 			//
 			message.user_cid = identify.cid
 			message.public_key = identify.user_info.public_key
@@ -1001,8 +1051,11 @@
 			message.business = business
 			message.attachments = []
 			//
-			let i_cid = await ipfs_profiles.send_introduction(contact.identity(),identify,message)
+			let i_cid = await ipfs_profiles.send_introduction(contact.clear_identity(),identify,message)
 			if ( i_cid ) {
+				contact.extend_contact("must_send_keys",false)  // only comes in from the intro message...
+				await update_contact_page()
+
 				if ( identify.introductions === undefined ) {
 					identify.introductions = []
 				}
@@ -1013,20 +1066,50 @@
 		//
 	}
 
-	async function auto_add_contact(cid,signer_pk,no_response) {
-		let contact_info = await get_contact_info(cid)  // use the private path cid pull in public wrapper key from here.
+
+	async function update_contact_page() {
+		let identify = active_identity  // write to client user dir
+		if ( identify ) {
+			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
+			identify.files.contacts.cid = update_cid
+			await update_identity(identify)
+			await get_active_users()
+		}
+	}
+
+
+	function contact_wrapper(contact_info) {
+		let cid = contact_info.cid
+		if ( cid ) {
+			//
+			let contact = new Contact()
+			contact.copy(contact_info)
+			return contact
+		}
+		return false
+	}
+
+	// auto_add_contact
+	// cid -- came in the message ... this is the sender private path cid.
+	// signer_pk is passed.... assuming identity is made by one key -- but it could be two keys, wrapper and signer
+	// if approving a contact, then do_response is true, and a message is sent back automatically with the public keys of the current user.
+	async function auto_add_contact(cid,signer_pk,do_response,msg) {
+		//
+		// use the private path cid pull in public wrapper key from here.
+		let contact_info = await get_contact_info(cid) 
+		//
 		if ( contact_info ) {
 			let contact = new Contact()
 			contact.copy(contact_info)
 			let old_cid = exising_contact(contact)
 			if ( old_cid !== false ) {
 				delete cid_individuals_map[old_cid]
+				// remove from individuals
 			}
 			contact.extend_contact("cid",cid)
 			contact.extend_contact("answer_message",'')
-			contact.extend_contact("signer_public_key",signer_pk)  // only comes in from the intro message...
-			contact.extend_contact("must_send_keys",true)  // only comes in from the intro message...
-			contact.extend_contact("received_keys",true)  // only comes in from the intro message...
+			contact.extend_contact("signer_public_key",signer_pk)	// only comes in from the intro message...
+			contact.extend_contact("received_keys",true)			// If here, then the keys have been received
 			//
 			let user_data = contact.identity()
 			//
@@ -1034,7 +1117,7 @@
 			if ( individuals[0] === empty_identity.identity() ) {
 				b[0] = user_data
 			} else {
-				b = individuals.concat(user_data);
+				individuals.push(user_data);
 			}
 			individuals = b
 			i = individuals.length - 1;
@@ -1042,17 +1125,11 @@
 			cid_individuals_map[cid] = user_data
 			messages_update_contacts(cid,false)
 			//
-			let identify = active_identity
-			if ( identify ) {
-				let act_cid = identify.cid
-				let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
-				identify.files.contacts.cid = update_cid
-				await update_identity(identify)
-				await get_active_users()
+			if ( do_response ) {  // When adding a contact from an introduction, send public keys to sender, who does have these keys - yet...
+				await respond_to_intro(msg,contact)
+				contact.extend_contact("must_send_keys",false)  // only comes in from the intro message...
 			}
-			if ( !no_response ) {
-				await respond_to_intro(message_selected,contact)
-			}
+			await update_contact_page()
 			return true
 		}
 		return false
@@ -1063,31 +1140,28 @@
 		contact.set(c_name,c_DOB,c_place_of_origin,c_cool_public_info,c_business,c_public_key,c_signer_public_key)
 		contact.extend_contact("cid",'')
 		contact.extend_contact("answer_message",'')
+		contact.extend_contact("received_keys",false)  // only comes in from the intro message...
+		contact.extend_contact("must_send_keys",true)  // only comes in from the intro message...
 		//
 		let user_data = contact.clear_identity()
 		//
 		let cid = await ipfs_profiles.fetch_contact_cid(user_data,true)
-		user_data.cid = cid
-		contact.extend_contact("cid",cid)
-		//
-		if ( individuals[0] === empty_identity.identity() ) {
-			individuals[0] = user_data
-		} else {
-			individuals = individuals.concat(user_data);
-		}
-		//
-		i = individuals.length - 1;
-		//
-		cid_individuals_map[cid] = user_data
-		messages_update_contacts(cid,true)
-		//
-		let identify = active_identity  // write to client user dir
-		if ( identify ) {
-			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
-			identify.files.contacts.cid = update_cid
-			await update_identity(identify)
-			await get_active_users()
+		if ( cid_individuals_map[cid] !== undefind ) {  // the user is already a contact
+			user_data.cid = cid
+			contact.extend_contact("cid",cid)
+			//
+			if ( individuals[0] === empty_identity.identity() ) {
+				individuals[0] = user_data
+			} else {
+				individuals = individuals.push(user_data);
+			}
+			//
+			i = individuals.length - 1;
+			//
+			cid_individuals_map[cid] = user_data
+			messages_update_contacts(cid,true)
+			//
+			await update_contact_page()
 		}
 		//
 	}
@@ -1109,14 +1183,7 @@
 		cid_individuals_map[cid] = user_data
 		messages_update_contacts(cid,true)
 		//
-		let identify = active_identity
-		if ( identify ) {
-			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
-			identify.files.contacts.cid = update_cid
-			await update_identity(identify)
-			await get_active_users()
-		}
+		await update_contact_page()
 		//
 	}
 
@@ -1132,14 +1199,7 @@
 		delete cid_individuals_map[cid]
 		messages_update_contacts(cid,false)
 		//
-		let identify = active_identity
-		if ( identify ) {
-			let act_cid = identify.cid
-			let update_cid = await ipfs_profiles.update_contacts_to_ipfs(identify,business,cid_individuals_map)
-			identify.files.contacts.cid = update_cid
-			await update_identity(identify)
-			await get_active_users()
-		}
+		await update_contact_page()
 		//
 	}
 
@@ -1292,6 +1352,30 @@ ${dir_view}
 	}
 
 
+	async function view_cid_json() {
+		if ( j_cid && j_cid.length ) {
+			let c_data = await ipfs_profiles.fetch_cid_json(j_cid)
+			if ( c_data ) {
+				dir_view = JSON.stringify(c_data,false,4)
+				dir_view = `
+<pre>
+	<code>
+${dir_view}
+	</code>
+</pre>`
+
+			} else {
+				dir_view = `
+<pre>
+	<code>
+Can't Fetch
+	</code>
+</pre>`
+			}
+		}
+	}
+
+
 	async function view_contact_form() {
 		let t_cid = man_cid
 		if ( t_cid ) {
@@ -1305,6 +1389,7 @@ ${dir_view}
 
 		}
 	}
+
 
 	//
 	async function man_add_contact_form() {
@@ -2179,6 +2264,7 @@ ${dir_view}
 						<button on:click={view_user_contacts} >contacts file</button>
 						<button on:click={view_user_manifest} >manifest file</button>
 						<button on:click={view_contact_form} >view contact form</button>
+						<button on:click={view_cid_json} >view json from cid</button>
 					</div>
 				</div>
 				<div class="inner_div" style="background-color:beige;border:solid 1px grey" >
@@ -2235,6 +2321,11 @@ ${dir_view}
 				</div>
 			{/if}
 		</div>
+		<div style="height:fit-content" >
+			<label for="j_cid" style="display:inline" >CID For JSON File: </label>
+			<input id="j_cid" bind:value={j_cid} placeholder="cid" style="display:inline" >
+		</div>
+
 	</div>
 	{:else if (active === 'About Us') }
 	<div  class="team_message" >
@@ -2290,6 +2381,7 @@ ${dir_view}
 	<MessageDisplay {...message_selected} on:message={handle_message} />
 </FloatWindow>
 
+<!---->
 <FloatWindow title={selected.name} scale_size_array={all_window_scales} index={1} use_smoke={false}>
 	<MessageEditor {...selected} reply_to={message_selected} from_contact={message_edit_from_contact}
 									active_identity={active_identity}

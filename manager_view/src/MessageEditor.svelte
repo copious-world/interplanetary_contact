@@ -180,7 +180,7 @@
 			"reply_with" : selected_contact_cid,
 			//
 			"public_key" : active_identity.user_info.public_key, 	// receiver will wrap keys back to me 
-																	// (could send a different on than the one used in establishing identity)
+																	// (could send a different one other than the one used in establishing identity)
 			"signer_public_key" : false,							// only send with intro
 			//
 			"nonce"  : gen_nonce()									// always send a fresh nonce
