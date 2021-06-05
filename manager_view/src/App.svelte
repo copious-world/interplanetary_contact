@@ -2072,25 +2072,40 @@ Can't Fetch
 			<div class="nice_message">
 				<blockquote>
 				Enter your information above. This information will be used to make an identifier for sending and receiving messages.
-				When you click on the button, "Create my contact profile", your information will got to a gateway server where it will be 
-				used to make an ID, called a CID. This "User" tab will store the CID for you. And, you will be able to download it along with 
-				special directory information and your security keys from your browser at any time. This information will never be sent from the
-				browser by these pages.
+				When you click on the button, "Create my contact profile", your information will go to a gateway server. The gateway server
+				will use your information to make an ID, called a CID. This "User" tab, that you are looking at now, will store the CID for you as part of your identity.
+				It will also store other information that the server will create for you so that you may begin sending and receiving message between 
+				you and your contacts.
 				</blockquote>
 				<blockquote>
-				The information should be unique.For example, I know that my name is shared by at least three other people on the planet,
-				all of whom were born in the same year. But, they are from different towns or countries.
+				Your identity will be a structure containing directory and file information and public and private keys.
+				<b>This web app uses the structure to store your private information locally in the browser database.</b>
+				And, you will be able to download the idenity structure as a JSON obect at any time.
+				<b>This JSON structure information will never be sent from the browser by these pages.</b> It will be stored in the bowser database 
+				as long as you want.
 				</blockquote>
 				<blockquote>
-				Some of the  information that you enter, not including keys, may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail. 
-				You may choose the groups or business that may publish to topics that you select. You may make selections at a later time. And, the process of managing
-				topics will be workable on topics pages separate from these message pages.
+				Use the buttons on the right side of the page to create or delete and identity. And, use the <b>Identity</b> buttons,
+				with the <i>down</i> triangle ▼ and the <i>up</i> triangle ▲ to download your JSON to disk and to upload your identity, respectively.
+				For exampe, you may download you identity to a thumb drive for safe keeping. Or you may upload your identity into another
+				browser or restore to a browser if it has been previously deleted.
+				</blockquote>
+				<blockquote>
+				The information you enter above should be unique. For example, I know that my name is shared by at least three other people on the planet,
+				all of whom were born in the same year. But, they are from different towns or countries. So, I don't hesitate to enter my place of origin.
+				And, I am willing to share my real place of origin with anyone.
+				</blockquote>
+				<blockquote>
+				Some of the public information that you enter, not including keys, may be used later in an API link only if you have interests for which you would be willing to receive unsolicited mail. 
+				You may choose the groups or businesses that may publish to topics that you select. You may make selections at a later time. And, the process of managing
+				topics will be workable on topics pages separate from these message pages. Topic management will, hopefully, direct most 
+				advertisement messaging away from your personal and business messaging.
 				</blockquote>
 				<blockquote>
 				<span style="color:blue;">Note:</span> no information will be sent to any organization as a result of signing up.
 				All information, excluding private keys, and your personalized assets such as your contact pages, public and encrypted,
-				will be stored in the Interplanetary File System. All this information will be accessible from there through any service
-				you wish to use to access it.
+				will be stored in the Interplanetary File System (IPFS). Most of the informaion kept in the IPFS will be encrypted, and will
+				only be accessibly by keys stored in your identity. (So, do download your idenity structure an keep it safe between sessions.)
 				</blockquote>
 			</div>
 		</div>
