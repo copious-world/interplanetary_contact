@@ -389,6 +389,11 @@
 	$: active_user = known_users[u_index]
 	$: active_identity = known_identities[u_index]
 	$: green = ( active_identity ) ? active_identity.stored_externally : false
+	$: {
+		if ( active_user ) {
+			window.set_user_title(active_user.name)
+		}
+	}
 
 	let current_index = -1
 
@@ -1538,6 +1543,10 @@ Can't Fetch
 	}
 
 
+	function navigate_to_user(e) {
+		active = 'User'
+	}
+
 </script>
 
 <style>
@@ -1990,7 +1999,7 @@ Can't Fetch
 			<br>
 			Not you? Select from the list below or Add yourself with the User tab.
 			<div class="user-options" style="text-align:center" >
-				<select bind:value={u_index} size={10} style="text-align:center;" >
+				<select bind:value={u_index} size={10} style="text-align:center;" on:click={navigate_to_user} >
 					{#each known_users as maybe_user, u_index }
 						<option value={u_index}>{maybe_user.name}</option>
 					{/each}

@@ -679,7 +679,8 @@
 					</a>
 				</td>
 				<td style="text-align: center;">
-					<h1>Pro Mail Manager</h1> -promail-
+					<h1>Pro Mail Manager</h1> 
+					--<span id="active-user-title">promail</span>--
 				</td>
 				<td>
 					&nbsp;
@@ -717,6 +718,14 @@ const DB_VERSION = 1
 //
 var g_promail_db = null
 
+
+
+function set_user_title(u_name) {
+	let el = document.getElementById('active-user-title')
+	if ( el  && u_name && (typeof u_name === "string") ) {
+		el.innerHTML = u_name
+	}
+}
 
 // ---- ---- ---- ---- ---- ----
 // ---- ---- ---- ---- ---- ----
