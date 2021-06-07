@@ -1096,6 +1096,7 @@ async function gen_public_key(user_info) {
 		'priv_key' : keys.priv_key,
 		'signer_priv_key' : keys.signer_priv_key
 	}
+	user_info.biometric = await protect_hash(user_info,privates,user_info.biometric)
 	store_user(user_info,privates)
 }
 
@@ -1666,13 +1667,13 @@ async function unwrapped_aes_key(wrapped_aes,unwrapper_key) {
 
 // wrap a hash of the biomarker -- done before server create identity operation 
 // 
-async function protect_hash(identity,blob64) {
+async function protect_hash(user_info,priv_keys,blob64) {
 	// get a sha255 hash of the blob...
 	const encoder = new TextEncoder();
 	const data = encoder.encode(blob64);
 	const hash = await crypto.subtle.digest('SHA-256', data);
 
-	let priv_signer_key = identity.priv_signer_key
+	let priv_signer_key = priv_keys.priv_signer_key
 
 	let signer_jwk = JSON.parse(priv_signer_key)
 		let signer = await g_crypto.importKey(
@@ -1695,7 +1696,7 @@ async function protect_hash(identity,blob64) {
 										hash
 									);
 
-	let pub_wrapper_key = identity.user_info.public_key
+	let pub_wrapper_key = user_info.public_key
 	let wrapped_sig = await key_wrapper(signature,pub_wrapper_key)
 	return wrapped_sig
 }

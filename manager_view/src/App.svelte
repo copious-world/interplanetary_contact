@@ -42,6 +42,7 @@
 	let place_of_origin = ''
 	let cool_public_info = ''
 	let business = false
+	let biometric_blob = ''
 
 	let c_name = ''
 	let c_DOB = ''
@@ -52,6 +53,7 @@
 	let c_signer_public_key = "testesttesttest"
 	let c_cid = "testesttesttest"
 	let c_answer_message = ''
+	let c_biometric_blob = ''
 
 	let c_empty_fields = false
 
@@ -121,9 +123,9 @@
 
 	//
 	let individuals = [
-		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4504385938", "answer_message" : ""},
-		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4345687685", "answer_message" : "I got your songs"},
-		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "9i58w78ew", "answer_message" : "" }
+		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4504385938", "answer_message" : "", "biometric" : "53535" },
+		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4345687685", "answer_message" : "I got your songs", "biometric" : "53535" },
+		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "9i58w78ew", "answer_message" : "", "biometric" : "53535"  }
 	];
 
 	let cid_individuals_map = {}
@@ -298,12 +300,13 @@
 				"cool_public_info" : "", 
 				"business" : false, 
 				"public_key" : false,
-				"signer_public_key" : false
+				"signer_public_key" : false,
+				"biometric" : false
 			}
 			this.data = this.empty_identity
 		}
 		//
-		set(name,DOB,place_of_origin,cool_public_info,business,public_key,signer_public_key) {
+		set(name,DOB,place_of_origin,cool_public_info,business,public_key,signer_public_key,biometric_blob) {
 			let user_data = {
 				"name": name,
 				"DOB" : DOB,
@@ -311,7 +314,8 @@
 				"cool_public_info" : cool_public_info, 
 				"business" : (business === undefined) ? false : business, 
 				"public_key" : public_key,
-				"signer_public_key" : signer_public_key
+				"signer_public_key" : signer_public_key,
+				"biometric" : biometric_blob
 			}
 			this.data = user_data
 		}
@@ -555,7 +559,7 @@
 // PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE 
 // PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE  PROFILE 
 
-	let g_required_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "public_key", "form_link" ]
+	let g_required_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "biometric" ]
 	let g_renamed_user_fields = {
 		"DOB" : "Year of inception",
 		"place_of_origin" : "Main Office",
@@ -589,7 +593,7 @@
 	async function add_profile() {
 		//
 		let contact = new Contact()		// contact of self... Stores the same info as a contact plus some special fields for local db
-		contact.set(name,DOB,place_of_origin,cool_public_info,business,false,false)
+		contact.set(name,DOB,place_of_origin,cool_public_info,business,false,false,biometric_blob)
 		//
 		selected_form_link = selected_form_link_types[ (business ? "business" : "profile") ]
 		contact.extend_contact("form_link",selected_form_link)
@@ -653,6 +657,7 @@
 		DOB = ''
 		place_of_origin = ''
 		cool_public_info = ''
+		biometric_blob = ''
 		business = false
 		active_user = false
 		active_identity = false
@@ -699,17 +704,8 @@
 			let files = ev.dataTransfer.files ? ev.dataTransfer.files : false
 			let items = ev.dataTransfer.items ? ev.dataTransfer.items : false
 			let [fname,blob64] = await utils.drop(items,files)
+			biometric_blob = blob64
 			//
-			let identity = active_identity
-			if ( identity ) {
-				active_profile_image = ""
-				//
-				let wrapped_sig_of_hash = await window.protect_hash(identity,blob64)
-				if ( wrapped_sig_of_hash ) {
-					identity.user_data.bioemetric = wrapped_sig_of_hash
-					await update_identity(identity)
-				}
-			}
 		} catch (e) {
 			console.log(e)
 		}
@@ -1085,7 +1081,7 @@
 			message.date = Date.now()
 			message.business = business
 			message.response_acceptance = true
-			message.attachments = []
+			message.attachments = [ msg.user_cid ] //[msg.public_key,msg.signer_public_key]
 			//
 			let i_cid = await ipfs_profiles.send_introduction(contact.clear_identity(),identify,message)
 			if ( i_cid ) {
@@ -1102,6 +1098,25 @@
 		//
 	}
 
+	async function warn_spoofing(msg) {
+		let identify = active_identity
+		if ( identify ) {
+			//
+			let message = Object.assign({},msg)   // make a special automatic message. ...
+			//
+			message.user_cid = identify.cid
+			message.public_key = identify.user_info.public_key
+			message.signer_public_key = identify.user_info.signer_public_key
+			message.date = Date.now()
+			message.business = business
+			message.response_acceptance = true
+			message.attachments = []
+			message.subject = "You received a spurious introduction."
+			message.message = `Someone faking my identity sent you a message pretending to be me. Watch out for this user cid: ${msg.user_cid}`
+			//
+			await ipfs_profiles.send_introduction(contact.clear_identity(),identify,message)
+		}
+	}
 
 	async function update_contact_page() {
 		let identify = active_identity  // write to client user dir
@@ -1135,6 +1150,16 @@
 		let contact_info = await get_contact_info(cid) 
 		//
 		if ( contact_info ) {
+			//
+			let origin_cid = m.attachments[0]  // should be a cid there
+			let a_cid = active_identity.cid
+			if ( origin_cid !== a_cid ) {
+				//
+				await warn_spoofing(msg)
+				return
+				//
+			}
+			//
 			let contact = new Contact()
 			contact.copy(contact_info)
 			let old_cid = exising_contact(contact)
@@ -1173,7 +1198,7 @@
 
 	async function add_contact() {
 		let contact = new Contact()
-		contact.set(c_name,c_DOB,c_place_of_origin,c_cool_public_info,c_business,c_public_key,c_signer_public_key)
+		contact.set(c_name,c_DOB,c_place_of_origin,c_cool_public_info,c_business,c_public_key,c_signer_public_key,c_biometric_blob)
 		contact.extend_contact("cid",'')
 		contact.extend_contact("answer_message",'')
 		contact.extend_contact("received_keys",false)  // only comes in from the intro message...

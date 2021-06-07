@@ -166,3 +166,15 @@ export function drop(items,files) {
     return p
 }
 
+
+export function check_empty(parameters) {
+    //
+    let b = parameters.some( el => {
+        if ( el === false ) return true
+        if ( (typeof el === "string")  && (el.length === 0) ) return true
+        if ( typeof el === "undefined" ) return true
+        return false
+    })
+    //
+    return b
+}

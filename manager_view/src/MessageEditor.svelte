@@ -174,14 +174,16 @@
 		return(html)
 	}
 
-	// "name": 'Hans Solo', "user_cid" : "4504385938", 
-	// "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry",
-	// "business" : false, "public_key" : false, "message" : "this is a message 1"
+
+
+	// message_object_on_send
+	//		-- constuct the message object
+
 	function message_object_on_send(top_level_id) {
 		//
 		let message_object = {
 			"name" : active_identity.user_info.name,
-			"user_cid" : active_identity.cid,
+			"user_cid" : active_identity.cid,  // not the clear cid
 			"subject" : common_contact_vars["{{id-subject-"].extract_value(),
 			"date" : Date.now(),
 			"readers" : common_contact_vars["{{id-cc-"].extract_value(),
