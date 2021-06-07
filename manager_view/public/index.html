@@ -1664,6 +1664,42 @@ async function unwrapped_aes_key(wrapped_aes,unwrapper_key) {
 }
 //--<
 
+// wrap a hash of the biomarker -- done before server create identity operation 
+// 
+async function protect_hash(identity,blob64) {
+	// get a sha255 hash of the blob...
+	const encoder = new TextEncoder();
+	const data = encoder.encode(blob64);
+	const hash = await crypto.subtle.digest('SHA-256', data);
+
+	let priv_signer_key = identity.priv_signer_key
+
+	let signer_jwk = JSON.parse(priv_signer_key)
+		let signer = await g_crypto.importKey(
+				"jwk",
+				signer_jwk,
+				{
+					'name': "ECDSA",
+					'namedCurve': "P-384"
+				},
+				true,
+				["sign"]
+		);
+
+
+	let signature = await g_crypto.sign({
+											name: "ECDSA",
+											hash: {name: "SHA-384"},
+										},
+										signer,
+										hash
+									);
+
+	let pub_wrapper_key = identity.user_info.public_key
+	let wrapped_sig = await key_wrapper(signature,pub_wrapper_key)
+	return wrapped_sig
+}
+
 
 //>--
 // pc_keypair_promise

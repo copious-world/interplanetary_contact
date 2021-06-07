@@ -95,16 +95,24 @@ app.post('/add/profile',async (req, res) => {
     }
   }
   //
-  let cids = await g_ipfs_profiles.add_profile(storable_profile)
-  //
-  let ipfs_identity = {
-    "id" : cids[0],       // with public key
-    "clear_id" : cids[1], // without public key
-    "dir_data" : JSON.stringify(cids[2])
+  let profile_exists =  await g_ipfs_profiles.check_existence(storable_profile)
+
+  if ( profile_exists && ( storable_profile.ovrerride !== undefined ) && storable_profile.ovrerride ) {
+    res.type('application/json').send({ "status" : "fail", "reason" : "existing profile directory" })
+  } else {
+    //
+    let cids = await g_ipfs_profiles.add_profile(storable_profile)
+    //
+    let ipfs_identity = {
+      "id" : cids[0],       // with public key
+      "clear_id" : cids[1], // without public key
+      "dir_data" : JSON.stringify(cids[2])
+    }
+    //
+    res.type('application/json').send({ "status" : "OK", "data" : ipfs_identity })
+    //
   }
-  //
-  res.type('application/json').send({ "status" : "OK", "data" : ipfs_identity })
-  //
+
 })
 
 

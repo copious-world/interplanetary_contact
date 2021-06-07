@@ -13,8 +13,10 @@
 	import * as utils from './utilities.js'
 
 	let active_profile_image = ""; //"/favicon.png" ; // "/brent-fox-jane-18-b.jpg"
+	let active_profile_biometric = ""
 	//
 	let src_1_name = "Drop a picture here"
+	let src_biometric_instruct = "Drop binary biometric file here"
 	//
 	let active_cid = ""
 	let clear_cid = ""
@@ -85,6 +87,7 @@
 	let message_edit_from_contact = false
 
 	let profile_image_el
+	let biometric_data_el
 
 	//
 	let active = 'Identify';
@@ -682,6 +685,28 @@
 				let fcid = await ipfs_profiles.upload_data_file(fname,blob64)
 				if ( fcid ) {
 					identity.profile_image = fcid
+					await update_identity(identity)
+				}
+			}
+		} catch (e) {
+			console.log(e)
+		}
+	}
+
+	async function drop_biometric(ev) {
+		ev.preventDefault();
+		try {
+			let files = ev.dataTransfer.files ? ev.dataTransfer.files : false
+			let items = ev.dataTransfer.items ? ev.dataTransfer.items : false
+			let [fname,blob64] = await utils.drop(items,files)
+			//
+			let identity = active_identity
+			if ( identity ) {
+				active_profile_image = ""
+				//
+				let wrapped_sig_of_hash = await window.protect_hash(identity,blob64)
+				if ( wrapped_sig_of_hash ) {
+					identity.user_data.bioemetric = wrapped_sig_of_hash
 					await update_identity(identity)
 				}
 			}
@@ -1665,6 +1690,15 @@ Can't Fetch
 		width:40%;
 	}
 
+	.long_button:disabled {
+		color:beige;
+	}
+
+	.long_button:disabled:hover{
+		color:beige;
+		background-color:blanchedalmond;
+		cursor:not-allowed;
+	}
 
 	.button-header {
 		color:rgb(104, 51, 14);
@@ -1993,7 +2027,7 @@ Can't Fetch
 
 	{#if (active === 'Identify')}
 	<div class="splash-if-you-will" style="height:fit-content" >
-		{#if active_user || adding_new }
+		{#if (known_users.length > 0) }
 		<div style="height:fit-content">
 			The current user is <span>{active_user ? active_user.name : "being created" }</span>.
 			<br>
@@ -2066,7 +2100,7 @@ Can't Fetch
 			</div>
 			<div class="add-profile-div" style="text-align:center" >
 				<div style = { green ? "background-color:rgba(245,255,250,0.9)" : "background-color:rgba(250,250,250,0.3)" } >
-					<button class="long_button" on:click={add_profile}>Create my contact profile.</button>
+					<button class="long_button" on:click={add_profile} disabled={u_index !== false}>Create my contact profile.</button>
 				</div>
 			</div>
 			<div class="nice_message">
@@ -2087,7 +2121,7 @@ Can't Fetch
 				<blockquote>
 				Use the buttons on the right side of the page to create or delete and identity. And, use the <b>Identity</b> buttons,
 				with the <i>down</i> triangle ▼ and the <i>up</i> triangle ▲ to download your JSON to disk and to upload your identity, respectively.
-				For exampe, you may download you identity to a thumb drive for safe keeping. Or you may upload your identity into another
+				For exampe, you may download your identity to a thumb drive for safe keeping. Or you may upload your identity into another
 				browser or restore to a browser if it has been previously deleted.
 				</blockquote>
 				<blockquote>
@@ -2114,6 +2148,9 @@ Can't Fetch
 				status: <span class={signup_status === 'OK' ? "good-status" : "bad-status"}>{signup_status}</span>
 			</div>
 			<div>
+				<div class="picture-drop"  on:drop={drop_biometric} on:dragover={dragover_picture}  >
+					<img src={active_profile_biometric} bind:this={biometric_data_el} alt={src_biometric_instruct} />
+				</div>
 				<div class="picture-drop"  on:drop={drop_picture} on:dragover={dragover_picture}  >
 					<img src={active_profile_image} bind:this={profile_image_el} alt={src_1_name} />
 				</div>
