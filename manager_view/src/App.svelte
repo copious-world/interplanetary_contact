@@ -2036,6 +2036,17 @@ Can't Fetch
 		text-transform:capitalize;
 	}
 
+	.cid-grabber {
+		font-weight:bolder;
+		color:navy;
+	}
+
+	.cid-grabber-label {
+		font-weight:600;
+		color:rgb(50, 148, 50);
+		font-style: oblique;
+	}
+
 </style>
 
 <div>
@@ -2124,9 +2135,15 @@ Can't Fetch
 			<textarea id="self-text" bind:value={cool_public_info} placeholder="Something you would say to anyone about yourself" />
 			</div>
 			<div class="add-profile-div" style="text-align:center" >
-				<div style = { green ? "background-color:rgba(245,255,250,0.9)" : "background-color:rgba(250,250,250,0.3)" } >
-					<button class="long_button" on:click={add_profile} disabled={u_index !== false}>Create my contact profile.</button>
-				</div>
+				{#if (u_index === false) }
+					<div style = { green ? "background-color:rgba(245,255,250,0.9)" : "background-color:rgba(250,250,250,0.3)" } >
+						<button class="long_button" on:click={add_profile} disabled={u_index !== false}>Create my contact profile.</button>
+					</div>
+				{:else}
+					<div style = { green ? "background-color:rgba(245,255,250,0.9)" : "background-color:rgba(250,250,250,0.3)" } >
+						<span class="cid-grabber-label">Your custom id number:</span> <span class="cid-grabber">{active_cid}</span>
+					</div>
+				{/if}
 			</div>
 			<div class="nice_message">
 				<blockquote>
