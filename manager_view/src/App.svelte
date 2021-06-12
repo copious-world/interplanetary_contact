@@ -2190,9 +2190,11 @@ Can't Fetch
 				status: <span class={signup_status === 'OK' ? "good-status" : "bad-status"}>{signup_status}</span>
 			</div>
 			<div>
+				{#if (u_index === false) }
 				<div class="picture-drop"  on:drop={drop_biometric} on:dragover={dragover_picture}  >
 					<img src={active_profile_biometric} bind:this={biometric_data_el} alt={src_biometric_instruct} />
 				</div>
+				{/if}
 				<div class="picture-drop"  on:drop={drop_picture} on:dragover={dragover_picture}  >
 					<img src={active_profile_image} bind:this={profile_image_el} alt={src_1_name} />
 				</div>

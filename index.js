@@ -79,7 +79,7 @@ app.get('/image',(req, res) => {
     "public_key" : '345345
 
 */
-let g_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key", "signer_public_key" ]
+let g_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key", "signer_public_key", "biometric" ]
 app.post('/add/profile',async (req, res) => {
   //
   if ( !(g_ipfs_profiles) ) {

@@ -43,9 +43,13 @@ function gen_unique_id() {
     return ky
 }
 
+
+// // https://www.copious.world/interplanetary-contact
 var g_profile_port = '6111'
 function correct_server(srvr) {
-    srvr = srvr.replace('5111','6111')   /// CHANGE ...
+    if ( srvr.indexOf(':5') > 0 ) {
+        srvr = srvr.replace('5111','6111')   /// CHANGE ...        
+    }
     return srvr
 }
 
@@ -208,7 +212,7 @@ export async function fetch_contact_page(identity,business,asset,contact_cid) { 
 // // 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
-let g_user_fields = ["name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key", "signer_public_key"]
+let g_user_fields = ["name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key", "signer_public_key", "biometric"]
 // not checking for "cid" for most cases...
 export async function add_profile(u_info) {
     let user_info = Object.assign(u_info)
