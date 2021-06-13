@@ -123,9 +123,7 @@
 
 	//
 	let individuals = [
-		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4504385938", "answer_message" : "", "biometric" : "53535" },
-		{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4345687685", "answer_message" : "I got your songs", "biometric" : "53535" },
-		{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "9i58w78ew", "answer_message" : "", "biometric" : "53535"  }
+		{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4504385938", "answer_message" : "", "biometric" : "53535" }
 	];
 
 	let cid_individuals_map = {}
@@ -134,9 +132,7 @@
 
 	let inbound_solicitation_messages = [ { "name": 'Darth Vadar', "user_cid" : "869968609", "subject" : "Hans Solo is Mean", "date" : todays_date, "readers" : "luke,martha,chewy", "business" : false, "public_key" : false, "message" : "this is a message 4" , "reply_with" : "default"} ]
 	let inbound_contact_messages = [
-		{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" },
-		{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : "testesttesttest", "message" : "this is a message 2"  },
-		{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : "testesttesttest", "message" : "this is a message 3"  }
+		{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" }
 	]
 
 
@@ -199,9 +195,7 @@
 		green = false     // an indicator telling if this user ID is set
 		todays_date = (new Date()).toLocaleString()
 		individuals = [
-			{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "cid" : "4504385938", "answer_message" : ""},
-			{ "name": 'Max Martin', "DOB" : "1000", "place_of_origin" : "Fictional Name", "cool_public_info" : "He Made a lot of songs", "business" : true, "public_key" : false, "cid" : "4345687685", "answer_message" : "I got your songs"},
-			{ "name": 'Roman Polanski', "DOB" : "1000", "place_of_origin" : "Warsaw,Poland", "cool_public_info" : "He Made Risque Movies", "business" : false, "public_key" : "testesttesttest", "cid" : "9i58w78ew", "answer_message" : "" }
+			{ "name": 'Hans Solo', "DOB" : "1000", "place_of_origin" : "alpha centauri", "cool_public_info" : "He is a Master Jedi", "business" : false, "public_key" : "testesttesttest", "signer_public_key" : "ha ha ha ha ha ha ha ", "cid" : "4504385938", "answer_message" : "", "biometric" : "53535" }
 		];
 		cid_individuals_map = {}
 		inbound_solicitation_messages = [ { 
@@ -215,9 +209,7 @@
 			"message" : "this is a message 4",
 			"reply_with" : "default" } ]
 		inbound_contact_messages = [
-			{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" },
-			{ "name": 'Max Martin', "user_cid" : "4345687685", "subject" : "Adele and Katy Perry Attacks", "date" : todays_date, "readers" : "Lady Gaga, Taylor Swift, Bruno Mars", "business" : false, "public_key" : "testesttesttest", "message" : "this is a message 2"  },
-			{ "name": 'Roman Polanski', "user_cid" : "9i58w78ew", "subject" : "Charlie Manson Attacks", "date" : todays_date, "readers" : "Attorney General, LA DA, Squeeky", "business" : true, "public_key" : "testesttesttest", "message" : "this is a message 3"  }
+			{ "name": 'Hans Solo', "user_cid" : "4504385938", "subject" : "Darth Vadier Attacks", "date" : todays_date, "readers" : "joe,jane,harry", "business" : false, "public_key" : false, "message" : "this is a message 1" }
 		]
 
 		processed_messages = []
@@ -467,6 +459,16 @@
 	}
 	// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
  
+	let creator_disabled = false
+	let creation_to_do = false
+	$: {
+		creation_to_do = ((u_index === false) || (active_user.biometric === undefined))
+		if ( (typeof active_cid === "string") && (active_cid.length === 0) ) {
+			creation_to_do = true
+		}
+		creator_disabled = !creation_to_do
+		console.log(active_cid)
+	}
 
 	let window_scale = { "w" : 0.4, "h" : 0.8 }
 	let edit_popup_scale = { "w" : 0.45, "h" : 0.3}
@@ -607,7 +609,7 @@
 			return;
 		}
 
-		await gen_public_key(user_data) // by ref  // stores keys in DB
+		await gen_public_key(user_data) // by ref  // stores keys in DB  // converts biometric to signature (calls protect_hash)
 		try {
 			green = await ipfs_profiles.add_profile(user_data)  // will fetch the key (it is not riding along yet.)
 		} catch (e) {
@@ -705,6 +707,7 @@
 			let items = ev.dataTransfer.items ? ev.dataTransfer.items : false
 			let [fname,blob64] = await utils.drop(items,files)
 			biometric_blob = blob64
+			src_biometric_instruct = "Biometric has been dropped."
 			//
 		} catch (e) {
 			console.log(e)
@@ -1098,7 +1101,7 @@
 		//
 	}
 
-	async function warn_spoofing(msg) {
+	async function warn_spoofing(msg,contact) {
 		let identify = active_identity
 		if ( identify ) {
 			//
@@ -1151,14 +1154,8 @@
 		//
 		if ( contact_info ) {
 			//
-			let origin_cid = m.attachments[0]  // should be a cid there
+			let origin_cid = msg.attachments[0]  // should be a cid there
 			let a_cid = active_identity.cid
-			if ( origin_cid !== a_cid ) {
-				//
-				await warn_spoofing(msg)
-				return
-				//
-			}
 			//
 			let contact = new Contact()
 			contact.copy(contact_info)
@@ -1171,6 +1168,12 @@
 			contact.extend_contact("answer_message",'')
 			contact.extend_contact("signer_public_key",signer_pk)	// only comes in from the intro message...
 			contact.extend_contact("received_keys",true)			// If here, then the keys have been received
+			if ( origin_cid !== a_cid ) {
+				//
+				await warn_spoofing(msg,contact)
+				return
+				//
+			}
 			//
 			let user_data = contact.identity()
 			//
@@ -2135,9 +2138,9 @@ Can't Fetch
 			<textarea id="self-text" bind:value={cool_public_info} placeholder="Something you would say to anyone about yourself" />
 			</div>
 			<div class="add-profile-div" style="text-align:center" >
-				{#if (u_index === false) }
+				{#if creation_to_do }
 					<div style = { green ? "background-color:rgba(245,255,250,0.9)" : "background-color:rgba(250,250,250,0.3)" } >
-						<button class="long_button" on:click={add_profile} disabled={u_index !== false}>Create my contact profile.</button>
+						<button class="long_button" on:click={add_profile} disabled={creator_disabled}>Create my contact profile.</button>
 					</div>
 				{:else}
 					<div style = { green ? "background-color:rgba(245,255,250,0.9)" : "background-color:rgba(250,250,250,0.3)" } >
@@ -2190,7 +2193,7 @@ Can't Fetch
 				status: <span class={signup_status === 'OK' ? "good-status" : "bad-status"}>{signup_status}</span>
 			</div>
 			<div>
-				{#if (u_index === false) }
+				{#if creation_to_do }
 				<div class="picture-drop"  on:drop={drop_biometric} on:dragover={dragover_picture}  >
 					<img src={active_profile_biometric} bind:this={biometric_data_el} alt={src_biometric_instruct} />
 				</div>

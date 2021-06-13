@@ -276,6 +276,11 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
                 delete user_info.signer_public_key
                 continue;
             }
+            if ( (field === "biometric")  && clear ) {     // when wrapping a key use the recipients public wrapper key
+                // delete public_key key from messages that are introductions, etc. (this is used for the clear user directory id)
+                delete user_info.biometric            
+                continue
+            }
             alert_error("undefined field " + field)
             return
         }
@@ -296,6 +301,8 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
 }
 
 export async function fetch_cid_json(jcid) {
+    if ( jcid === undefined ) return false
+    //
     let data_stem = `get/json-cid/${jcid}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
@@ -403,6 +410,11 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
         if ( (field === "signer_public_key")  && clear ) {     // when wrapping a key use the recipients public wrapper key
             // delete public_key key from messages that are introductions, etc. (this is used for the clear user directory id)
             delete recipient_info.signer_public_key            
+            continue
+        }
+        if ( (field === "biometric")  && clear ) {     // when wrapping a key use the recipients public wrapper key
+            // delete public_key key from messages that are introductions, etc. (this is used for the clear user directory id)
+            delete recipient_info.biometric            
             continue
         }
         if ( recipient[field] === undefined ) {

@@ -12,6 +12,7 @@
 	export let public_key;			// this may be empty... can add a contact without the key (message should have key)
 	export let signer_public_key;
 	export let answer_message		// boolean
+	export let biometric
 	export let cid
 
 	export let reply_to;	// the source message
@@ -48,7 +49,8 @@
 			"cool_public_info" : cool_public_info,
 			"business" : business,
 			"public_key" : public_key,
-			"signer_public_key" : signer_public_key
+			"signer_public_key" : signer_public_key,
+			"biometric" : biometric
 		}
 		
 	let use_previous = answer_message
@@ -238,7 +240,8 @@
 				"cool_public_info" : cool_public_info,
 				"business" : business,
 				"public_key" : public_key,
-				"signer_public_key" : signer_public_key
+				"signer_public_key" : signer_public_key,
+				"biometric" : biometric
 			}
 			init_contact_form_cids(receiver_user_info)
 		}
