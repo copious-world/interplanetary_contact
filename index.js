@@ -1,4 +1,3 @@
-const fsPromise = require('fs/promises')
 const fs = require('fs')
 const fastify = require('fastify')
 const fastify_cors = require('fastify-cors')
@@ -18,7 +17,7 @@ var g_ipfs_profiles = false
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
 
 const conf_file = process.argv[2]  ?  process.argv[2] :  "contact-service.conf"
-const crypto_conf = 'desk_app.config'
+//const crypto_conf = 'desk_app.config'
 
 const config = fs.readFileSync(conf_file).toString()
 const conf = JSON.parse(config)
@@ -97,7 +96,7 @@ app.post('/add/profile',async (req, res) => {
   //
   let profile_exists =  await g_ipfs_profiles.check_existence(storable_profile)
 
-  if ( profile_exists && ( storable_profile.ovrerride !== undefined ) && storable_profile.ovrerride ) {
+  if ( profile_exists || (( storable_profile.ovrerride !== undefined ) && storable_profile.ovrerride) ) {
     res.type('application/json').send({ "status" : "fail", "reason" : "existing profile directory" })
   } else {
     //
@@ -233,7 +232,7 @@ app.post('/send/introduction',async (req, res) => {
   }
   let receiver = {}   // recipient fields that are used to get a cid for the user ... find spool directory
   for ( let fld of g_user_fields ) {
-    if ( fld === "public_key"  || fld === "signer_public_key" ) {
+    if ( fld === "public_key"  || fld === "signer_public_key" || fld === "biometric" ) {
       // this record translates into a cid... the clear version does not use other key information
       continue;
     }

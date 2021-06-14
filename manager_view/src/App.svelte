@@ -1168,7 +1168,7 @@
 			contact.extend_contact("answer_message",'')
 			contact.extend_contact("signer_public_key",signer_pk)	// only comes in from the intro message...
 			contact.extend_contact("received_keys",true)			// If here, then the keys have been received
-			if ( origin_cid !== a_cid ) {
+			if ( origin_cid &&  (origin_cid !== a_cid) ) {
 				//
 				await warn_spoofing(msg,contact)
 				return

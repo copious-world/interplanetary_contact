@@ -968,6 +968,10 @@ function store_user(user_information,privates) {
 		storage_obj.signer_priv_key = privates.signer_priv_key
 	}
 	//
+	if ( privates.signature_protect ) {
+		storage_obj.signature_protect = privates.signature_protect
+	}
+	//
 	userStore.put(storage_obj)           // information create by 
 	return(true)
 }
@@ -1092,11 +1096,19 @@ async function gen_public_key(user_info) {
 	user_info.public_key = keys.pk_str		// user info is the basis for creating a user cid the public key is part of it
 	user_info.signer_public_key = keys.signer_pk_str
 	//
+	let aes_key = await gen_cipher_key()
+	let storable_key = await aes_to_str(aes_key) 
+	let nonce = gen_nonce()
+	//
 	let privates = {		// private keys will be stored locally, and may offloadded from the browser at the user's discretion.
 		'priv_key' : keys.priv_key,
-		'signer_priv_key' : keys.signer_priv_key
+		'signer_priv_key' : keys.signer_priv_key,
+		'signature_protect' : {
+			"key" : storable_key,
+			"nonce" : nonce
+		}
 	}
-	user_info.biometric = await protect_hash(user_info,privates,user_info.biometric)
+	user_info.biometric = await protect_hash(user_info,privates,aes_key,nonce,user_info.biometric)
 	store_user(user_info,privates)
 }
 
@@ -1667,7 +1679,7 @@ async function unwrapped_aes_key(wrapped_aes,unwrapper_key) {
 
 // wrap a hash of the biomarker -- done before server create identity operation 
 // 
-async function protect_hash(user_info,priv_keys,blob64) {
+async function protect_hash(user_info,priv_keys,aes_key,nonce,blob64) {
 	// get a sha255 hash of the blob...
 	const encoder = new TextEncoder();
 	const data = encoder.encode(blob64);
@@ -1694,9 +1706,13 @@ async function protect_hash(user_info,priv_keys,blob64) {
 										hash
 									);
 
-	let type8 = new Uint8Array(signature)
-	let tranportable = hex_fromTypedArray(type8)
-	return tranportable
+	let sig_buff = new Uint8Array(signature)
+	let sig_txt = sig_buff.toString()
+	let iv_nonce = buffer_from_b64_csv(nonce)
+	let cipher_sig = await aes_encryptor(sig_txt,aes_key,iv_nonce)
+	//
+	let int_rep_enc = new Uint8Array(cipher_sig)
+	return int_rep_enc.toString()
 }
 
 
