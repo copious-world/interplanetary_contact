@@ -462,7 +462,7 @@
 	let creator_disabled = false
 	let creation_to_do = false
 	$: {
-		creation_to_do = ((u_index === false) || (active_user.biometric === undefined))
+		creation_to_do = ( (u_index === false) || (active_user && (active_user.biometric === undefined)) )
 		if ( (typeof active_cid === "string") && (active_cid.length === 0) ) {
 			creation_to_do = true
 		}

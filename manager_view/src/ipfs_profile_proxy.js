@@ -45,7 +45,7 @@ function gen_unique_id() {
 
 
 // // https://www.copious.world/interplanetary-contact
-var g_profile_port = '6111'
+var g_profile_port = ''   // 6111
 function correct_server(srvr) {
     if ( srvr.indexOf(':5') > 0 ) {
         srvr = srvr.replace('5111','6111')   /// CHANGE ...        
@@ -53,6 +53,7 @@ function correct_server(srvr) {
     return srvr
 }
 
+var g_stem_prefix = 'interplanetary-contact/contact/'   // by service...
 
 
 // -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- -------- --------
@@ -70,7 +71,7 @@ async function fetch_asset(topics_cid,identity,btype,asset) {  // specifically f
 
     btype = btype ? true : false
     
-    let data_stem = `get-asset/${asset}`
+    let data_stem = `${g_stem_prefix}get-asset/${asset}`
     let sp = '//'
     let post_data = {
         "btype" : btype,
@@ -139,7 +140,7 @@ async function update_asset_to_ipfs(asset,identity,is_business,contents) {
     }
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = `put-asset/${asset}`
+    let data_stem = `${g_stem_prefix}put-asset/${asset}`
     let sp = '//'
     let post_data = {
         "cid" : user_cid,
@@ -177,7 +178,7 @@ export async function fetch_contact_page(identity,business,asset,contact_cid) { 
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = `get-contact-page/${asset}`     // asset as parameter
+    let data_stem = `${g_stem_prefix}get-contact-page/${asset}`     // asset as parameter
     let sp = '//'
 
     let post_data = {
@@ -244,7 +245,7 @@ export async function add_profile(u_info) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'add/profile'
+    let data_stem = `${g_stem_prefix}add/profile`
     let sp = '//'
     let post_data = user_info
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
@@ -289,7 +290,7 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'get/user-cid'
+    let data_stem = `${g_stem_prefix}get/user-cid`
     let sp = '//'
     let post_data = user_info
     let result = await postData(`${prot}${sp}${srver}/${data_stem}`, post_data)
@@ -303,7 +304,7 @@ export async function fetch_contact_cid(someones_info,clear) {  // a user,, not 
 export async function fetch_cid_json(jcid) {
     if ( jcid === undefined ) return false
     //
-    let data_stem = `get/json-cid/${jcid}`
+    let data_stem = `${g_stem_prefix}get/json-cid/${jcid}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
         let json_str = result.json_str
@@ -327,7 +328,7 @@ export async function fetch_contact_info(cid) {  // a user,, not the owner of th
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'get/user-info'
+    let data_stem = `${g_stem_prefix}get/user-info`
     let sp = '//'
     let post_data = {
         "cid" : cid
@@ -376,7 +377,7 @@ export async function get_dir(identity,clear) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'dir'
+    let data_stem = `${g_stem_prefix}dir`
     let sp = '//'
     let post_data = user_info
     post_data.cid = identity.cid
@@ -480,7 +481,7 @@ async function send_kind_of_message(m_path,recipient_info,identity,message,clear
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = m_path
+    let data_stem = `${g_stem_prefix}${m_path}`
     let sp = '//'
     let post_data = {
         "receiver" : recipient,
@@ -610,7 +611,7 @@ async function get_spool_files(identity,spool_select,clear,offset,count) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'get-spool'
+    let data_stem = `${g_stem_prefix}get-spool`
     let sp = '//'
     let post_data = {
         'cid' : cid,
@@ -698,7 +699,7 @@ export async function get_template_list(offset,count,category,btype) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = `template-list/${category}`
+    let data_stem = `${g_stem_prefix}template-list/${category}`
     let sp = '//'
     let post_data = {
         'category' : category,
@@ -721,7 +722,7 @@ export async function get_template_list(offset,count,category,btype) {
 
 export async function get_contact_template(template_cid) {
     //
-    let data_stem = `get/template-cid/${template_cid}`
+    let data_stem = `${g_stem_prefix}get/template-cid/${template_cid}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
         let contact_template = result.template
@@ -741,7 +742,7 @@ export async function get_contact_template(template_cid) {
 export async function get_named_contact_template(template_name,biz) {
     //
     let biz_t = biz ? "business" : "profile"
-    let data_stem = `get/template-name/${biz_t}/${template_name}`
+    let data_stem = `${g_stem_prefix}get/template-name/${biz_t}/${template_name}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
         let contact_template = result.data
@@ -756,7 +757,7 @@ export async function get_named_contact_template(template_name,biz) {
 
 
 export async function get_named_contact_template_cid(template_name,biz) {
-    let data_stem = `get/template-cid-from-name/${biz}/${template_name}`
+    let data_stem = `${g_stem_prefix}get/template-cid-from-name/${biz}/${template_name}`
     let result = await fetchEndPoint(data_stem,g_profile_port)
     if ( result.status === "OK" ) {
         let cid = result.cid
@@ -776,7 +777,7 @@ export async function put_contact_template(name,data) {
     }
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'put/template'
+    let data_stem = `${g_stem_prefix}put/template`
     let sp = '//'
     let post_data = {
         'name' : name,
@@ -799,7 +800,7 @@ export async function message_list_ops(user_cid,dst_cid,op,param,biz_t,message_l
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = `message-list-op/${op}`
+    let data_stem = `${g_stem_prefix}message-list-op/${op}`
     let sp = '//'
     let post_data = {
         'user_cid' : user_cid,
@@ -831,7 +832,7 @@ export async function upload_data_file(name,blob64) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'put/blob'
+    let data_stem = `${g_stem_prefix}put/blob`
     let sp = '//'
     let len = blob64.length
     let post_data = {
@@ -869,7 +870,7 @@ export async function load_blob_as_url(blob_cid) {
     srver = correct_server(srver)
     //
     let prot = location.protocol  // prot for (prot)ocol
-    let data_stem = 'get/blob'
+    let data_stem = `${g_stem_prefix}get/blob`
     let sp = '//'
     let post_data = {
         "cid" : blob_cid
