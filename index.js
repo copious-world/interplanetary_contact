@@ -40,16 +40,23 @@ if ( pdir && (typeof pdir === 'string') && pdir[pdir.length - 1] !== '/' ) pdir 
 
 app.register(fastify_cors, {
   origin : (origin, cb) => {
-    //
-    //
-    if(/localhost/.test(origin)){
-      //  Request from localhost will pass
-      cb(null, true)
-      return
+    console.log(origin)
+      if ( origin === undefined ) {
+          cb(null, true)
+          return
+      }
+      if ( origin === "https://www.copious.world" ) {
+        cb(null, true)
+        return
+      }
+      if(/localhost/.test(origin)){
+        //  Request from localhost will pass
+        cb(null, true)
+        return
+      }
+      // Generate an error on other origins, disabling access
+      cb(new Error("Not allowed from PI @ internal"))
     }
-    // Generate an error on other origins, disabling access
-    cb(new Error("Not allowed"))
-  }
 })
 
 
@@ -80,37 +87,42 @@ app.get('/image',(req, res) => {
 */
 let g_user_fields = [ "name", "DOB", "place_of_origin", "cool_public_info", "business", "public_key", "signer_public_key", "biometric" ]
 app.post('/add/profile',async (req, res) => {
-  //
-  if ( !(g_ipfs_profiles) ) {
-    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
-    return
-  }
-  //
-  let storable_profile = req.body   // required fields
-  for ( let fld of g_user_fields ) {
-    if ( storable_profile[fld] === undefined ) {
-      res.type('application/json').send({ "status" : "fail", "reason" : "missing fields"})
+  try {
+    //
+    if ( !(g_ipfs_profiles) ) {
+      res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
       return
     }
-  }
-  //
-  let profile_exists =  await g_ipfs_profiles.check_existence(storable_profile)
-
-  if ( profile_exists || (( storable_profile.ovrerride !== undefined ) && storable_profile.ovrerride) ) {
-    res.type('application/json').send({ "status" : "fail", "reason" : "existing profile directory" })
-  } else {
     //
-    let cids = await g_ipfs_profiles.add_profile(storable_profile)
-    //
-    let ipfs_identity = {
-      "id" : cids[0],       // with public key
-      "clear_id" : cids[1], // without public key
-      "dir_data" : JSON.stringify(cids[2])
+    let storable_profile = req.body   // required fields
+    for ( let fld of g_user_fields ) {
+      if ( storable_profile[fld] === undefined ) {
+        res.type('application/json').send({ "status" : "fail", "reason" : "missing fields"})
+        return
+      }
     }
     //
-    res.type('application/json').send({ "status" : "OK", "data" : ipfs_identity })
-    //
+    let profile_exists =  await g_ipfs_profiles.check_existence(storable_profile)
+
+    if ( profile_exists || (( storable_profile.ovrerride !== undefined ) && storable_profile.ovrerride) ) {
+      res.type('application/json').send({ "status" : "fail", "reason" : "existing profile directory" })
+    } else {
+      //
+      let cids = await g_ipfs_profiles.add_profile(storable_profile)
+      //
+      let ipfs_identity = {
+        "id" : cids[0],       // with public key
+        "clear_id" : cids[1], // without public key
+        "dir_data" : JSON.stringify(cids[2])
+      }
+      //
+      res.type('application/json').send({ "status" : "OK", "data" : ipfs_identity })
+      //
+    }
+  } catch (e) {
+    console.error(e)
   }
+
 
 })
 
@@ -314,21 +326,26 @@ app.post('/send/topic_offer',async (req, res) => {
 // get messages or topics from the spool file....
 app.post('/get-spool',async (req, res) => {
   //
-  if ( !(g_ipfs_profiles) ) {
-    res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
-    return
+  console.log("get-spool")
+  try {
+    if ( !(g_ipfs_profiles) ) {
+      res.type('application/json').send({ "status" : "fail", "reason" : "not initialized"})
+      return
+    }
+    //
+    let body = req.body
+    let answer = { "status" : "error", "reason" : "unidentified spool" }
+    //
+  
+    if ( body.cid !== undefined ) {
+      let [messages,cid_list] = await g_ipfs_profiles.get_spool_files_body(body)
+      answer = { "status" : "OK", "data" : messages, "cid_list" : cid_list }
+    }
+    //
+    res.type('application/json').send(answer)  
+  } catch (e) {
+    console.error(e)
   }
-  //
-  let body = req.body
-  let answer = { "status" : "error", "reason" : "unidentified spool" }
-  //
-
-  if ( body.cid !== undefined ) {
-    let [messages,cid_list] = await g_ipfs_profiles.get_spool_files_body(body)
-    answer = { "status" : "OK", "data" : messages, "cid_list" : cid_list }
-  }
-  //
-  res.type('application/json').send(answer)
 })
 
 

@@ -2198,9 +2198,11 @@ Can't Fetch
 					<img src={active_profile_biometric} bind:this={biometric_data_el} alt={src_biometric_instruct} />
 				</div>
 				{/if}
+				{#if !creation_to_do }
 				<div class="picture-drop"  on:drop={drop_picture} on:dragover={dragover_picture}  >
 					<img src={active_profile_image} bind:this={profile_image_el} alt={src_1_name} />
 				</div>
+				{/if}
 				<div>
 					<div class="contact_controls">
 						<button on:click={clear_identify_form} >∋ new </button>
