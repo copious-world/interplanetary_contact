@@ -140,6 +140,12 @@ Methods related to messaging are the following:
 * /get-spool
 * /message-list-op/:op
 
+**/lib/ipfs_user_profile.js**  
+This module provide "business logic" interface between the web service entrt points and ipfs_manage_files.js. The determination of directory structure for users can be found here.
+
+**/lib/ipfs_manage_files.js**  
+All calls to IPFS modules (js-ipfs-core) can be found here.
+
 
 
 
