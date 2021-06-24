@@ -1,6 +1,6 @@
 # Interplanetary Contact
 
- A web base identity manager including
+ A web based identity manager including
  
  * **identity creation and management**
  * **contact management** 
@@ -31,13 +31,13 @@ A demo working with minimal confidence (06/20/2021)
 #### Included Code
 There are two parts to the code here: 1) a web service (see index.js and lib); 2) a web interface written in Svelte (see manager view). 
 
-There are two other web interfaces. One is for managing contact email forms. The other is for topics, a special interface for messages from clubs and businesses. **(NOTE: these two interfaces are less developed than  the manager view.)** The *template-admin* interface is functional, but it may be confusing at the moment. The *topic_page* is not yet ready to try.
+There are two other web interfaces. One is for managing contact email forms. The other is for topics, a special interface for messages from clubs and businesses. **(NOTE: these two interfaces are less developed than the manager view.)** The *template-admin* interface is functional, but it may be confusing at the moment. The *topic_page* is not yet ready to try.
 
 #### Template Admin 
 A word on this:
 > The message composition interface is providing a means to curate *contact forms*. Really, these are versions of e-mail composition interfaces. It seemed to be a nice feature to allow users to request that message replies could be edited in custom composition interfaces. So, messages may contain a cid to a contact form which may be customized in any way. 
 > 
-> So, imagine a wedding shower or a birthday. The interface can open up to a reply to invitation display. (More artistic work is needed to make this nice.)
+> So, imagine a wedding shower or a birthday. The interface can open up to a "reply to invitation" display. (More artistic work is needed to make this nice.)
 
 # Current Project State
 
@@ -51,7 +51,7 @@ The server code is writen in JavaScript as a node.js app. One part of the roadma
 
 The Web UI application can host more than one identity. This is good for testing and may continue to work that way since other writers could allow more than one idenity per browser (and URL). It is assumed that if more than one person uses a browser that they are all associated or are perhaps the same person in separate roles.
 
-All identities are stored in IndexedDB. IndexedDB is sensitive to the URL. Idenities do not have to stay in the browser. The interface provides buttons to intiate processes that all the user to download his identity to a prefered storage device, to upload an identity previsously created by the interface, to delete the identity from the browser, and create a new identity. Anyone using the interface will at least create an identity.
+All identities are stored in IndexedDB. IndexedDB is sensitive to the URL. Idenities do not have to stay in the browser. The interface provides buttons to intiate processes that allow the user to download his identity to a prefered storage device, to upload an identity previsously created by the interface, to delete the identity from the browser, and to create a new identity. Anyone using the interface will at least create an identity.
 
 ### Locality
 
@@ -62,7 +62,7 @@ The server code (to be found in the lib/ directory) uses the mutable file system
 A means of making the messaging peer-to-peer will soon be proposed. This messaging addressed by this project is different than pub-sub messaging, which may have a real-time aim. This messaging is the slow kind in which messages along with attachments are stored in a spool file/directory belonging to the receiver of a message.
 
 ### Interface Art
-The author of this interface makes functional web interfaces with a certain amount of peculiar styling. There is a need for those more motivated to make actractive user interface to participate in this creation.
+The author of this interface makes functional web interfaces with a certain amount of peculiar styling. There is a need for those more motivated to make actractive user interfaces to participate in this creation.
 
 Some improvements needed are the following:
 
@@ -76,7 +76,7 @@ Some improvements needed are the following:
 * etc. 
 
 ####Interface Changes
-Operations on messages list items are now limited to delete, and move to other buckets. The operation window allows the user to view delete messages or messags in buckets. The messages may be moved between buckets. But, there is no way to manage the list of buckets at the moment.
+Operations on messages list items are now limited to delete, and move to other buckets. The operation window allows the user to view delete messages or messages in buckets. The messages may be moved between buckets. But, there is no way to manage the list of buckets at the moment.
 
 **Paging:** Paging is not yet well addressed for the message lists on this interface.
 
@@ -87,15 +87,15 @@ The topic interface, on the roadmap. This is supposed to provide a grid display 
 
 # Parts, Components
 
-**manager_view/public/index.js**  
-Code for creating keys and keeping records of private keys and other user information may be found in index.html under the directory /manager_view/public. (Some artifacts slipped in -- so some cleanup is ahead.) There are other projects within copious-world that keep a basic library within index.html. Perhaps in the future, people who care about where code is might change the layout of these functions, but this works for now. And, copious-world provides some basic pre-rollup tools for dumpling libraries into these index.html wrapper pages.
+**manager_view/public/index.html**  
+Code for creating keys and keeping records of private keys and other user information may be found in index.html under the directory /manager_view/public. (Some artifacts slipped in -- so some cleanup is ahead.) There are other projects within copious-world that keep a basic library within index.html. Perhaps in the future, people who care about where code is might change the layout of these functions, but this works for now. And, copious-world provides some basic pre-rollup tools for dumping libraries into these index.html wrapper pages.
 
 Within the Svelte style index.html pages, there will a reference to the build directory for quasi-compiled JS code and there is a call to the App constructor.
 
 **manager_view/src**  
 This directory includes Svelte components for the main display (App.svelte) and code for moveable subwindows. There are two js files which use the module format. One file, ipfs\_profile\_proxy.js, provides the interface to the server.
 
-The flaoting window, FloatWindow.svelte, could be better Svelte and could be its own module. It has a slot for application component such as the editor and the message display.
+The flaoting window, FloatWindow.svelte, could be better Svelte and could be its own module. It has a slot for an application component such as the editor or the message display.
 
 There is a window accessible by the "ops" button on the main application window message lists. The ops allow for messages to be deleted or moved to what is now a fixed list of categories.
 
@@ -140,8 +140,9 @@ Methods related to messaging are the following:
 * /get-spool
 * /message-list-op/:op
 
-**/lib/ipfs\_user\_profile.js**  
-This module provide "business logic" interface between the web service entrt points and ipfs_manage_files.js. The determination of directory structure for users can be found here.
+
+**/lib/ipfs_user_profile.js**  
+This module provide "business logic" interface between the web service entry points and ipfs_manage_files.js. The determination of directory structure for users can be found here.
 
 **/lib/ipfs\_manage\_files.js**  
 All calls to IPFS modules (js-ipfs-core) can be found here.
