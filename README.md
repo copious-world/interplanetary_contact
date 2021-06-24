@@ -101,7 +101,7 @@ There is a window accessible by the "ops" button on the main application window 
 
 **index.js**
 
-In order to start the server run the following command:
+In order to start the server, run the following command:
 
 >node index.js
 
@@ -140,10 +140,10 @@ Methods related to messaging are the following:
 * /get-spool
 * /message-list-op/:op
 
-**/lib/ipfs_user_profile.js**  
+**/lib/ipfs\_user\_profile.js**  
 This module provide "business logic" interface between the web service entrt points and ipfs_manage_files.js. The determination of directory structure for users can be found here.
 
-**/lib/ipfs_manage_files.js**  
+**/lib/ipfs\_manage\_files.js**  
 All calls to IPFS modules (js-ipfs-core) can be found here.
 
 
