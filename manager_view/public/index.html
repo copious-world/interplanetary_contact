@@ -1425,24 +1425,6 @@ async function gen_cipher_key() {
 }
 
 
-async function aes_to_str(aes_key,transport_type) {
-	switch ( transport_type ) {
-		case "jwk" : {
-			const exported = await g_crypto.exportKey("jwk", aes_key);
-			let key_str = JSON.stringify(exported)
-			return key_str
-		}
-		case "raw" :
-		default: {
-			const exported = await g_crypto.exportKey("raw", aes_key);
-			const exportedKeyBuffer = new Uint8Array(exported);
-			let key_str = exportedKeyBuffer.toString()
-			return key_str
-		}
-	}
-}
-
-
 /*
 Import an AES secret key from an ArrayBuffer containing the raw bytes.
 Takes an ArrayBuffer string containing the bytes, and returns a Promise
