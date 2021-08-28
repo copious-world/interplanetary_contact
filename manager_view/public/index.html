@@ -19,7 +19,7 @@
 	<link rel='stylesheet' href='./build/bundle.css'>
 
 	<script defer src='./build/bundle.js'></script>
-	
+
 <style>
 	/*csslint important:false*/
 
@@ -708,6 +708,7 @@
 </html>
 <script>
 
+
 	// temporarily using pc_ prefix. There is a wv_ in a file "recorder.html"  that is for wave. This is for profile contacts.
 	// Later, these all should be wrapped in a class that handles generic use cases..
 	// Currently, this improper usage is contained in this file...
@@ -1091,7 +1092,7 @@ function gen_nonce() {
 }
 
 async function gen_public_key(user_info) {
-	let keys = await promail_user_starter_keys()
+	let keys = await galactic_user_starter_keys()
 	//
 	user_info.public_key = keys.pk_str		// user info is the basis for creating a user cid the public key is part of it
 	user_info.signer_public_key = keys.signer_pk_str
@@ -1108,7 +1109,7 @@ async function gen_public_key(user_info) {
 			"nonce" : nonce
 		}
 	}
-	user_info.biometric = await protect_hash(user_info,privates,aes_key,nonce,user_info.biometric)
+	user_info.biometric = await protect_hash(privates,aes_key,nonce,user_info.biometric)
 	store_user(user_info,privates)
 }
 
@@ -1404,9 +1405,6 @@ async function aes_decipher_message(message,aes_key,nonce) {
 // 
 
 
-
-
-
 async function gen_cipher_key() {
 	//
 	try {
@@ -1423,6 +1421,42 @@ async function gen_cipher_key() {
 	//
 	return false
 }
+
+
+
+//>--
+// pc_keypair_promise
+//  -- 
+function pc_keypair_promise() {  // return 
+    // Generate a local public/private key pair
+    let p =  g_crypto.generateKey({
+            'name': "ECDSA",
+            'namedCurve': "P-384"
+        },
+        true,
+        ["sign", "verify"]
+    )
+    return p  // promise
+}
+//-
+
+//>--
+// pc_wrapper_keypair_promise
+//  -- 
+function pc_wrapper_keypair_promise() {  // return 
+    // Generate a local public/private key pair
+    let p =  g_crypto.generateKey({
+            name: "RSA-OAEP",
+            modulusLength: 4096, //can be 1024, 2048, or 4096
+            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+            hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
+        },
+        true,
+        ["wrapKey","unwrapKey"]
+    )
+    return p  // promise
+}
+//--<
 
 
 /*
@@ -1661,7 +1695,7 @@ async function unwrapped_aes_key(wrapped_aes,unwrapper_key) {
 
 // wrap a hash of the biomarker -- done before server create identity operation 
 // 
-async function protect_hash(user_info,priv_keys,aes_key,nonce,blob64) {
+async function protect_hash(priv_keys,aes_key,nonce,blob64) {
 	// get a sha255 hash of the blob...
 	const encoder = new TextEncoder();
 	const data = encoder.encode(blob64);
@@ -1698,44 +1732,10 @@ async function protect_hash(user_info,priv_keys,aes_key,nonce,blob64) {
 }
 
 
-//>--
-// pc_keypair_promise
-//  -- 
-function pc_keypair_promise() {  // return 
-    // Generate a local public/private key pair
-    let p =  g_crypto.generateKey({
-            'name': "ECDSA",
-            'namedCurve': "P-384"
-        },
-        true,
-        ["sign", "verify"]
-    )
-    return p  // promise
-}
-//-
 
-//>--
-// pc_wrapper_keypair_promise
-//  -- 
-function pc_wrapper_keypair_promise() {  // return 
-    // Generate a local public/private key pair
-    let p =  g_crypto.generateKey({
-            name: "RSA-OAEP",
-            modulusLength: 4096, //can be 1024, 2048, or 4096
-            publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-            hash: { name: "SHA-256" }, //can be "SHA-1", "SHA-256", "SHA-384", or "SHA-512"
-        },
-        true,
-        ["wrapKey","unwrapKey"]
-    )
-    return p  // promise
-}
-//--<
-
-
-// promail_user_starter_keys
+// galactic_user_starter_keys
 //    make a priv/pub key pair. Then negotiate with the server to wrap the key.
-async function promail_user_starter_keys() {
+async function galactic_user_starter_keys() {
 	// Generate a local public/private key pair
 	let keypair = await pc_wrapper_keypair_promise()
 	// ---- ---- ---- ----

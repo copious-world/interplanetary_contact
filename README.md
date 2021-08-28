@@ -21,6 +21,37 @@ A demo working with minimal confidence (06/20/2021)
 
 [interplanetary contact](https://www.copious.world/interplanetary-contact/)
 
+#### Usage
+
+* CLI 
+
+> Interplanetary Contact can be used as a web server, serving the Svelte application that is contained in the repository subdirectories, manager_view, etc.
+
+> In order to run the server enter the following line at the command line:
+
+```
+node server.js
+```
+
+* module
+
+> Currently, use this github repository as a dependency in your npm's pacakge.json. Then include it in your node application as such: ```const IPContact = require('interplanetary-contact')```
+> Then, create a contact object as such: ```let ip_contact = new IPContact(ipfs_conf)```
+
+The ipfs configuration is the same ipfs configuration required for an IPFS node. For example:
+
+```
+ "ipfs": {
+      "repo_location" : "your top level repo path",
+      "dir" : "contact-ipfs-repo",
+      "swarm_tcp" : 4022,
+      "swarm_ws" : 4023,
+      "api_port" : 5022,
+      "tcp_gateway" : 9797
+  },
+```
+
+
 ### Overview
 
 >Instead of providing an email to a new contact, provide a short textual description of yourself instead. The description can be translated into an IPFS cid for finding your contact's message pathways. This cid made by this application, is the *clear cid*; it identifies a pathway for messages in the clear, *introductions*.
