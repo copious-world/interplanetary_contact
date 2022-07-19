@@ -14,7 +14,7 @@ let g_private_message_fields = [ "business","date","message","name","nonce","sig
 // topics -- one encrypted file containing contacts (entities and concepts from which you will accept publications)
 // manifest -- describes customized contact forms that you keep. The list provides information that you send to people you want messages from.
 // contact_forms -- contact forms or templates that will be in the manifest... (writing to this requires a manifest update)
-let g_asset_typtes = [ "contacts", "topics", "manifest", "contact_forms"]
+let g_asset_typtes = [ "contacts", "topics", "manifest", "contact_forms" ]
 
 class IPContact {
 
