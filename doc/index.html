@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+    
+    
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <script src="scripts/nav.js" defer></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav >
+    
+    <input type="text" id="nav-search" placeholder="Search" />
+    
+    
+    <h2><a href="index.html">Overview</a></h2><h2><a href="https://github.com/copious-world/interplanetary_contact" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><h2><a href="https://www.npmjs.com/package/interplanetary_contact" target="_blank" class="menu-item" id="package" >Npm package</a></h2>
+    
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+    <section class="package">
+        <h3> </h3>		
+    </section>
+
+
+
+
+
+
+
+
+
+    
+
+
+
+    <section class="readme usertext">
+        <article><h1>Interplanetary Contact</h1>
+<p>A web based identity manager including</p>
+<ul>
+<li><strong>identity creation and management</strong></li>
+<li><strong>contact management</strong></li>
+<li><strong>inter-contact mail</strong></li>
+<li><strong>separate contact message pathways:</strong>
+<ul>
+<li><em>introduction</em> (clear text)</li>
+<li><em>contact-to-contact</em> (enciphered text)</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>Built on top of <strong>IPFS</strong> and <strong>cypto.subtle</strong></p>
+</blockquote>
+<h3>Purpose</h3>
+<p>Use an IPFS node for identity and messaging instead of an e-mail server which transfers email through hops owned by centeralized service providers.</p>
+<h4>Demo Link</h4>
+<p>A demo working with minimal confidence (06/20/2021)</p>
+<p><a href="https://www.copious.world/interplanetary-contact/">interplanetary contact</a></p>
+<h4>Usage</h4>
+<ul>
+<li>CLI</li>
+</ul>
+<blockquote>
+<p>Interplanetary Contact can be used as a web server, serving the Svelte application that is contained in the repository subdirectories, manager_view, etc.</p>
+</blockquote>
+<blockquote>
+<p>In order to run the server enter the following line at the command line:</p>
+</blockquote>
+<pre class="prettyprint source"><code>node server.js
+</code></pre>
+<ul>
+<li>module</li>
+</ul>
+<blockquote>
+<p>Currently, use this github repository as a dependency in your npm's pacakge.json. Then include it in your node application as such: <code>const IPContact = require('interplanetary-contact')</code>
+Then, create a contact object as such: <code>let ip_contact = new IPContact(ipfs_conf)</code></p>
+</blockquote>
+<p>The ipfs configuration is the same ipfs configuration required for an IPFS node. For example:</p>
+<pre class="prettyprint source"><code> &quot;ipfs&quot;: {
+      &quot;repo_location&quot; : &quot;your top level repo path&quot;,
+      &quot;dir&quot; : &quot;contact-ipfs-repo&quot;,
+      &quot;swarm_tcp&quot; : 4022,
+      &quot;swarm_ws&quot; : 4023,
+      &quot;api_port&quot; : 5022,
+      &quot;tcp_gateway&quot; : 9797
+  },
+</code></pre>
+<h3>Overview</h3>
+<blockquote>
+<p>Instead of providing an email to a new contact, provide a short textual description of yourself instead. The description can be translated into an IPFS cid for finding your contact's message pathways. This cid made by this application, is the <em>clear cid</em>; it identifies a pathway for messages in the clear, <em>introductions</em>.</p>
+<p>There is more than one cid per user (two, actually). The second one is derived from your textual self-description and from public keys and signatures as well. The <em>clear cid</em> is included in the construction of the second cid, the <em>crypto cid</em>. The <em>crypto cid</em> identifies contact-to-contact <strong>c2c</strong> message pathways.</p>
+</blockquote>
+<h4>Included Code</h4>
+<p>There are two parts to the code here: 1) a web service (see index.js and lib); 2) a web interface written in Svelte (see manager view).</p>
+<p>There are two other web interfaces. One is for managing contact email forms. The other is for topics, a special interface for messages from clubs and businesses. <strong>(NOTE: these two interfaces are less developed than the manager view.)</strong> The <em>template-admin</em> interface is functional, but it may be confusing at the moment. The <em>topic_page</em> is not yet ready to try.</p>
+<h4>Template Admin</h4>
+<p>A word on this:</p>
+<blockquote>
+<p>The message composition interface is providing a means to curate <em>contact forms</em>. Really, these are versions of e-mail composition interfaces. It seemed to be a nice feature to allow users to request that message replies could be edited in custom composition interfaces. So, messages may contain a cid to a contact form which may be customized in any way.</p>
+<p>So, imagine a wedding shower or a birthday. The interface can open up to a &quot;reply to invitation&quot; display. (More artistic work is needed to make this nice.)</p>
+</blockquote>
+<h1>Current Project State</h1>
+<p>Currently, the author has tested creating new contacts and sending messages between them. It seems to work.</p>
+<p>Identity creation starts in the browser. A certain amount of the identity creation and management is passed off to a server (fastify based) that interfaces to IFPS, by wrapping a node.  (This is js-ipfs.)</p>
+<p>Currently, the server is running on a ZeroPi, 512MB Ram with a 64GB USB drive containing the repository. It's slow. The aim of using the small and very inexpensive server is experimental and may eventually work with embedded IPFS</p>
+<p>The server code is writen in JavaScript as a node.js app. One part of the roadmap should be to port the server code to run in the browser along with the UI application.</p>
+<p>The Web UI application can host more than one identity. This is good for testing and may continue to work that way since other writers could allow more than one idenity per browser (and URL). It is assumed that if more than one person uses a browser that they are all associated or are perhaps the same person in separate roles.</p>
+<p>All identities are stored in IndexedDB. IndexedDB is sensitive to the URL. Idenities do not have to stay in the browser. The interface provides buttons to intiate processes that allow the user to download his identity to a prefered storage device, to upload an identity previsously created by the interface, to delete the identity from the browser, and to create a new identity. Anyone using the interface will at least create an identity.</p>
+<h3>Locality</h3>
+<p>The current code does not fully use the IPFS infrastructure. The <strong>NEXT STEP</strong> of this project will be to make sure it makes full use of IPFS or even extends IPFS.</p>
+<p>The server code (to be found in the lib/ directory) uses the mutable file system, which works on things local to the node. So, the server is basically a centeralized e-mail server.</p>
+<p>A means of making the messaging peer-to-peer will soon be proposed. This messaging addressed by this project is different than pub-sub messaging, which may have a real-time aim. This messaging is the slow kind in which messages along with attachments are stored in a spool file/directory belonging to the receiver of a message.</p>
+<h3>Interface Art</h3>
+<p>The author of this interface makes functional web interfaces with a certain amount of peculiar styling. There is a need for those more motivated to make actractive user interfaces to participate in this creation.</p>
+<p>Some improvements needed are the following:</p>
+<ul>
+<li>resizable window</li>
+<li>draggable guides within windows</li>
+<li>edit operation flow</li>
+<li>clear reactive transition between desktop and mobile</li>
+<li>better favicon</li>
+<li>nicer text editing</li>
+<li>icons for attachments</li>
+<li>etc.</li>
+</ul>
+<p>####Interface Changes
+Operations on messages list items are now limited to delete, and move to other buckets. The operation window allows the user to view delete messages or messages in buckets. The messages may be moved between buckets. But, there is no way to manage the list of buckets at the moment.</p>
+<p><strong>Paging:</strong> Paging is not yet well addressed for the message lists on this interface.</p>
+<h3>The other interfaces</h3>
+<p>As mentioned previoulsy, there is a template editing interface. This is also a svelte projects. The code is based on copious-world/svelte-blog. There is a special window for taking in HTML contact forms. There is a particular vocablury of template variables that will have to be further developed.</p>
+<p>The topic interface, on the roadmap. This is supposed to provide a grid display of topics that the user chooses to receive (junk-mail) messages from (say music groups and IoT toys). The topic grid should use icons from offering entities and should use animation to indicate the presence of new offers. The process of introduction should be used for topics just as it does for contact introduction.</p>
+<h1>Parts, Components</h1>
+<p><strong>manager_view/public/index.html</strong><br>
+Code for creating keys and keeping records of private keys and other user information may be found in index.html under the directory /manager_view/public. (Some artifacts slipped in -- so some cleanup is ahead.) There are other projects within copious-world that keep a basic library within index.html. Perhaps in the future, people who care about where code is might change the layout of these functions, but this works for now. And, copious-world provides some basic pre-rollup tools for dumping libraries into these index.html wrapper pages.</p>
+<p>Within the Svelte style index.html pages, there will a reference to the build directory for quasi-compiled JS code and there is a call to the App constructor.</p>
+<p><strong>manager_view/src</strong><br>
+This directory includes Svelte components for the main display (App.svelte) and code for moveable subwindows. There are two js files which use the module format. One file, ipfs_profile_proxy.js, provides the interface to the server.</p>
+<p>The flaoting window, FloatWindow.svelte, could be better Svelte and could be its own module. It has a slot for an application component such as the editor or the message display.</p>
+<p>There is a window accessible by the &quot;ops&quot; button on the main application window message lists. The ops allow for messages to be deleted or moved to what is now a fixed list of categories.</p>
+<p><strong>index.js</strong></p>
+<p>In order to start the server, run the following command:</p>
+<blockquote>
+<p>node index.js</p>
+</blockquote>
+<p>The module offers four GET methods and eighteen POST methods.</p>
+<p>Tempate methods include:</p>
+<ul>
+<li>/put/template</li>
+<li>/get/template-cid-from-name/:biz/:name</li>
+<li>/get/template-cid-from-name/:biz/:name</li>
+<li>/get/template-cid/:cid</li>
+<li>/template-list/:narrow_search</li>
+</ul>
+<p>Generic data methods include:</p>
+<ul>
+<li>/get/blob</li>
+<li>/put/blob</li>
+<li>/get/json-cid/:cid</li>
+</ul>
+<p>Methods related to a user profile include:</p>
+<ul>
+<li>/add/profile</li>
+<li>/get/user-cid</li>
+<li>/get/user-info</li>
+<li>/dir</li>
+<li>/get-asset/:asset</li>
+<li>/get-contact-page/:asset</li>
+<li>/put-asset/:asset</li>
+</ul>
+<p>Methods related to messaging are the following:</p>
+<ul>
+<li>/send/message</li>
+<li>/send/introduction</li>
+<li>/send/topic</li>
+<li>/send/topic_offer</li>
+<li>/get-spool</li>
+<li>/message-list-op/:op</li>
+</ul>
+<p><strong>/lib/ipfs_user_profile.js</strong><br>
+This module provide &quot;business logic&quot; interface between the web service entry points and ipfs_manage_files.js. The determination of directory structure for users can be found here.</p>
+<p><strong>/lib/ipfs_manage_files.js</strong><br>
+All calls to IPFS modules (js-ipfs-core) can be found here.</p></article>
+    </section>
+
+
+
+
+
+
+    
+    
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 4.0.5</a> on Thu Jul 16 2026 23:04:23 GMT-0700 (Pacific Daylight Time) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/polyfill.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+<script src="scripts/search.js" defer></script>
+
+
+<script src="scripts/collapse.js" defer></script>
+
+
+</body>
+</html>
